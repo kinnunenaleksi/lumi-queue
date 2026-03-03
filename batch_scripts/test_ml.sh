@@ -7,8 +7,8 @@
 #SBATCH --time=00:15:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=16G
+#SBATCH --cpus-per-task=64
+#SBATCH --mem=128G
 #SBATCH --partition=small
 
 module load cray-python
