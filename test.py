@@ -1,5 +1,5 @@
 import polars as pl
-from src.input.preprocess import preprocess
+from input.preprocess import preprocess
 
 lf = pl.scan_parquet("../anonJobs.parquet").filter(pl.col("Partition") == "largemem")
 
