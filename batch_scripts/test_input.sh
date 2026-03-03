@@ -13,4 +13,4 @@
 
 module load cray-python
 
-srun python test.py
+srun python test_input.py
