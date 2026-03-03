@@ -17,5 +17,7 @@ source .venv/bin/activate
 
 $HOME/.local/bin/uv sync
 
+$HOME/.local/bin/uv pip install -e .
+
 srun python batch_scripts/python test_ml.py
 
