@@ -13,4 +13,4 @@
 
 module load cray-python
 
-srun python test_input.py
+srun python batch_scripts/test_input.py
