@@ -1,5 +1,5 @@
-from src.input.input import get_partition
-from src.train.regress import predict
+from input.input import get_partition
+from train.regress import predict
 
 print("Getting data...")
 df = get_partition(partition="small", type="with_features")

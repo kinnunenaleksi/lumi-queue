@@ -13,7 +13,9 @@
 
 module load cray-python
 
-pip install --user scikit-learn
+source .venv/bin/activate
 
-srun python test_ml.py
+$HOME/.local/bin/uv sync
+
+srun python batch_scripts/python test_ml.py
 
