@@ -1,3 +1,4 @@
+
 #!/bin/bash 
 
 #SBATCH --job-name=preprocessTest
@@ -13,7 +14,7 @@
 
 module load cray-python
 
-srun .venv/bin/python test.py
+srun python test.py
 
 
 
