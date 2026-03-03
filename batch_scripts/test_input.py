@@ -1,4 +1,4 @@
-from src.input.input import get_partition
+from input.input import get_partition
 
 df = get_partition(partition="small-g", type="with_features")
 
