@@ -19,5 +19,5 @@ $HOME/.local/bin/uv sync
 
 $HOME/.local/bin/uv pip install -e .
 
-srun python batch_scripts/python test_ml.py
+srun python batch_scripts/test_ml.py
 
