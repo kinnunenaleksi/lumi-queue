@@ -1,6 +1,6 @@
 import polars as pl
 
-from src.input.params import (
+from input.params import (
     INVALID_STATES,
     NON_NA_COLUMNS,
     USED_PARTITIONS,

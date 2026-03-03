@@ -1,7 +1,7 @@
 import polars as pl
 
-from src.input.features import add_features
-from src.input.preprocess import preprocess
+from input.features import add_features
+from input.preprocess import preprocess
 
 DATA_PATH = "../anonJobs.parquet"
 

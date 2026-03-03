@@ -15,6 +15,8 @@ module load cray-python
 
 source .venv/bin/activate
 
-uv sync
+$HOME/.local/bin/uv sync
+
+uv pip install -e .
 
 srun python batch_scripts/test_input.py
