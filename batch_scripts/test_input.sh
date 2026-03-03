@@ -17,6 +17,6 @@ source .venv/bin/activate
 
 $HOME/.local/bin/uv sync
 
-uv pip install -e .
+$HOME/.local/bin/uv pip install -e .
 
 srun python batch_scripts/test_input.py
