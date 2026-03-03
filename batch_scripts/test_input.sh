@@ -1,11 +1,10 @@
-
 #!/bin/bash 
 
 #SBATCH --job-name=preprocessTest
-#SBATCH --output=R-%x.%j.out
-#SBATCH --error=R-%x.%j.err
+#SBATCH --output=runs/R-%x.%j.out
+#SBATCH --error=runs/R-%x.%j.err
 #SBATCH --account=project_462001312
-#SBATCH --time=00:15:00
+#SBATCH --time=00:05:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
@@ -15,6 +14,3 @@
 module load cray-python
 
 srun python test.py
-
-
-
