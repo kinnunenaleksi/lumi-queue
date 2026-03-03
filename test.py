@@ -1,7 +1,7 @@
 import polars as pl
-from input.preprocess import preprocess
+from src.input.preprocess import preprocess
 
-lf = pl.scan_parquet("../anonJobs.parquet").filter(pl.col("Partition") == "largemem")
+lf = pl.scan_parquet("../anonJobs.parquet").filter(pl.col("Partition") == "small-g")
 
 df = preprocess(lf)
 

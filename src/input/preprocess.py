@@ -1,7 +1,11 @@
 import polars as pl
 
-from input.params import (INVALID_STATES, NON_NA_COLUMNS, USED_PARTITIONS,
-                          column_dict)
+from src.input.params import (
+    INVALID_STATES,
+    NON_NA_COLUMNS,
+    USED_PARTITIONS,
+    column_dict,
+)
 
 
 def preprocess(df: pl.LazyFrame):
@@ -152,4 +156,3 @@ def explode_col(df, col_name: str = "allocated_resources"):
     df_with_index = df_with_index.drop(col_name, "row_idx")
 
     return df_with_index
-
