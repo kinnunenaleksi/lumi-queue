@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=preprocessTest
 #SBATCH --output=R-%x.%j.out
-#SBATCH --output=R-%x.%j.err
+#SBATCH --error=R-%x.%j.err
 #SBATCH --account=project_462001312
 #SBATCH --time=00:15:00
 #SBATCH --nodes=1
