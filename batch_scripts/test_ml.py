@@ -2,7 +2,7 @@ from input.input import get_partition
 from train.regress import predict
 
 print("Getting data...")
-df = get_partition(partition="small", type="with_features")
+df = get_partition(partition="small", type="with_features").sample(n=2000000)
 
 predictors = [
     "priority",
