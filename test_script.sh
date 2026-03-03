@@ -3,7 +3,7 @@
 #SBATCH --job-name=preprocessTest
 #SBATCH --output=R-%x.%j.out
 #SBATCH --output=R-%x.%j.err
-#SBATCH --acount=project_462001312
+#SBATCH --account=project_462001312
 #SBATCH --time=00:15:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
