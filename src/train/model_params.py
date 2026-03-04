@@ -12,11 +12,13 @@ class ModelConfig:
     cv_folds: int = 5
     use_permutation_importance: bool = False
     grid_search_kwargs: dict[str, Any] = field(default_factory=dict)
+    estimator_kwargs: dict[str, Any] = field(default_factory=dict)
 
 
 MODEL_CONFIGS = {
     "rf": ModelConfig(
         estimator=RandomForestRegressor,
+        estimator_kwargs={"n_jobs": -1},
         param_grid={
             "n_estimators": [100, 200],
             "criterion": ["squared_error"],

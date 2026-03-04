@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from re import search
 from typing import Any
 
 import numpy as np
@@ -11,7 +12,7 @@ from sklearn.metrics import (
     r2_score,
     root_mean_squared_error,
 )
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from train.model_params import MODEL_CONFIGS
@@ -34,6 +35,7 @@ def predict(
     no_features: int,
     test_size: float = 0.2,
     model: str = "rf",
+    search_method: str = "grid",
     log_transform_policy: str = "all_variables",
     scaling_policy: str = "all_variables",
 ):
@@ -54,6 +56,7 @@ def predict(
         y_train,
         y_test,
         selected_cols,
+        search_method=search_method,
         model_type=model,
         log_transform_policy=log_transform_policy,
         scaling_policy=scaling_policy,
@@ -172,23 +175,37 @@ def train_model(
     log_transform_policy: str,
     scaling_policy: str,
     seed: int = 49,
+    search_method: str = "grid",
 ):
 
     config = MODEL_CONFIGS[model_type]
 
-    model = config.estimator(random_state=seed)
+    model = config.estimator(random_state=seed, **config.estimator_kwargs)
 
     X_train, X_test, y_train, y_test, x_scaler, y_scaler = scale_input(
         X_train, X_test, y_train, y_test, scaling_policy=scaling_policy
     )
 
-    grid_search = GridSearchCV(
-        estimator=model,
-        param_grid=config.param_grid,
-        cv=config.cv_folds,
-        n_jobs=-1,
-        **config.grid_search_kwargs,
-    )
+    if search_method == "grid":
+        grid_search = GridSearchCV(
+            # grid_search = RandomizedSearchCV(
+            estimator=model,
+            param_grid=config.param_grid,
+            cv=config.cv_folds,
+            n_jobs=-1,
+            verbose=3,
+            **config.grid_search_kwargs,
+        )
+
+    elif search_method == "random":
+        grid_search = RandomizedSearchCV(
+            estimator=model,
+            param_distributions=config.param_grid,
+            cv=config.cv_folds,
+            n_jobs=-1,
+            verbose=2,
+            **config.grid_search_kwargs,
+        )
 
     grid_search.fit(X_train, y_train)
     best_model = grid_search.best_estimator_
