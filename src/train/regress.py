@@ -12,7 +12,11 @@ from sklearn.metrics import (
     r2_score,
     root_mean_squared_error,
 )
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test_split
+from sklearn.model_selection import (
+    GridSearchCV,
+    RandomizedSearchCV,
+    train_test_split,
+)
 from sklearn.preprocessing import StandardScaler
 
 from train.model_params import MODEL_CONFIGS
@@ -26,6 +30,7 @@ class Result:
     accuracy_metrics: pl.DataFrame
     y_pred: np.ndarray
     y_test: np.ndarray
+    best_model: Any
 
 
 def predict(
@@ -36,9 +41,12 @@ def predict(
     test_size: float = 0.2,
     model: str = "rf",
     search_method: str = "grid",
+    split_method: str = "random",
     log_transform_policy: str = "all_variables",
     scaling_policy: str = "all_variables",
 ):
+
+    df = df.sort(pl.col("start_ts"), descending=False)
 
     df = log_transform_input(
         df, target=y_col, log_transform_policy=log_transform_policy
@@ -48,18 +56,22 @@ def predict(
         df, y_col, x_cols, k=no_features
     )
 
-    X_train, X_test, y_train, y_test = split_data(X, y, test_size=test_size)
+    X_train, X_test, y_train, y_test = split_data(
+        X, y, test_size=test_size, split_method=split_method
+    )
 
-    df_feature_importance, df_cv_results, df_metrics, y_pred, y_test = train_model(
-        X_train,
-        X_test,
-        y_train,
-        y_test,
-        selected_cols,
-        search_method=search_method,
-        model_type=model,
-        log_transform_policy=log_transform_policy,
-        scaling_policy=scaling_policy,
+    df_feature_importance, df_cv_results, df_metrics, y_pred, y_test, best_model = (
+        train_model(
+            X_train,
+            X_test,
+            y_train,
+            y_test,
+            selected_cols,
+            search_method=search_method,
+            model_type=model,
+            log_transform_policy=log_transform_policy,
+            scaling_policy=scaling_policy,
+        )
     )
 
     res = Result(
@@ -69,6 +81,7 @@ def predict(
         accuracy_metrics=df_metrics,
         y_pred=y_pred,
         y_test=y_test,
+        best_model=best_model,
     )
 
     return res
@@ -100,11 +113,20 @@ def log_transform_input(
     return df.with_columns([pl.col(c).log1p().alias(c) for c in cols])
 
 
-def split_data(X, y, test_size: float = 0.2, seed: int = 49):
+def split_data(
+    X, y, test_size: float = 0.2, seed: int = 49, split_method: str = "random"
+):
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=seed
-    )
+    if split_method == "random":
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=seed
+        )
+
+    elif split_method == "timeseries":
+        split_point = int(len(X) * (1 - test_size))
+        X_train, X_test = X[:split_point], X[split_point:]
+        y_train, y_test = y[:split_point], y[split_point:]
+
     return X_train, X_test, y_train, y_test
 
 
@@ -219,9 +241,7 @@ def train_model(
         y_pred = np.expm1(y_pred)
         y_test = np.expm1(y_test)
 
-    df_metrics = calc_performance_metrics(
-        y_test, y_pred, log_transform_policy=log_transform_policy
-    )
+    df_metrics = calc_performance_metrics(y_test, y_pred)
 
     if config.use_permutation_importance:
         perm_importance = permutation_importance(
@@ -233,11 +253,45 @@ def train_model(
 
     df_feature_importance = fetch_feature_importance(importances, selected_cols)
 
-    df_cv_results = pl.DataFrame(grid_search.cv_results_).sort(
-        "rank_test_score", descending=True
+    df_cv_results = fetch_cv_results(grid_search.cv_results_)
+
+    return (
+        df_feature_importance,
+        df_cv_results,
+        df_metrics,
+        y_pred,
+        y_test,
+        best_model,
     )
 
-    return (df_feature_importance, df_cv_results, df_metrics, y_pred, y_test)
+
+def fetch_cv_results(cv_results: dict):
+
+    df_cv_results = pl.DataFrame(cv_results)
+
+    obj_cols = [
+        c
+        for c, dt in zip(df_cv_results.columns, df_cv_results.dtypes)
+        if dt == pl.Object
+    ]
+
+    df_cv_results = pl.DataFrame(df_cv_results).with_columns(
+        [
+            pl.col(c)
+            .map_elements(
+                lambda x: None if x is None else str(x),
+                return_dtype=pl.Utf8,
+            )
+            .alias(c)
+            for c in obj_cols
+        ]
+    )
+
+    df_cv_results = (
+        pl.DataFrame(df_cv_results).sort("rank_test_score", descending=True)
+    ).unnest("params")
+
+    return df_cv_results
 
 
 def fetch_feature_importance(importances: Any, selected_cols: list):
@@ -255,9 +309,7 @@ def fetch_feature_importance(importances: Any, selected_cols: list):
     return df_feature_importance
 
 
-def calc_performance_metrics(
-    y_test: np.ndarray, y_pred: np.ndarray, log_transform_policy: str
-):
+def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
 
     rmse = root_mean_squared_error(y_test, y_pred)
     mape = mean_absolute_percentage_error(y_test, y_pred)
