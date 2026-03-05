@@ -23,6 +23,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def create_prefix(
+    models: list = MODELS_LIST_TEST, partitions: list = PARTITION_LIST_TEST
+):
+    timestamp = str(datetime.datetime.now().strftime("%Y%m%dT%H%M"))
+    models_string = "-".join([m for m in models])
+    partitions_string = "-".join([p for p in partitions])
+    prefix = models_string + "." + partitions_string + "." + timestamp
+    return prefix
+
+
 def train_models(
     partitions: list = PARTITION_LIST_TEST,
     models: list = MODELS_LIST_TEST,
@@ -31,8 +41,9 @@ def train_models(
     test_size: float = 0.3,
 ):
 
-    timestamp = datetime.datetime.now().date()
-    os.makedirs(f"results/{timestamp}/", exist_ok=True)
+    # timestamp = str(datetime.datetime.now().date())
+    prefix = create_prefix()
+    os.makedirs(f"results/{prefix}/", exist_ok=True)
 
     logger.info(
         f"Starting training with {len(partitions)} partitions and {len(models)} models"
@@ -57,7 +68,7 @@ def train_models(
                 )
 
                 filename = (
-                    f"results/{timestamp}/res_{partition}_{model}_{ablation_name}.pkl"
+                    f"results/{prefix}/res_{partition}_{model}_{ablation_name}.pkl"
                 )
 
                 model_res = predict(
@@ -72,6 +83,8 @@ def train_models(
                 dump(value=model_res, filename=filename)
                 logger.info(f"Saved results to {filename}")
             logger.info(f"Training completed for {partition, model}")
+
+        # combine_results()
 
 
 def combine_results(results_dir: str = "results/"):
