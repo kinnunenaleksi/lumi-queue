@@ -8,10 +8,9 @@ import datetime
 from input.input import get_partition
 from train.regress import predict
 from train.train_params import (
-    PARTITION_LIST_FULL,
     PARTITION_LIST_TEST,
     MODELS_LIST_TEST,
-    ABLATION_SETS,
+    FEATURE_SETS,
 )
 
 logging.basicConfig(
@@ -36,7 +35,7 @@ def create_prefix(
 def train_models(
     partitions: list = PARTITION_LIST_TEST,
     models: list = MODELS_LIST_TEST,
-    ablation_sets: dict = ABLATION_SETS,
+    feature_sets: dict = FEATURE_SETS,
     y_col: str = "wait_time_seconds",
     test_size: float = 0.3,
 ):
@@ -50,7 +49,6 @@ def train_models(
     )
 
     for partition in partitions:
-
         logger.info(f"Processing partition: {partition}")
 
         df = get_partition(partition=partition, type="with_features")
@@ -59,10 +57,9 @@ def train_models(
         for model in models:
             logger.info(f"Training model: {model}")
 
-            partition_ablation_sets = ablation_sets.get(partition, {})
+            partition_ablation_sets = feature_sets.get(partition, {})
 
             for ablation_name, ablation_features in partition_ablation_sets.items():
-
                 logger.info(
                     f"Ablation set: {ablation_name} ({len(ablation_features)} features)"
                 )

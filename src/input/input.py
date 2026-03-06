@@ -6,13 +6,39 @@ from input.preprocess import preprocess
 DATA_PATH = "../anonJobs.parquet"
 
 
-def get_partition(partition: str = "largemem", type: str = "raw"):
+def get_partition(
+    data_path: str = DATA_PATH, partition: str = "largemem", type: str = "raw"
+):
+    """Main function of the `input` module.
 
+    This function takes the relative path to the raw Slurm data, and returns the
+    data in the specified format. In particular, this function can either filter
+    the data into a single partition, preprocess the data as per the
+    `preprocess` function, add the required features or all of the above.
+
+    If features are added, then it is mandatory to filter the data into a specific
+    partition. This is because some of the features are calculated with respect to
+    the limits within the partition, and all partitions are unique in their distributions.
+
+    Args:
+        data_path: Relative path to the raw Slurm output of `sacct`.
+        partition: A valid Slurm partition in Lumi, e.g. 'small' or 'standard-g'.
+        type: The level of operations conducted for the data. Can be one of the following:
+            `raw`: Returns the data as is.
+            `preprocess`: Returns preprocessed dataset. See `input.preprocess` for further
+                details.
+            `with_features`: Returns preprocessed dataset with features. See `input.features`
+                for further details.
+
+    Returns:
+        Requested polars dataframe.
+
+    """
     if partition == "all":
-        lf = pl.scan_parquet(DATA_PATH)
+        lf = pl.scan_parquet(data_path)
 
     else:
-        lf = pl.scan_parquet(DATA_PATH).filter(pl.col("Partition") == partition)
+        lf = pl.scan_parquet(data_path).filter(pl.col("Partition") == partition)
 
     if type == "raw":
         df = lf.collect()
@@ -22,6 +48,6 @@ def get_partition(partition: str = "largemem", type: str = "raw"):
 
     if type == "with_features":
         df = preprocess(lf)
-        df = add_features(df)
+        df = add_features(df, partition=partition)
 
     return df

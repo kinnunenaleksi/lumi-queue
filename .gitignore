@@ -188,4 +188,4 @@ pyrightconfig.json
 
 analysis/
 results/
-
+local_scripts/

@@ -11,7 +11,7 @@ column_dict = {
     "Eligible": "eligible_start_ts",
     "Start": "start_ts",
     "End": "end_ts",
-    "ElapsedRaw": "elapsed_seconds",
+    "ElapsedRaw": "allocated_elapsed_seconds",
     "TimelimitRaw": "timelimit_minutes",
     "AllocTRES": "allocated_resources",
 }
@@ -28,8 +28,9 @@ NON_NA_COLUMNS = [
     "state",
     "priority",
     "timelimit_minutes",
+    "allocated_resources",
 ]
 
-# These states are dropped, as the run-time is always 0
-INVALID_STATES = []#["REQUEUED", "PENDING"]
-
+# MISSING_ALLOCATION_MAP = {
+#         "small"
+#         }
