@@ -7,7 +7,10 @@ DATA_PATH = "../anonJobs.parquet"
 
 
 def get_partition(
-    data_path: str = DATA_PATH, partition: str = "largemem", type: str = "raw"
+    data_path: str = DATA_PATH,
+    partition: str = "largemem",
+    type: str = "raw",
+    truncate_pct: float = 1.0,
 ):
     """Main function of the `input` module.
 
@@ -24,21 +27,25 @@ def get_partition(
         data_path: Relative path to the raw Slurm output of `sacct`.
         partition: A valid Slurm partition in Lumi, e.g. 'small' or 'standard-g'.
         type: The level of operations conducted for the data. Can be one of the following:
-            `raw`: Returns the data as is.
-            `preprocess`: Returns preprocessed dataset. See `input.preprocess` for further
-                details.
-            `with_features`: Returns preprocessed dataset with features. See `input.features`
-                for further details.
+            - `raw`: Returns the data as is.
+            - `preprocess`: Returns preprocessed dataset. See `input.preprocess` for further
+                    details.
+            - `with_features`: Returns preprocessed dataset with features. See `input.features`
+                    for further details.
+        truncate_pct: Determines the percentage of the data fetched. Used for testing
+            and validation purposes.
 
     Returns:
         Requested polars dataframe.
-
     """
     if partition == "all":
         lf = pl.scan_parquet(data_path)
 
     else:
         lf = pl.scan_parquet(data_path).filter(pl.col("Partition") == partition)
+
+    if truncate_pct < 1.0:
+        lf = lf.select(pl.all().sample(fraction=truncate_pct, seed=49))
 
     if type == "raw":
         df = lf.collect()

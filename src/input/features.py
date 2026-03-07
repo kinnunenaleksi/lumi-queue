@@ -73,13 +73,11 @@ def add_helper_allocated_flags(
         "allocated_count_large_jobs",
     ]
 
-    # Compute dynamic limits (25% and 75% quantiles)
     q50, q80 = df.select(
         pl.col(denoting_column).quantile(0.5).alias("q50"),
         pl.col(denoting_column).quantile(0.8).alias("q80"),
     ).row(0)
 
-    # Add flag columns
     out = df.with_columns(
         (pl.col(denoting_column) < pl.lit(q50)).cast(pl.Int8).alias(added_columns[0]),
         (

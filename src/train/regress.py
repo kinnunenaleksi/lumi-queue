@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from re import search
 from typing import Any
 
 import numpy as np
@@ -24,12 +23,11 @@ from train.model_params import MODEL_CONFIGS
 
 @dataclass
 class Result:
-    feature_selection: pl.DataFrame
-    cv_results: pl.DataFrame
-    feature_importance: pl.DataFrame
-    accuracy_metrics: pl.DataFrame
-    y_pred: np.ndarray
-    y_test: np.ndarray
+    df_feature_selection: pl.DataFrame
+    df_cv_results: pl.DataFrame
+    df_feature_importance: pl.DataFrame
+    df_accuracy_metrics: pl.DataFrame
+    df_validation: pl.DataFrame
     best_model: Any
 
 
@@ -38,21 +36,22 @@ def predict(
     y_col: str,
     x_cols: list,
     no_features: int,
-    test_size: float = 0.2,
-    model: str = "rf",
-    search_method: str = "grid",
-    split_method: str = "random",
-    log_transform_policy: str = "all_variables",
-    scaling_policy: str = "all_variables",
+    test_size: float,
+    model: str,
+    search_method: str,
+    split_method: str,
+    log_transform_policy: str,
+    scaling_policy: str,
+    model_configs: Any,
 ):
 
     df = df.sort(pl.col("start_ts"), descending=False)
 
     df = log_transform_input(
-        df, target=y_col, log_transform_policy=log_transform_policy
+        df, target=[y_col], log_transform_policy=log_transform_policy, inverse=False
     )
 
-    X, y, feature_selection, selected_cols = select_features(
+    X, y, df_feature_selection, selected_cols = select_features(
         df, y_col, x_cols, k=no_features
     )
 
@@ -60,7 +59,7 @@ def predict(
         X, y, test_size=test_size, split_method=split_method
     )
 
-    df_feature_importance, df_cv_results, df_metrics, y_pred, y_test, best_model = (
+    df_feature_importance, df_cv_results, df_metrics, df_validation, best_model = (
         train_model(
             X_train,
             X_test,
@@ -71,16 +70,16 @@ def predict(
             model_type=model,
             log_transform_policy=log_transform_policy,
             scaling_policy=scaling_policy,
+            model_configs=model_configs,
         )
     )
 
     res = Result(
-        feature_selection=feature_selection,
-        cv_results=df_cv_results,
-        feature_importance=df_feature_importance,
-        accuracy_metrics=df_metrics,
-        y_pred=y_pred,
-        y_test=y_test,
+        df_feature_selection=df_feature_selection,
+        df_cv_results=df_cv_results,
+        df_feature_importance=df_feature_importance,
+        df_accuracy_metrics=df_metrics,
+        df_validation=df_validation,
         best_model=best_model,
     )
 
@@ -89,8 +88,9 @@ def predict(
 
 def log_transform_input(
     df: pl.DataFrame,
-    log_transform_policy: str = "all_variables",
-    target: str = "elapsed_seconds",
+    log_transform_policy: str,
+    target: list,
+    inverse: bool,
 ):
     predictor_cols = [
         c
@@ -99,18 +99,24 @@ def log_transform_input(
     ]
 
     if log_transform_policy == "all_variables":
-        cols = [target] + predictor_cols
+        cols = target + predictor_cols
     elif log_transform_policy == "only_target":
-        cols = [target]
+        cols = target
     elif log_transform_policy == "none":
         return df
     else:
         raise ValueError(
-            "log_transform_policy must be one of "
-            "'all_variables', 'only_target', 'none'"
+            "log_transform_policy must be one of 'all_variables', 'only_target', 'none'"
         )
 
-    return df.with_columns([pl.col(c).log1p().alias(c) for c in cols])
+    if inverse:
+        df = df.with_columns(
+            [(pl.col(c).exp() - 1).clip(lower_bound=0).alias(c) for c in cols]
+        )
+    else:
+        df = df.with_columns([pl.col(c).log1p().alias(c) for c in cols])
+
+    return df
 
 
 def split_data(
@@ -168,7 +174,6 @@ def scale_input(
     y_scaler = StandardScaler()
 
     if scaling_policy == "all_variables":
-
         X_train = x_scaler.fit_transform(X_train)
         X_test = x_scaler.transform(X_test)
         y_train = y_scaler.fit_transform(y_train.reshape(-1, 1)).ravel()
@@ -198,9 +203,10 @@ def train_model(
     scaling_policy: str,
     seed: int = 49,
     search_method: str = "grid",
+    model_configs: Any = MODEL_CONFIGS,
 ):
 
-    config = MODEL_CONFIGS[model_type]
+    config = model_configs[model_type]
 
     model = config.estimator(random_state=seed, **config.estimator_kwargs)
 
@@ -210,7 +216,6 @@ def train_model(
 
     if search_method == "grid":
         grid_search = GridSearchCV(
-            # grid_search = RandomizedSearchCV(
             estimator=model,
             param_grid=config.param_grid,
             cv=config.cv_folds,
@@ -233,6 +238,13 @@ def train_model(
     best_model = grid_search.best_estimator_
     y_pred = grid_search.predict(X_test)
 
+    df_validation = pl.DataFrame(X_test, schema=selected_cols).with_columns(
+        [
+            pl.Series("realized_wait_time", y_test),
+            pl.Series("estimated_wait_time", y_pred),
+        ]
+    )
+
     if scaling_policy in ["all_variables", "only_target"]:
         y_pred = y_scaler.inverse_transform(y_pred.reshape(-1, 1)).ravel()
         y_test = y_scaler.inverse_transform(y_test.reshape(-1, 1)).ravel()
@@ -240,6 +252,13 @@ def train_model(
     if log_transform_policy in ["all_variables", "only_target"]:
         y_pred = np.expm1(y_pred)
         y_test = np.expm1(y_test)
+
+        df_validation = log_transform_input(
+            df_validation,
+            inverse=True,
+            log_transform_policy=log_transform_policy,
+            target=["realized_wait_time", "estimated_wait_time"],
+        )
 
     df_metrics = calc_performance_metrics(y_test, y_pred)
 
@@ -259,8 +278,7 @@ def train_model(
         df_feature_importance,
         df_cv_results,
         df_metrics,
-        y_pred,
-        y_test,
+        df_validation,
         best_model,
     )
 
@@ -315,7 +333,6 @@ def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
     mape = mean_absolute_percentage_error(y_test, y_pred)
     med = median_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
-    abs_err = abs
 
     abs_err = abs(y_test - y_pred)
 

@@ -4,14 +4,14 @@ import os
 from pathlib import Path
 import polars as pl
 import datetime
+import json
+import jsonpickle
+
+from typing import Any
 
 from input.input import get_partition
-from train.regress import predict
-from train.train_params import (
-    PARTITION_LIST_TEST,
-    MODELS_LIST_TEST,
-    FEATURE_SETS,
-)
+from train.regress import predict, Result
+from train.model_params import MODEL_CONFIGS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,27 +22,30 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def create_prefix(
-    models: list = MODELS_LIST_TEST, partitions: list = PARTITION_LIST_TEST
-):
+def create_prefix(models: list, partitions: list):
     timestamp = str(datetime.datetime.now().strftime("%Y%m%dT%H%M"))
     models_string = "-".join([m for m in models])
     partitions_string = "-".join([p for p in partitions])
-    prefix = models_string + "." + partitions_string + "." + timestamp
+    prefix = models_string + "__" + partitions_string + "__" + timestamp
     return prefix
 
 
 def train_models(
-    partitions: list = PARTITION_LIST_TEST,
-    models: list = MODELS_LIST_TEST,
-    feature_sets: dict = FEATURE_SETS,
-    y_col: str = "wait_time_seconds",
-    test_size: float = 0.3,
+    partitions: list,
+    models: list,
+    feature_sets: dict,
+    y_col: str,
+    test_size: float,
+    save_results: bool,
+    truncate_pct: float,
+    model_configs: Any,
+    scaling_policy: str,
+    log_transform_policy: str,
+    split_method: str,
+    search_method: str,
 ):
 
-    # timestamp = str(datetime.datetime.now().date())
-    prefix = create_prefix()
-    os.makedirs(f"results/{prefix}/", exist_ok=True)
+    prefix = create_prefix(models=models, partitions=partitions)
 
     logger.info(
         f"Starting training with {len(partitions)} partitions and {len(models)} models"
@@ -51,7 +54,9 @@ def train_models(
     for partition in partitions:
         logger.info(f"Processing partition: {partition}")
 
-        df = get_partition(partition=partition, type="with_features")
+        df = get_partition(
+            partition=partition, type="with_features", truncate_pct=truncate_pct
+        )
         logger.info(f"Loaded data for partition {partition}: {len(df)} rows")
 
         for model in models:
@@ -75,13 +80,31 @@ def train_models(
                     no_features=len(ablation_features),
                     test_size=test_size,
                     model=model,
+                    model_configs=model_configs,
+                    scaling_policy=scaling_policy,
+                    log_transform_policy=log_transform_policy,
+                    split_method=split_method,
+                    search_method=search_method,
                 )
 
-                dump(value=model_res, filename=filename)
-                logger.info(f"Saved results to {filename}")
+                if save_results:
+                    os.makedirs(f"results/{prefix}/", exist_ok=True)
+                    dump(value=model_res, filename=filename)
+                    logger.info(f"Saved results to {filename}")
+                else:
+                    logger.info("Results are not saved.")
+
             logger.info(f"Training completed for {partition, model}")
 
-        # combine_results()
+    if save_results:
+        with open(f"results/{prefix}/features.json", "w") as fp:
+            json.dump(feature_sets, fp)
+
+        with open(f"results/{prefix}/model_parameters.json", "w") as f:
+            f.write(jsonpickle.encode(MODEL_CONFIGS, indent=2))
+
+    res = combine_results(results_dir=f"results/{prefix}")
+    return res
 
 
 def combine_results(results_dir: str = "results/"):
@@ -106,4 +129,13 @@ def combine_results(results_dir: str = "results/"):
         attr: pl.concat(dfs, how="diagonal_relaxed") for attr, dfs in buckets.items()
     }
 
-    return combined_results, combined_dfs
+    res = Result(
+        df_feature_selection=combined_dfs.get("df_feature_selection"),
+        df_cv_results=combined_dfs.get("df_cv_results"),
+        df_feature_importance=combined_dfs.get("df_feature_importance"),
+        df_accuracy_metrics=combined_dfs.get("df_accuracy_metrics"),
+        df_validation=combined_dfs.get("df_validation"),
+        best_model=None,
+    )
+
+    return res
