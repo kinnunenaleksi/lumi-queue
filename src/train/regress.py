@@ -25,17 +25,19 @@ def predict(
     no_features: int,
     test_size: float,
     model: str,
-    search_method: str,
     split_method: str,
-    log_transform_policy: str,
-    scaling_policy: str,
+    model_type: str,
     model_configs: Any,
 ):
+    config = model_configs[model_type]
 
     df = df.sort(pl.col("start_ts"), descending=False)
 
     df = utils.log_transform_input(
-        df, target=[y_col], log_transform_policy=log_transform_policy, inverse=False
+        df,
+        target=[y_col],
+        log_transform_policy=config.log_transform_policy,
+        inverse=False,
     )
 
     X, y, df_feature_selection, selected_cols = utils.select_features(
@@ -53,10 +55,7 @@ def predict(
             y_train,
             y_test,
             selected_cols,
-            search_method=search_method,
             model_type=model,
-            log_transform_policy=log_transform_policy,
-            scaling_policy=scaling_policy,
             model_configs=model_configs,
         )
     )
@@ -80,9 +79,6 @@ def train_model(
     y_test,
     selected_cols: list,
     model_type: str,
-    log_transform_policy: str,
-    scaling_policy: str,
-    search_method: str,
     model_configs: Any,
     seed: int = SEED,
 ):
@@ -92,22 +88,22 @@ def train_model(
     model = config.estimator(random_state=seed, **config.estimator_kwargs)
 
     X_train, X_test, y_train, y_test, x_scaler, y_scaler = utils.scale_input(
-        X_train, X_test, y_train, y_test, scaling_policy=scaling_policy
+        X_train, X_test, y_train, y_test, scaling_policy=config.scaling_policy
     )
 
     grid_search = utils.search_cv(
-        model=model, config=config, search_method=search_method
+        model=model, config=config, search_method=config.search_method
     )
 
     grid_search.fit(X_train, y_train)
     best_model = grid_search.best_estimator_
     y_pred = grid_search.predict(X_test)
 
-    if scaling_policy in ["all_variables", "only_target"]:
+    if config.scaling_policy in ["all_variables", "only_target"]:
         y_pred = y_scaler.inverse_transform(y_pred.reshape(-1, 1)).ravel()
         y_test = y_scaler.inverse_transform(y_test.reshape(-1, 1)).ravel()
 
-    if scaling_policy == "all_variables":
+    if config.scaling_policy == "all_variables":
         X_test = x_scaler.inverse_transform(X_test)
 
     df_validation = pl.DataFrame(X_test, schema=selected_cols).with_columns(
@@ -117,14 +113,14 @@ def train_model(
         ]
     )
 
-    if log_transform_policy in ["all_variables", "only_target"]:
+    if config.log_transform_policy in ["all_variables", "only_target"]:
         y_pred = np.expm1(y_pred)
         y_test = np.expm1(y_test)
 
         df_validation = utils.log_transform_input(
             df_validation,
             inverse=True,
-            log_transform_policy=log_transform_policy,
+            log_transform_policy=config.log_transform_policy,
             target=["realized_wait_time", "estimated_wait_time"],
         )
 

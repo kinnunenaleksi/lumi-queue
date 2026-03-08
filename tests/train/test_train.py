@@ -14,10 +14,7 @@ def test_train_models():
         y_col="wait_time_seconds",
         test_size=0.4,
         truncate_pct=0.02,
-        scaling_policy="none",
-        log_transform_policy="all_variables",
         split_method="timeseries",
-        search_method="random",
     )
 
     assert res

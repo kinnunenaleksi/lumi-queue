@@ -28,10 +28,7 @@ def train_models(
     test_size: float,
     truncate_pct: float,
     model_configs: Any,
-    scaling_policy: str,
-    log_transform_policy: str,
     split_method: str,
-    search_method: str,
 ):
 
     models = list({m for cfg in train_dict.values() for m in cfg["models"]})
@@ -78,10 +75,8 @@ def train_models(
                     test_size=test_size,
                     model=model,
                     model_configs=model_configs,
-                    scaling_policy=scaling_policy,
-                    log_transform_policy=log_transform_policy,
                     split_method=split_method,
-                    search_method=search_method,
+                    model_type=model,
                 )
 
                 os.makedirs(f"results/{prefix}/", exist_ok=True)

@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+import xgboost as xgb
 from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
-import xgboost as xgb
 
 SEED = 49
 
@@ -14,6 +14,9 @@ class ModelConfig:
     param_grid: dict[str, Any]
     cv_folds: int = 5
     use_permutation_importance: bool = False
+    scaling_policy: str = "none"
+    log_transform_policy: str = "all_variables"
+    search_method: str = "grid"
     grid_search_kwargs: dict[str, Any] = field(default_factory=dict)
     estimator_kwargs: dict[str, Any] = field(default_factory=dict)
 
