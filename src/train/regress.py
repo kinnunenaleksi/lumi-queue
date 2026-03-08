@@ -5,7 +5,7 @@ import numpy as np
 import polars as pl
 
 from train import utils
-from train.params_models import SEED
+from train.params.params_models import SEED
 
 
 @dataclass
@@ -131,7 +131,10 @@ def train_model(
     df_metrics = utils.calc_performance_metrics(y_test, y_pred)
 
     df_feature_importance = utils.fetch_feature_importance(
-        best_model, X_test, y_test, selected_cols,
+        best_model,
+        X_test,
+        y_test,
+        selected_cols,
         use_permutation_importance=config.use_permutation_importance,
         seed=seed,
     )

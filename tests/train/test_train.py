@@ -1,8 +1,8 @@
 import polars as pl
 
-from train.params_features import FEATURE_SETS
-from train.params_models import TEST_MODEL_CONFIGS
-from train.params_training import TEST_MODELS
+from train.params.params_features import FEATURE_SETS
+from train.params.params_models import TEST_MODEL_CONFIGS
+from train.params.params_training import TEST_MODELS
 from train.train import train_models
 
 

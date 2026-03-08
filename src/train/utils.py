@@ -1,5 +1,3 @@
-from typing import Any
-
 import numpy as np
 import polars as pl
 from sklearn.feature_selection import SelectKBest, f_regression

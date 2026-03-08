@@ -21,14 +21,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def create_prefix(models: list, partitions: list):
-    timestamp = str(datetime.datetime.now().strftime("%Y%m%dT%H%M"))
-    models_string = "-".join([m for m in models])
-    partitions_string = "-".join([p for p in partitions])
-    prefix = models_string + "__" + partitions_string + "__" + timestamp
-    return prefix
-
-
 def train_models(
     train_dict: dict,
     feature_sets: dict,
@@ -141,3 +133,11 @@ def combine_results(results_dir: str = "results/"):
     )
 
     return res
+
+
+def create_prefix(models: list, partitions: list):
+    timestamp = str(datetime.datetime.now().strftime("%Y%m%dT%H%M"))
+    models_string = "-".join([m for m in models])
+    partitions_string = "-".join([p for p in partitions])
+    prefix = models_string + "__" + partitions_string + "__" + timestamp
+    return prefix

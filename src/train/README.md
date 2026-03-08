@@ -12,10 +12,13 @@ This module trains predictive models for the proprocessed data, i.e. the output 
 `utils.py`: Auxillary functions for both `regress.py` and `train.py`.
 
 ### Parameters 
+
+The dedicated `params/` folder holds the following:
+
 `params_models.py`: Holds the model configurations and hyperparameter grids for training.
 `params_training.py`: Holds the training specifications, i.e. what models is trained for each
 partition and feature-set.
-`params_features.py`: Denotes the different features for feature-sets.
+`params_features.py`: Denotes the different columns for feature-sets.
 
 ## Feature Sets 
 
