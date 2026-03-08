@@ -5,6 +5,8 @@ from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegresso
 from sklearn.neural_network import MLPRegressor
 import xgboost as xgb
 
+SEED = 49
+
 
 @dataclass
 class ModelConfig:

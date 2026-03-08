@@ -11,7 +11,7 @@ from typing import Any
 
 from input.input import get_partition
 from train.regress import predict, Result
-from train.model_params import MODEL_CONFIGS
+# from train.model_params import MODEL_CONFIGS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,8 +31,7 @@ def create_prefix(models: list, partitions: list):
 
 
 def train_models(
-    partitions: list,
-    models: list,
+    train_dict: dict,
     feature_sets: dict,
     y_col: str,
     test_size: float,
@@ -45,26 +44,34 @@ def train_models(
     search_method: str,
 ):
 
-    prefix = create_prefix(models=models, partitions=partitions)
+    models = list({m for cfg in train_dict.values() for m in cfg["models"]})
+    partitions = list(train_dict.keys())
+
+    prefix = create_prefix(
+        models=models,
+        partitions=partitions,
+    )
 
     logger.info(
         f"Starting training with {len(partitions)} partitions and {len(models)} models"
     )
 
-    for partition in partitions:
+    for partition, config in train_dict.items():
         logger.info(f"Processing partition: {partition}")
 
         df = get_partition(
             partition=partition, type="with_features", truncate_pct=truncate_pct
         )
+
         logger.info(f"Loaded data for partition {partition}: {len(df)} rows")
 
-        for model in models:
+        for model in config["models"]:
             logger.info(f"Training model: {model}")
 
             partition_ablation_sets = feature_sets.get(partition, {})
 
-            for ablation_name, ablation_features in partition_ablation_sets.items():
+            for ablation_name in config["feature_sets"]:
+                ablation_features = partition_ablation_sets[ablation_name]
                 logger.info(
                     f"Ablation set: {ablation_name} ({len(ablation_features)} features)"
                 )
@@ -101,10 +108,13 @@ def train_models(
             json.dump(feature_sets, fp)
 
         with open(f"results/{prefix}/model_parameters.json", "w") as f:
-            f.write(jsonpickle.encode(MODEL_CONFIGS, indent=2))
+            f.write(jsonpickle.encode(model_configs, indent=2))
 
-    res = combine_results(results_dir=f"results/{prefix}")
-    return res
+        res = combine_results(results_dir=f"results/{prefix}")
+
+        return res
+    # else:
+    #     pass
 
 
 def combine_results(results_dir: str = "results/"):

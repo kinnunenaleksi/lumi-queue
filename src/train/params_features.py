@@ -1,12 +1,3 @@
-PARTITION_LIST_FULL = ["small", "small-g", "standard", "standard-g"]
-PARTITION_LIST_TEST = ["largemem", "lumid"]
-MODELS_LIST_TEST = ["rf", "gb"]
-
-train_dict = {
-    "small-g": {"models": ["rf", "xgb"], "feature_sets": ["baseline", "perfect"]},
-    "standard-g": {"models": ["rf", "xgb"], "feature_sets": ["baseline", "perfect"]},
-}
-
 # These features are used for all baseline models
 BASELINE_FEATURES = [
     "priority",
@@ -58,7 +49,4 @@ FEATURE_SETS = {
         "baseline": BASELINE_FEATURES + LOAD_FEATURES,
         "perfect": PERFECT_FEATURES + LOAD_FEATURES,
     },
-    # For testing purposes
-    "largemem": {"baseline": BASELINE_FEATURES, "perfect": PERFECT_FEATURES},
-    "lumid": {"baseline": BASELINE_FEATURES, "perfect": PERFECT_FEATURES},
 }
