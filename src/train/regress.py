@@ -4,14 +4,7 @@ from typing import Any
 import numpy as np
 import polars as pl
 
-from sklearn.inspection import permutation_importance
-from sklearn.model_selection import (
-    GridSearchCV,
-    RandomizedSearchCV,
-)
-
 from train import utils
-
 from train.params_models import SEED
 
 
@@ -102,25 +95,9 @@ def train_model(
         X_train, X_test, y_train, y_test, scaling_policy=scaling_policy
     )
 
-    if search_method == "grid":
-        grid_search = GridSearchCV(
-            estimator=model,
-            param_grid=config.param_grid,
-            cv=config.cv_folds,
-            n_jobs=-1,
-            verbose=3,
-            **config.grid_search_kwargs,
-        )
-
-    elif search_method == "random":
-        grid_search = RandomizedSearchCV(
-            estimator=model,
-            param_distributions=config.param_grid,
-            cv=config.cv_folds,
-            n_jobs=-1,
-            verbose=3,
-            **config.grid_search_kwargs,
-        )
+    grid_search = utils.search_cv(
+        model=model, config=config, search_method=search_method
+    )
 
     grid_search.fit(X_train, y_train)
     best_model = grid_search.best_estimator_
@@ -153,15 +130,11 @@ def train_model(
 
     df_metrics = utils.calc_performance_metrics(y_test, y_pred)
 
-    if config.use_permutation_importance:
-        perm_importance = permutation_importance(
-            best_model, X_test, y_test, n_repeats=10, random_state=seed
-        )
-        importances = perm_importance.get("importances_mean")
-    else:
-        importances = best_model.feature_importances_
-
-    df_feature_importance = utils.fetch_feature_importance(importances, selected_cols)
+    df_feature_importance = utils.fetch_feature_importance(
+        best_model, X_test, y_test, selected_cols,
+        use_permutation_importance=config.use_permutation_importance,
+        seed=seed,
+    )
 
     df_cv_results = utils.fetch_cv_results(grid_search.cv_results_)
 

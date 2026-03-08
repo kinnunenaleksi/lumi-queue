@@ -1,19 +1,21 @@
-import polars as pl
-import numpy as np
-
 from typing import Any
 
-from sklearn.preprocessing import StandardScaler
+import numpy as np
+import polars as pl
 from sklearn.feature_selection import SelectKBest, f_regression
-from sklearn.model_selection import (
-    train_test_split,
-)
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
     mean_absolute_percentage_error,
     median_absolute_error,
     r2_score,
     root_mean_squared_error,
 )
+from sklearn.model_selection import (
+    GridSearchCV,
+    RandomizedSearchCV,
+    train_test_split,
+)
+from sklearn.preprocessing import StandardScaler
 
 
 def log_transform_input(
@@ -150,7 +152,21 @@ def fetch_cv_results(cv_results: dict):
     return df_cv_results
 
 
-def fetch_feature_importance(importances: Any, selected_cols: list):
+def fetch_feature_importance(
+    best_model,
+    X_test,
+    y_test,
+    selected_cols: list,
+    use_permutation_importance: bool,
+    seed: int = 49,
+):
+    if use_permutation_importance:
+        perm_importance = permutation_importance(
+            best_model, X_test, y_test, n_repeats=10, random_state=seed
+        )
+        importances = perm_importance.get("importances_mean")
+    else:
+        importances = best_model.feature_importances_
 
     dict_feature_importance = {
         col: float(score) for col, score in zip(selected_cols, importances)
@@ -195,3 +211,27 @@ def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
     ).transpose(include_header=True, header_name="metric", column_names=["value"])
 
     return df_metrics
+
+
+def search_cv(model, config, search_method: str):
+    common_kwargs = dict(
+        estimator=model,
+        cv=config.cv_folds,
+        n_jobs=-1,
+        verbose=3,
+        **config.grid_search_kwargs,
+    )
+
+    if search_method == "grid":
+        return GridSearchCV(
+            param_grid=config.param_grid,
+            **common_kwargs,
+        )
+
+    elif search_method == "random":
+        return RandomizedSearchCV(
+            param_distributions=config.param_grid,
+            **common_kwargs,
+        )
+    else:
+        raise ValueError(f"Unknown search method: {search_method}")

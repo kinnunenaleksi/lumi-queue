@@ -1,17 +1,16 @@
-from joblib import dump, load
+import datetime
+import json
 import logging
 import os
 from pathlib import Path
-import polars as pl
-import datetime
-import json
-import jsonpickle
-
 from typing import Any
 
+import jsonpickle
+import polars as pl
+from joblib import dump, load
+
 from input.input import get_partition
-from train.regress import predict, Result
-# from train.model_params import MODEL_CONFIGS
+from train.regress import Result, predict
 
 logging.basicConfig(
     level=logging.INFO,

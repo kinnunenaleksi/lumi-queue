@@ -30,6 +30,13 @@ testpaths = ['tests']
 [tool.ruff]
 line-length = 88
 
+[tool.ruff.lint]
+select = ['I']
+# ignore = ['I001']
+
+[too.ruff.lint.isort]
+combine-as-imports = true
+
 [tool.docformatter]
 wrap-descriptions=0
 wrap-summaries=88
