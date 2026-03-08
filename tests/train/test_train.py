@@ -1,9 +1,42 @@
 import polars as pl
+import xgboost as xgb
+from sklearn.ensemble import RandomForestRegressor
 
 from train.params.params_features import FEATURE_SETS
-from train.params.params_models import TEST_MODEL_CONFIGS
-from train.params.params_training import TEST_MODELS
+from train.params.params_models import ModelConfig
 from train.train import train_models
+
+TEST_MODEL_CONFIGS = {
+    "rf": ModelConfig(
+        estimator=RandomForestRegressor,
+        estimator_kwargs={"n_jobs": -1},
+        param_grid={
+            "n_estimators": [10, 20],
+        },
+        cv_folds=2,
+        use_permutation_importance=False,
+    ),
+    "xgb": ModelConfig(
+        estimator=xgb.XGBRegressor,
+        param_grid={
+            "max_depth": [1, 3],
+        },
+        cv_folds=2,
+        use_permutation_importance=True,
+    ),
+}
+
+# For testing purposes
+TEST_MODELS = {
+    "small-g": {
+        "models": ["rf"],
+        "feature_sets": ["perfect", "baseline"],
+    },
+    "standard": {
+        "models": ["rf", "xgb"],
+        "feature_sets": ["perfect"],
+    },
+}
 
 
 def test_train_models():

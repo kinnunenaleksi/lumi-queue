@@ -17,8 +17,10 @@ class ModelConfig:
     scaling_policy: str = "none"
     log_transform_policy: str = "all_variables"
     search_method: str = "grid"
-    grid_search_kwargs: dict[str, Any] = field(default_factory=dict)
-    estimator_kwargs: dict[str, Any] = field(default_factory=dict)
+    grid_search_kwargs: dict[str, Any] = field(
+        default_factory=lambda: {"scoring": "neg_mean_squared_error", "refit": True}
+    )
+    estimator_kwargs: dict[str, Any] = field(default_factory=lambda: {"n_jobs": -1})
 
 
 MODEL_CONFIGS = {
@@ -30,9 +32,7 @@ MODEL_CONFIGS = {
             "criterion": ["squared_error"],
             "max_depth": [None],
         },
-        cv_folds=5,
         use_permutation_importance=False,
-        grid_search_kwargs={"scoring": "neg_mean_squared_error", "refit": True},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
@@ -44,10 +44,7 @@ MODEL_CONFIGS = {
             # "min_child_weigth": [1, 3],
             "gamma": [0.0, 0.01],
         },
-        cv_folds=5,
         use_permutation_importance=True,
-        estimator_kwargs={"n_jobs": -1},
-        grid_search_kwargs={"scoring": "neg_mean_squared_error", "refit": True},
     ),
     "gb": ModelConfig(
         estimator=HistGradientBoostingRegressor,
@@ -57,9 +54,7 @@ MODEL_CONFIGS = {
             "max_depth": [3, 5, None],
             "min_samples_leaf": [20],
         },
-        cv_folds=5,
         use_permutation_importance=True,
-        grid_search_kwargs={},
     ),
     "mlp": ModelConfig(
         estimator=MLPRegressor,
@@ -70,55 +65,6 @@ MODEL_CONFIGS = {
             "learning_rate": ["constant", "adaptive"],
             "max_iter": [1000],
         },
-        cv_folds=5,
         use_permutation_importance=True,
-        grid_search_kwargs={"scoring": "neg_mean_squared_error", "refit": True},
-    ),
-}
-
-TEST_MODEL_CONFIGS = {
-    "rf": ModelConfig(
-        estimator=RandomForestRegressor,
-        estimator_kwargs={"n_jobs": -1},
-        param_grid={
-            "n_estimators": [10, 20],
-            "criterion": ["squared_error"],
-            "max_depth": [None],
-        },
-        cv_folds=3,
-        use_permutation_importance=False,
-        grid_search_kwargs={"scoring": "neg_mean_squared_error", "refit": True},
-    ),
-    "xgb": ModelConfig(
-        estimator=xgb.XGBRegressor,
-        param_grid={
-            "max_depth": [1, 3],
-        },
-        cv_folds=3,
-        use_permutation_importance=True,
-        estimator_kwargs={"n_jobs": -1},
-        grid_search_kwargs={"scoring": "neg_mean_squared_error", "refit": True},
-    ),
-    "gb": ModelConfig(
-        estimator=HistGradientBoostingRegressor,
-        param_grid={
-            "learning_rate": [0.05, 0.1],
-        },
-        cv_folds=5,
-        use_permutation_importance=True,
-        grid_search_kwargs={},
-    ),
-    "mlp": ModelConfig(
-        estimator=MLPRegressor,
-        param_grid={
-            "hidden_layer_sizes": [(50,), (100,), (50, 50)],
-            "activation": ["relu", "tanh"],
-            "alpha": [0.0001, 0.001, 0.01],
-            "learning_rate": ["constant", "adaptive"],
-            "max_iter": [1000],
-        },
-        cv_folds=5,
-        use_permutation_importance=True,
-        grid_search_kwargs={"scoring": "neg_mean_squared_error", "refit": True},
     ),
 }

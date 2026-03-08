@@ -32,15 +32,3 @@ ABLATION_MODELS = {
         "feature_sets": ["perfect"],
     },
 }
-
-# For testing purposes
-TEST_MODELS = {
-    "small-g": {
-        "models": ["rf"],
-        "feature_sets": ["perfect", "baseline"],
-    },
-    "standard": {
-        "models": ["rf", "xgb"],
-        "feature_sets": ["perfect"],
-    },
-}
