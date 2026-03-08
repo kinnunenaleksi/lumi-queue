@@ -12,7 +12,6 @@ def test_train_models():
         model_configs=TEST_MODEL_CONFIGS,
         y_col="wait_time_seconds",
         test_size=0.4,
-        save_results=True,
         truncate_pct=0.02,
         scaling_policy="none",
         log_transform_policy="all_variables",

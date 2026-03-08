@@ -35,7 +35,6 @@ def train_models(
     feature_sets: dict,
     y_col: str,
     test_size: float,
-    save_results: bool,
     truncate_pct: float,
     model_configs: Any,
     scaling_policy: str,
@@ -94,27 +93,21 @@ def train_models(
                     search_method=search_method,
                 )
 
-                if save_results:
-                    os.makedirs(f"results/{prefix}/", exist_ok=True)
-                    dump(value=model_res, filename=filename)
-                    logger.info(f"Saved results to {filename}")
-                else:
-                    logger.info("Results are not saved.")
+                os.makedirs(f"results/{prefix}/", exist_ok=True)
+                dump(value=model_res, filename=filename)
+                logger.info(f"Saved results to {filename}")
 
             logger.info(f"Training completed for {partition, model}")
 
-    if save_results:
-        with open(f"results/{prefix}/features.json", "w") as fp:
-            json.dump(feature_sets, fp)
+    with open(f"results/{prefix}/features.json", "w") as fp:
+        json.dump(feature_sets, fp)
 
-        with open(f"results/{prefix}/model_parameters.json", "w") as f:
-            f.write(jsonpickle.encode(model_configs, indent=2))
+    with open(f"results/{prefix}/model_parameters.json", "w") as f:
+        f.write(jsonpickle.encode(model_configs, indent=2))
 
-        res = combine_results(results_dir=f"results/{prefix}")
+    res = combine_results(results_dir=f"results/{prefix}")
 
-        return res
-    # else:
-    #     pass
+    return res
 
 
 def combine_results(results_dir: str = "results/"):
