@@ -143,6 +143,7 @@ def select_features(df: pl.DataFrame, y_col: str, x_cols: list, k: int = 2):
     selector = SelectKBest(f_regression, k=k)
     X_new = selector.fit_transform(X, y)
     scores = selector.scores_
+    mask = selector.get_support()
 
     n = len(scores)
     if k > n:
@@ -156,12 +157,7 @@ def select_features(df: pl.DataFrame, y_col: str, x_cols: list, k: int = 2):
         .with_columns(pl.Series("selected", selected))
     )
 
-    selected_cols = (
-        res.filter(pl.col("selected") == 1)
-        .select(pl.col("feature"))
-        .to_series()
-        .to_list()
-    )
+    selected_cols = [col for col, m in zip(x_cols, mask) if m]
 
     return X_new, y, res, selected_cols
 
@@ -238,16 +234,19 @@ def train_model(
     best_model = grid_search.best_estimator_
     y_pred = grid_search.predict(X_test)
 
+    if scaling_policy in ["all_variables", "only_target"]:
+        y_pred = y_scaler.inverse_transform(y_pred.reshape(-1, 1)).ravel()
+        y_test = y_scaler.inverse_transform(y_test.reshape(-1, 1)).ravel()
+
+    if scaling_policy == "all_variables":
+        X_test = x_scaler.inverse_transform(X_test)
+
     df_validation = pl.DataFrame(X_test, schema=selected_cols).with_columns(
         [
             pl.Series("realized_wait_time", y_test),
             pl.Series("estimated_wait_time", y_pred),
         ]
     )
-
-    if scaling_policy in ["all_variables", "only_target"]:
-        y_pred = y_scaler.inverse_transform(y_pred.reshape(-1, 1)).ravel()
-        y_test = y_scaler.inverse_transform(y_test.reshape(-1, 1)).ravel()
 
     if log_transform_policy in ["all_variables", "only_target"]:
         y_pred = np.expm1(y_pred)
