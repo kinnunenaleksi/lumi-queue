@@ -30,7 +30,25 @@ def train_models(
     model_configs: Any,
     split_method: str,
 ):
+    """Trains multiple models across partitions and feature-sets.
 
+    This function
+
+    Args:
+        train_dict: Denotes what models and feature-sets are considered.
+            See `train.params.params_training`.
+        feature_sets: Denotes features for each partition and feature-set.
+            See
+        model_configs: Denotes model-specifications.
+        y_col: Target column, i.e. wait_time_seconds.
+        test_size: How large portion of partition's data is used for validation.
+        truncate_pct: How much raw data is truncated, useful for testing purposes.
+        split_method: How the data is splitted into training and testing sets.
+            Can be either `random` that uses `sklearn.train_test_split`, or
+            `timeseries`, where data is split chronologically.
+
+    Returns:
+    """
     models = list({m for cfg in train_dict.values() for m in cfg["models"]})
     partitions = list(train_dict.keys())
 
@@ -49,6 +67,8 @@ def train_models(
         df = get_partition(
             partition=partition, type="with_features", truncate_pct=truncate_pct
         )
+
+        # df = pl.read_parquet(f'data/{partition}.parquet')
 
         logger.info(f"Loaded data for partition {partition}: {len(df)} rows")
 
@@ -76,7 +96,6 @@ def train_models(
                     model=model,
                     model_configs=model_configs,
                     split_method=split_method,
-                    model_type=model,
                 )
 
                 os.makedirs(f"results/{prefix}/", exist_ok=True)

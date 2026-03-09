@@ -10,6 +10,20 @@ from train.params.params_models import SEED
 
 @dataclass
 class Result:
+    """Model training results.
+
+    This is the ouput of the `predict` function, that concludes the necessary training
+    metrics.
+
+    Attributes:
+        df_feature_selection: Results of naive feature selection.
+        df_cv_results: Results from the hyperparameter tuning.
+        df_feature_importance: Results from feature importance calculations.
+        df_accuracy_metrics: Accuracy metrics for the best model.
+        df_validation:
+        best_model:
+    """
+
     df_feature_selection: pl.DataFrame
     df_cv_results: pl.DataFrame
     df_feature_importance: pl.DataFrame
@@ -26,10 +40,31 @@ def predict(
     test_size: float,
     model: str,
     split_method: str,
-    model_type: str,
     model_configs: Any,
 ):
-    config = model_configs[model_type]
+    """Trains and tunes a model for a single partition.
+
+    Args:
+        df:
+        y_col: Target variable, generally `wait_time_seconds` in this analysis.
+        x_cols: Selected explanatory features.
+        no_features: Number of features wanted.
+        test_size: Percentage of the data used for validation.
+
+        model: Predictive algorithm model. Can be one of:
+            - "rf": Random Forest
+            - "xgb": Gradient Boosting
+            - "mlp": Neural Networks
+
+        split_method: How dataset is divided into training and validation sets. Can be:
+            - "random": Traditional sklearn `train_test_split`
+            - "timeseries": (1-test_size)% of data in chronological order.
+
+        model_configs: Dictionary of model parameters. See `train.params.params_model`.
+
+    Returns:
+    """
+    config = model_configs[model]
 
     df = df.sort(pl.col("start_ts"), descending=False)
 
@@ -55,7 +90,7 @@ def predict(
             y_train,
             y_test,
             selected_cols,
-            model_type=model,
+            model=model,
             model_configs=model_configs,
         )
     )
@@ -78,12 +113,12 @@ def train_model(
     y_train,
     y_test,
     selected_cols: list,
-    model_type: str,
+    model: str,
     model_configs: Any,
     seed: int = SEED,
 ):
-
-    config = model_configs[model_type]
+    """Auxillary function for `predict`, does the training."""
+    config = model_configs[model]
 
     model = config.estimator(random_state=seed, **config.estimator_kwargs)
 

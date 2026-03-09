@@ -22,6 +22,7 @@ def log_transform_input(
     target: list,
     inverse: bool,
 ):
+    """Log/Exp transforms columns in dataframe."""
     predictor_cols = [
         c
         for c in df.columns
@@ -52,7 +53,7 @@ def log_transform_input(
 def split_data(
     X, y, test_size: float = 0.2, seed: int = 49, split_method: str = "random"
 ):
-
+    """Splits data into training and validation sets."""
     if split_method == "random":
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=test_size, random_state=seed
@@ -70,6 +71,7 @@ def split_data(
 
 
 def select_features(df: pl.DataFrame, y_col: str, x_cols: list, k: int = 2):
+    """Function for naive feature selection."""
     X = df.select(pl.col(x_cols)).to_numpy()
     y = df.select(pl.col(y_col)).to_numpy().ravel()
 
@@ -98,7 +100,7 @@ def select_features(df: pl.DataFrame, y_col: str, x_cols: list, k: int = 2):
 def scale_input(
     X_train, X_test, y_train, y_test, scaling_policy: str = "all_variables"
 ):
-
+    """Scales rqeuired variables."""
     x_scaler = StandardScaler()
     y_scaler = StandardScaler()
 
@@ -122,7 +124,7 @@ def scale_input(
 
 
 def fetch_cv_results(cv_results: dict):
-
+    """Auxillary function to make dataframe from the cv results."""
     df_cv_results = pl.DataFrame(cv_results)
 
     obj_cols = [
@@ -158,6 +160,7 @@ def fetch_feature_importance(
     use_permutation_importance: bool,
     seed: int = 49,
 ):
+    """Calculates feature importance and makes dataframe from the results."""
     if use_permutation_importance:
         perm_importance = permutation_importance(
             best_model, X_test, y_test, n_repeats=10, random_state=seed
@@ -180,7 +183,7 @@ def fetch_feature_importance(
 
 
 def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
-
+    """Calculates model performance metrics from the validation set."""
     rmse = root_mean_squared_error(y_test, y_pred)
     mape = mean_absolute_percentage_error(y_test, y_pred)
     med = median_absolute_error(y_test, y_pred)
@@ -212,6 +215,7 @@ def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
 
 
 def search_cv(model, config, search_method: str):
+    """Auxillary function for hyperparameter tuning."""
     common_kwargs = dict(
         estimator=model,
         cv=config.cv_folds,

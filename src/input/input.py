@@ -3,7 +3,8 @@ import polars as pl
 from input.features import add_features
 from input.preprocess import preprocess
 
-DATA_PATH = "../anonJobs.parquet"
+INPUT_PATH = "../anonJobs.parquet"
+EXPORT_PATH = "data/"
 
 
 def get_partition(
@@ -58,3 +59,13 @@ def get_partition(
         df = add_features(df, partition=partition)
 
     return df
+
+
+def create_datasets(
+    partitions: list, export_path: str = EXPORT_PATH, type: str = "with_features"
+):
+
+    for partition in partitions:
+        df_partition = get_partition(partition=partition, type=type)
+
+        df_partition.write_parquet(f"{export_path}/{partition}.parquet")

@@ -7,6 +7,12 @@ Repository to predict the queue times in the Lumi supercomputer.
 `src`: Holds the underlying Python functions used to preprocess data and the predictive algorithms.
 `batch_scripts`: Holds the Slurm batch-job scripts to train models in Lumi.
 
+| Directory    | Description |
+| -------- | ------- |
+| [`src`](src/)  | Holds underlying code for both preprocessing and model training.    |
+| [`batch_scripts`](batch_scripts/) | Makes batch-jobs for preprocessing and model-training in Lumi.     |
+| [`tests`](tests/)    | Unit-tests for functionality in `src`.  |
+
 ## Methdology
 
 The framework to create predictions and consequent inference is two-fold. First, three distinct 
