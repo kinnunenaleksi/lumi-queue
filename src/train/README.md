@@ -1,24 +1,28 @@
 # train
 
-This module trains predictive models for the proprocessed data, i.e. the output of the module 
-`input`. 
+Functionality to train models from the preprocessed data.
 
 ## Structure 
 
 ### Main Functionality
 
-`regress.py`: Trains models for one partition at a time.
-`train.py`: Loops the `regress.py` functionality over partitions and feature-sets.
-`utils.py`: Auxillary functions for both `regress.py` and `train.py`.
+| File    | Description |
+| -------- | ------- |
+| [`regress.py`](regress.py) | Trains models for one partition at a time.  |
+| [`train.py`](train.py) | Loops the functionality above over partitions and feature-sets.     |
+| [`utils.py`](utils.py) | Auxillary functions for both above.     |
 
 ### Parameters 
 
 The dedicated `params/` folder holds the following:
 
-`params_models.py`: Holds the model configurations and hyperparameter grids for training.
-`params_training.py`: Holds the training specifications, i.e. what models is trained for each
-partition and feature-set.
-`params_features.py`: Denotes the different columns for feature-sets.
+| File    | Description |
+| -------- | ------- |
+| [`params_models.py`](params/params_models.py) | Holds model configurations and hyperparameter
+grids for training.  |
+| [`params_training.py`](params/params_training.py) | Holds the training specifications, i.e. what
+models is trained for each partition and feature-set.     |
+| [`params_features.py`](params/params_features.py) | Holds the features for each feature-set.     |
 
 ## Feature Sets 
 

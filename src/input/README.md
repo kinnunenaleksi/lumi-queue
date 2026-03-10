@@ -4,7 +4,7 @@ The scope of this module is to pre-process the raw-data and add required feature
 
 ## Structure
 
-| Directory    | Description |
+| File    | Description |
 | -------- | ------- |
 | [`preprocess.py`](preprocess.py)    | Cleans and parses data.  |
 | [`features.py`](features.py) | Adds features to the preprocessed data.     |
@@ -14,7 +14,7 @@ The scope of this module is to pre-process the raw-data and add required feature
 ## Raw Input Data 
 
 The input for the predictions comes directly from the Slurm utility `sacct`. The data
-in the preliminary form comes in the following format: 
+preliminarily comes in the following format: 
 
 | Column      | Type    | Description |
 | ----------- | ------- | ----------- |
@@ -28,14 +28,14 @@ in the preliminary form comes in the following format:
 | State   | String | Job's final state, i.e. 'Completed', 'Failed' etc. |
 | Submit   | String (Timestamp) | Time when job was submitted to Slurm. |
 | Eligible   | String (Timestamp) | Time when job could start, i.e. dependencies are loaded. |
-| Start   | String (Timestampd) | Start time of the job. |
+| Start   | String (Timestamp) | Start time of the job. |
 | End   | String (Timestamp) | End time of the job. |
 | ElapsedRaw   | Integer | Job duration in seconds. |
 | AllocTRES   | List | List of all resources that were allocated to the job. |
 
 ## Preprocessed Input Data 
 
-## Cleaned Input Data
+### Cleaned Input Data
 
 After running `preprocess.py`, the data is transformed in following form: 
 
@@ -61,7 +61,7 @@ After running `preprocess.py`, the data is transformed in following form:
 | AllocTRES | allocated_mem   | Integer | Allocated memory. | Scraped from `AllocTRES`. | True | None |
 | Eligible, Start | wait_time_seconds   | Integer | Target variable. | None | False | Values >= 0 |
 
-## Added Features
+### Added Features
 
 For the cleaned input, the following features are added in `features.py`: 
 
@@ -69,14 +69,20 @@ For the cleaned input, the following features are added in `features.py`:
 |----------- | ------- | ------------ |
 | wait_time_seconds   | Integer | The target variable for analysis. Denotes the time taken between `eligible_start_ts` and `start_ts`. |
 | reservation_flag   | Integer | Binary flag for whether job had a reservation or not. |
-| chainted_flag   | Integer | Binary flag for whether job was chained or not. |
-| queued_<RESOURCE>   | Integer | Total sum of given resource for the jobs in queue before a given job. |
-| active_<RESOURCE>   | Integer | Total sum of given resource for the active jobs during a given job. |
-| queued_count_<SIZE>_jobs   | Integer | Total count of jobs in queue before a given job. |
-| active_count_<SIZE>_jobs   | Integer | Total count of active jobs during a given job. |
+| chained_flag   | Integer | Binary flag for whether job was chained or not. |
+| queued_RESOURCE   | Integer | Total sum of given resource for the jobs in queue before a given job. |
+| active_RESOURCE   | Integer | Total sum of given resource for the active jobs during a given job. |
+| queued_count_SIZE_jobs*  | Integer | Total count of specific size of jobs in queue before a given job.  |
+| active_count_SIZE_jobs*   | Integer |Total count of specific size of jobs in queue before a given job. |
+
+*The size of a given job is determined by either the `allocated_node` or `allocated_cpu` column,
+depending on whether the partition is resource or node allocatable. For node allocatable partitions,
+the `allocated_node` is used and for resource allocatable partitions, the `allocated_cpu` is used.
+The size can be either `small`, `medium` or `large`, which are calculated by <50 percentile, 50-80
+percentile, or > 80 percentile for each partition from the determined column.
 
 
-### Queued jobs: 
+#### Queued jobs: 
 
 For a given job, jobs in queue are ones submitted before the job, started before
 the job, and have ended before the given job has started. Furthermore, they have
@@ -87,7 +93,7 @@ priority over the given job. Namely:
 - end_ts > new_start_ts
 - priority < current_priority
 
-### Active jobs: 
+#### Active jobs: 
 
 Active jobs are ones submitted and started before the new job, and are running
 in parallel with the new job.
