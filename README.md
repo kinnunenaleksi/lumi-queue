@@ -39,3 +39,9 @@ This script simultaneously:
    directory `data/`
 2. Trains and tunes models for various feature-sets as per the [configurations](src/train/params),
    and saves results into a new directory `results/`
+
+If the data has remained the same, further models can be trained with the same datasets with 
+
+```bash
+sbatch batch_scripts/train_models.sh
+```

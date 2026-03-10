@@ -1,6 +1,8 @@
 # src
 
-This is the main source-code used to preprocess the data and create predictions. In particular, 
+Source code for the training framework. 
 
-`input` module holds functions to preprocess the data, and add the required features.
-`train` module holds functions to create predictions and store results.
+| Module    | Description |
+| -------- | ------- |
+| [`input/`](input/) | Preprocessing and feature engineering for raw data.  |
+| [`train/`](train/) | Training and tuning predictive models.     |

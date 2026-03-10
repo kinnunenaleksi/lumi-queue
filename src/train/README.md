@@ -1,4 +1,4 @@
-# train
+# Train
 
 Functionality to train models from the preprocessed data.
 
@@ -18,18 +18,37 @@ The dedicated `params/` folder holds the following:
 
 | File    | Description |
 | -------- | ------- |
-| [`params_models.py`](params/params_models.py) | Holds model configurations and hyperparameter
-grids for training.  |
-| [`params_training.py`](params/params_training.py) | Holds the training specifications, i.e. what
-models is trained for each partition and feature-set.     |
+| [`params_models.py`](params/params_models.py) | Holds model configurations and hyperparameter grids for training.  |
+| [`params_training.py`](params/params_training.py) | Holds the training specifications, i.e. what models is trained for each partition and feature-set.     |
 | [`params_features.py`](params/params_features.py) | Holds the features for each feature-set.     |
 
-## Feature Sets 
+## Configurations
+### Feature Sets 
 
-## Models 
+Feature sets denote the collection of explanatory variables used for training. To granularly understand how
+specific features affect the training results, a variety of different combinations should be
+considered and compared to each other. The following have been pre-configured.
+
+`baseline`: Use all derived features as per [preprocessing](../input/README.md).
+
+`perfect`: Replace the user-set time limits to actual run-times of the jobs to assess
+how much the error in estimates affect the model performance.
+
+`without_alloc`: Remove the `allocTRES` derived features from the `baseline` set, to see model performance when
+predicting only by the system load.
+
+`without_load` Remove the features with prefix `queued_` and `active_`, to see model performance
+when predicting only by the resources requested for a job.
+
+Intuitively, 
+
+
+### Models 
+
+For training, Random Forest (RF), XGBoost (XGB), Gradient Boosting (GB) and Multi-Layered Perceptron
+(MLP) models have been pre-configured.
 
 ## Usage
-The following demonstrates the logic and usage of the `train` module. Functions take 
 
 The snippet below trains and tunes RF for the partition `small-g` for two feature-sets, and both
 RF and XGB algorithms for the partition `standard` for a single feature-set.

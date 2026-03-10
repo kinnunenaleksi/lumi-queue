@@ -1,6 +1,6 @@
 # Input 
 
-The scope of this module is to pre-process the raw-data and add required features for model training.
+Functionality to preprocess and add features to raw Slurm data.
 
 ## Structure
 
