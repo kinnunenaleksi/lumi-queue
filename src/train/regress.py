@@ -28,7 +28,8 @@ class Result:
     df_cv_results: pl.DataFrame
     df_feature_importance: pl.DataFrame
     df_accuracy_metrics: pl.DataFrame
-    df_validation: pl.DataFrame
+    y_pred: np.ndarray | None
+    validation_indices: np.ndarray | None
     best_model: Any
 
 
@@ -79,20 +80,18 @@ def predict(
         df, y_col, x_cols, k=no_features
     )
 
-    X_train, X_test, y_train, y_test = utils.split_data(
+    X_train, X_test, y_train, y_test, validation_indices = utils.split_data(
         X, y, test_size=test_size, split_method=split_method
     )
 
-    df_feature_importance, df_cv_results, df_metrics, df_validation, best_model = (
-        train_model(
-            X_train,
-            X_test,
-            y_train,
-            y_test,
-            selected_cols,
-            model=model,
-            model_configs=model_configs,
-        )
+    df_feature_importance, df_cv_results, df_metrics, y_pred, best_model = train_model(
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+        selected_cols,
+        model=model,
+        model_configs=model_configs,
     )
 
     res = Result(
@@ -100,7 +99,9 @@ def predict(
         df_cv_results=df_cv_results,
         df_feature_importance=df_feature_importance,
         df_accuracy_metrics=df_metrics,
-        df_validation=df_validation,
+        # df_validation=df_validation,
+        y_pred=y_pred,
+        validation_indices=validation_indices,
         best_model=best_model,
     )
 
@@ -141,23 +142,23 @@ def train_model(
     if config.scaling_policy == "all_variables":
         X_test = x_scaler.inverse_transform(X_test)
 
-    df_validation = pl.DataFrame(X_test, schema=selected_cols).with_columns(
-        [
-            pl.Series("realized_wait_time", y_test),
-            pl.Series("estimated_wait_time", y_pred),
-        ]
-    )
+    # df_validation = pl.DataFrame(X_test, schema=selected_cols).with_columns(
+    #     [
+    #         pl.Series("realized_wait_time", y_test),
+    #         pl.Series("estimated_wait_time", y_pred),
+    #     ]
+    # )
 
     if config.log_transform_policy in ["all_variables", "only_target"]:
         y_pred = np.expm1(y_pred)
         y_test = np.expm1(y_test)
 
-        df_validation = utils.log_transform_input(
-            df_validation,
-            inverse=True,
-            log_transform_policy=config.log_transform_policy,
-            target=["realized_wait_time", "estimated_wait_time"],
-        )
+        # df_validation = utils.log_transform_input(
+        #     df_validation,
+        #     inverse=True,
+        #     log_transform_policy=config.log_transform_policy,
+        #     target=["realized_wait_time", "estimated_wait_time"],
+        # )
 
     df_metrics = utils.calc_performance_metrics(y_test, y_pred)
 
@@ -176,6 +177,6 @@ def train_model(
         df_feature_importance,
         df_cv_results,
         df_metrics,
-        df_validation,
+        y_pred,
         best_model,
     )

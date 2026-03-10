@@ -15,6 +15,8 @@ from sklearn.model_selection import (
 )
 from sklearn.preprocessing import StandardScaler
 
+from train.params.params_models import SEED
+
 
 def log_transform_input(
     df: pl.DataFrame,
@@ -51,23 +53,27 @@ def log_transform_input(
 
 
 def split_data(
-    X, y, test_size: float = 0.2, seed: int = 49, split_method: str = "random"
+    X, y, test_size: float = 0.2, seed: int = SEED, split_method: str = "random"
 ):
     """Splits data into training and validation sets."""
+
+    indices = np.arange(len(X))
+
     if split_method == "random":
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=test_size, random_state=seed
+        X_train, X_test, y_train, y_test, _, test_indices = train_test_split(
+            X, y, indices, test_size=test_size, random_state=seed
         )
 
     elif split_method == "timeseries":
         split_point = int(len(X) * (1 - test_size))
         X_train, X_test = X[:split_point], X[split_point:]
         y_train, y_test = y[:split_point], y[split_point:]
+        test_indices = indices[split_point:]
 
     else:
         raise ValueError("`split_method` must be either `random` or `timeseries` ")
 
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, y_train, y_test, test_indices
 
 
 def select_features(df: pl.DataFrame, y_col: str, x_cols: list, k: int = 2):
@@ -158,7 +164,7 @@ def fetch_feature_importance(
     y_test,
     selected_cols: list,
     use_permutation_importance: bool,
-    seed: int = 49,
+    seed: int = SEED,
 ):
     """Calculates feature importance and makes dataframe from the results."""
     if use_permutation_importance:

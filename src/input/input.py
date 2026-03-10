@@ -65,6 +65,7 @@ def get_partition(
 
 def create_datasets(
     partitions: list,
+    data_path: str = INPUT_PATH,
     export_path: str = EXPORT_PATH,
     type: str = "with_features",
     truncate_pct: float = 1,
@@ -78,7 +79,10 @@ def create_datasets(
         path = f"{export_path}/{dataset_name}"
 
         df_partition = get_partition(
-            partition=partition, type=type, truncate_pct=truncate_pct
+            partition=partition,
+            type=type,
+            truncate_pct=truncate_pct,
+            data_path=data_path,
         )
 
         df_partition.write_parquet(path)

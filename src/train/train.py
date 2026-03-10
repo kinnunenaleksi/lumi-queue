@@ -31,6 +31,7 @@ def train_models(
     split_method: str,
     use_local_data: bool,
     export_path: str = "results/",
+    input_path: str = "data/",
 ):
     """Trains multiple models across partitions and feature-sets.
 
@@ -67,7 +68,7 @@ def train_models(
         logger.info(f"Processing partition: {partition}")
 
         if use_local_data:
-            df = pl.read_parquet(f"data/{partition}.parquet")
+            df = pl.read_parquet(f"{input_path}/{partition}.parquet")
         else:
             df = get_partition(
                 partition=partition, type="with_features", truncate_pct=truncate_pct
@@ -116,6 +117,61 @@ def train_models(
     return res
 
 
+def recreate_dataset(
+    results_dir: str,
+    partition: str,
+    use_local_data: bool,
+    truncate_pct: float = 1.0,
+    input_path: str = "data/",
+):
+    """Recreates the validation-set dataframe for a partition with all model
+    predictions.
+
+    Args:
+        results_dir: Path to the directory containing serialized Result objects.
+        partition: The partition name to reconstruct.
+        use_local_data: Whether to load data from local parquet files.
+        truncate_pct: Truncation percentage for remote data loading.
+
+    Returns:
+        A polars DataFrame containing the validation rows with y_pred columns
+        from each model/ablation combination.
+    """
+    results_path = Path(results_dir)
+    result_files = sorted(results_path.glob(f"res_{partition}_*.pkl"))
+
+    if not result_files:
+        raise FileNotFoundError(
+            f"No result files found for partition '{partition}' in {results_dir}"
+        )
+
+    if use_local_data:
+        df = pl.read_parquet(f"{input_path}/{partition}.parquet")
+    else:
+        df = get_partition(
+            partition=partition, type="with_features", truncate_pct=truncate_pct
+        )
+
+    df = df.sort(pl.col("start_ts"), descending=False).with_row_index("__row_idx")
+
+    df_validation = None
+
+    for file in result_files:
+        res = load(file)
+        name = file.stem.replace(f"res_{partition}_", "")
+
+        if df_validation is None:
+            df_validation = df[res.validation_indices.tolist()]
+
+        df_validation = df_validation.with_columns(
+            pl.Series(f"y_pred_{name}", res.y_pred)
+        )
+
+    df_validation = df_validation.drop("__row_idx")
+
+    return df_validation
+
+
 def combine_results(results_dir: str = "results/"):
 
     results_path = Path(results_dir)
@@ -143,7 +199,9 @@ def combine_results(results_dir: str = "results/"):
         df_cv_results=combined_dfs.get("df_cv_results"),
         df_feature_importance=combined_dfs.get("df_feature_importance"),
         df_accuracy_metrics=combined_dfs.get("df_accuracy_metrics"),
-        df_validation=combined_dfs.get("df_validation"),
+        y_pred=None,
+        validation_indices=None,
+        # df_validation=combined_dfs.get("df_validation"),
         best_model=None,
     )
 
