@@ -1,24 +1,41 @@
 # Lumi Queue Time Predictions
 
-Repository to predict the queue times in the Lumi supercomputer.
+The scope of this repository is to offer configurable framework for: 
+
+- Pre-processing raw Slurm data from the `sacct` utility
+- Feature engineering new variables
+- Training and tuning predictive models
 
 ## Structure 
 
-`src`: Holds the underlying Python functions used to preprocess data and the predictive algorithms.
-`batch_scripts`: Holds the Slurm batch-job scripts to train models in Lumi.
-
 | Directory    | Description |
 | -------- | ------- |
-| [`src`](src/)  | Holds underlying code for both preprocessing and model training.    |
-| [`batch_scripts`](batch_scripts/) | Makes batch-jobs for preprocessing and model-training in Lumi.     |
-| [`tests`](tests/)    | Unit-tests for functionality in `src`.  |
+| [`src/`](src/)  | Holds underlying code and parameters for both preprocessing and model training.    |
+| [`tests/`](tests/)    | Unit-tests for functionality in `src`.  |
+| [`batch_scripts/`](batch_scripts/) | Makes batch-jobs for preprocessing and model-training in Lumi.     |
 
-## Methdology
+## Usage on Lumi Supercomputer
 
-The framework to create predictions and consequent inference is two-fold. First, three distinct 
-predictive algorithms are fitted for the original data, and the best tuned algorithm is chosen for 
-each partition. This model is then analyzed via various performance metrics, 
+1. Pull this repository into your project-storage `projappl/<project_id>` with 
 
-Second, using the same algorithm for each partition as in the first part, the model is re-trained 
-for multiple different feature-sets (ablation-sets) to analyze the predictive power of distinct 
-features.
+```bash
+git clone git@github.com:kinnunenaleksi/lumi-queue.git
+```
+
+2. Move the dataset (see [data specifications](src/input/README.md)) into the same folder with 
+
+```bash
+mv <PATH-TO-DATA> projappl/<PROJECT_ID>/lumi-queue
+```
+
+3. Create datasets and run model-training by submitting batch-jobs into queue with
+
+```bash
+sbatch batch_scripts/full_run.sh
+```
+This script simultaneously:
+
+1. Creates a preprocessed dataset with added features for each of the designated partitions in a new
+   directory `data/`
+2. Trains and tunes models for various feature-sets as per the [configurations](src/train/params),
+   and saves results into a new directory `results/`
