@@ -1,3 +1,5 @@
+import os
+
 import polars as pl
 
 from input.features import add_features
@@ -8,7 +10,7 @@ EXPORT_PATH = "data/"
 
 
 def get_partition(
-    data_path: str = DATA_PATH,
+    data_path: str = INPUT_PATH,
     partition: str = "largemem",
     type: str = "raw",
     truncate_pct: float = 1.0,
@@ -62,10 +64,24 @@ def get_partition(
 
 
 def create_datasets(
-    partitions: list, export_path: str = EXPORT_PATH, type: str = "with_features"
+    partitions: list,
+    export_path: str = EXPORT_PATH,
+    type: str = "with_features",
+    truncate_pct: float = 1,
 ):
+    os.makedirs(f"{export_path}/", exist_ok=True)
+
+    written_files = []
 
     for partition in partitions:
-        df_partition = get_partition(partition=partition, type=type)
+        dataset_name = f"{partition}.parquet"
+        path = f"{export_path}/{dataset_name}"
 
-        df_partition.write_parquet(f"{export_path}/{partition}.parquet")
+        df_partition = get_partition(
+            partition=partition, type=type, truncate_pct=truncate_pct
+        )
+
+        df_partition.write_parquet(path)
+        written_files.append(path)
+
+    return written_files

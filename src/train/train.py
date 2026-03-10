@@ -29,6 +29,8 @@ def train_models(
     truncate_pct: float,
     model_configs: Any,
     split_method: str,
+    use_local_data: bool,
+    export_path: str = "results/",
 ):
     """Trains multiple models across partitions and feature-sets.
 
@@ -64,11 +66,12 @@ def train_models(
     for partition, config in train_dict.items():
         logger.info(f"Processing partition: {partition}")
 
-        df = get_partition(
-            partition=partition, type="with_features", truncate_pct=truncate_pct
-        )
-
-        # df = pl.read_parquet(f'data/{partition}.parquet')
+        if use_local_data:
+            df = pl.read_parquet(f"data/{partition}.parquet")
+        else:
+            df = get_partition(
+                partition=partition, type="with_features", truncate_pct=truncate_pct
+            )
 
         logger.info(f"Loaded data for partition {partition}: {len(df)} rows")
 
@@ -83,9 +86,7 @@ def train_models(
                     f"Ablation set: {ablation_name} ({len(ablation_features)} features)"
                 )
 
-                filename = (
-                    f"results/{prefix}/res_{partition}_{model}_{ablation_name}.pkl"
-                )
+                filename = f"{export_path}/{prefix}/res_{partition}_{model}_{ablation_name}.pkl"
 
                 model_res = predict(
                     df,
@@ -98,19 +99,19 @@ def train_models(
                     split_method=split_method,
                 )
 
-                os.makedirs(f"results/{prefix}/", exist_ok=True)
+                os.makedirs(f"{export_path}/{prefix}/", exist_ok=True)
                 dump(value=model_res, filename=filename)
                 logger.info(f"Saved results to {filename}")
 
             logger.info(f"Training completed for {partition, model}")
 
-    with open(f"results/{prefix}/features.json", "w") as fp:
+    with open(f"{export_path}/{prefix}/features.json", "w") as fp:
         json.dump(feature_sets, fp)
 
-    with open(f"results/{prefix}/model_parameters.json", "w") as f:
+    with open(f"{export_path}/{prefix}/model_parameters.json", "w") as f:
         f.write(jsonpickle.encode(model_configs, indent=2))
 
-    res = combine_results(results_dir=f"results/{prefix}")
+    res = combine_results(results_dir=f"{export_path}/{prefix}")
 
     return res
 

@@ -1,10 +1,15 @@
+import shutil
+
 import polars as pl
 import xgboost as xgb
 from sklearn.ensemble import RandomForestRegressor
 
+from input.input import EXPORT_PATH
 from train.params.params_features import FEATURE_SETS
 from train.params.params_models import ModelConfig
 from train.train import train_models
+
+EXPORT_PATH = "test_results"
 
 TEST_MODEL_CONFIGS = {
     "rf": ModelConfig(
@@ -26,7 +31,6 @@ TEST_MODEL_CONFIGS = {
     ),
 }
 
-# For testing purposes
 TEST_MODELS = {
     "small-g": {
         "models": ["rf"],
@@ -48,6 +52,8 @@ def test_train_models():
         test_size=0.4,
         truncate_pct=0.02,
         split_method="timeseries",
+        use_local_data=False,
+        export_path=EXPORT_PATH,
     )
 
     assert res
@@ -57,3 +63,5 @@ def test_train_models():
             "result_name"
         )
     )
+
+    shutil.rmtree(EXPORT_PATH)
