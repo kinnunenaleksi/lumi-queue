@@ -1,10 +1,6 @@
 # Lumi Queue Time Predictions
 
-The scope of this repository is to offer configurable framework for: 
-
-- Pre-processing raw Slurm data from the `sacct` utility
-- Feature engineering new variables
-- Training and tuning predictive models
+Configurable framework to analyze queue performance in Lumi Supercomputer.
 
 ## Structure 
 
@@ -28,20 +24,17 @@ git clone git@github.com:kinnunenaleksi/lumi-queue.git
 mv <PATH-TO-DATA> projappl/<PROJECT_ID>/lumi-queue
 ```
 
-3. Create datasets and run model-training by submitting batch-jobs into queue with
+3. Submit a batch-job to create preprocessed datasets with
 
 ```bash
-sbatch batch_scripts/full_run.sh
+sbatch batch_scripts/create_datasets.sh
 ```
-This script simultaneously:
+This script creates a preprocessed dataset with added features for each of the designated partitions in a new directory `data/`
 
-1. Creates a preprocessed dataset with added features for each of the designated partitions in a new
-   directory `data/`
-2. Trains and tunes models for various feature-sets as per the [configurations](src/train/params),
-   and saves results into a new directory `results/`
-
-If the data has remained the same, further models can be trained with the same datasets with 
+4. Submit a batch-job to train models with 
 
 ```bash
 sbatch batch_scripts/train_models.sh
 ```
+This script trains and tunes models for configured partitions and features as per the
+[configurations](src/train/README.md), and saves results into a new directory `results/`.
