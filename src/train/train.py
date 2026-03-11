@@ -9,7 +9,6 @@ import jsonpickle
 import polars as pl
 from joblib import dump, load
 
-from input.input import get_partition
 from train.regress import Result, predict
 
 logging.basicConfig(
@@ -24,12 +23,10 @@ logger = logging.getLogger(__name__)
 def train_models(
     train_dict: dict,
     feature_sets: dict,
+    model_configs: Any,
     y_col: str,
     test_size: float,
-    truncate_pct: float,
-    model_configs: Any,
     split_method: str,
-    use_local_data: bool,
     export_path: str = "results/",
     input_path: str = "data/",
 ):
@@ -64,15 +61,12 @@ def train_models(
         f"Starting training with {len(partitions)} partitions and {len(models)} models"
     )
 
+    written_paths = []
+
     for partition, config in train_dict.items():
         logger.info(f"Processing partition: {partition}")
 
-        if use_local_data:
-            df = pl.read_parquet(f"{input_path}/{partition}.parquet")
-        else:
-            df = get_partition(
-                partition=partition, type="with_features", truncate_pct=truncate_pct
-            )
+        df = pl.read_parquet(f"{input_path}/{partition}.parquet")
 
         logger.info(f"Loaded data for partition {partition}: {len(df)} rows")
 
@@ -87,7 +81,8 @@ def train_models(
                     f"Ablation set: {ablation_name} ({len(ablation_features)} features)"
                 )
 
-                filename = f"{export_path}/{prefix}/res_{partition}_{model}_{ablation_name}.pkl"
+                model_name = f"res_{partition}_{model}_{ablation_name}.pkl"
+                filename = f"{export_path}/{model_name}"
 
                 model_res = predict(
                     df,
@@ -104,6 +99,8 @@ def train_models(
                 dump(value=model_res, filename=filename)
                 logger.info(f"Saved results to {filename}")
 
+                written_paths.append(model_name)
+
             logger.info(f"Training completed for {partition, model}")
 
     with open(f"{export_path}/{prefix}/features.json", "w") as fp:
@@ -112,100 +109,7 @@ def train_models(
     with open(f"{export_path}/{prefix}/model_parameters.json", "w") as f:
         f.write(jsonpickle.encode(model_configs, indent=2))
 
-    res = combine_results(results_dir=f"{export_path}/{prefix}")
-
-    return res
-
-
-def recreate_dataset(
-    results_dir: str,
-    partition: str,
-    use_local_data: bool,
-    truncate_pct: float = 1.0,
-    input_path: str = "data/",
-):
-    """Recreates the validation-set dataframe for a partition with all model
-    predictions.
-
-    Args:
-        results_dir: Path to the directory containing serialized Result objects.
-        partition: The partition name to reconstruct.
-        use_local_data: Whether to load data from local parquet files.
-        truncate_pct: Truncation percentage for remote data loading.
-
-    Returns:
-        A polars DataFrame containing the validation rows with y_pred columns
-        from each model/ablation combination.
-    """
-    results_path = Path(results_dir)
-    result_files = sorted(results_path.glob(f"res_{partition}_*.pkl"))
-
-    if not result_files:
-        raise FileNotFoundError(
-            f"No result files found for partition '{partition}' in {results_dir}"
-        )
-
-    if use_local_data:
-        df = pl.read_parquet(f"{input_path}/{partition}.parquet")
-    else:
-        df = get_partition(
-            partition=partition, type="with_features", truncate_pct=truncate_pct
-        )
-
-    df = df.sort(pl.col("start_ts"), descending=False).with_row_index("__row_idx")
-
-    df_validation = None
-
-    for file in result_files:
-        res = load(file)
-        name = file.stem.replace(f"res_{partition}_", "")
-
-        if df_validation is None:
-            df_validation = df[res.validation_indices.tolist()]
-
-        df_validation = df_validation.with_columns(
-            pl.Series(f"y_pred_{name}", res.y_pred)
-        )
-
-    df_validation = df_validation.drop("__row_idx")
-
-    return df_validation
-
-
-def combine_results(results_dir: str = "results/"):
-
-    results_path = Path(results_dir)
-    combined_results = {}
-
-    for file in results_path.glob("*.pkl"):
-        name = file.stem
-        combined_results[name] = load(file)
-
-    buckets: dict[str, list[pl.DataFrame]] = {}
-
-    for name, res in combined_results.items():
-        for attr, val in vars(res).items():
-            if isinstance(val, pl.DataFrame):
-                buckets.setdefault(attr, []).append(
-                    val.with_columns(pl.lit(name).alias("result_name"))
-                )
-
-    combined_dfs = {
-        attr: pl.concat(dfs, how="diagonal_relaxed") for attr, dfs in buckets.items()
-    }
-
-    res = Result(
-        df_feature_selection=combined_dfs.get("df_feature_selection"),
-        df_cv_results=combined_dfs.get("df_cv_results"),
-        df_feature_importance=combined_dfs.get("df_feature_importance"),
-        df_accuracy_metrics=combined_dfs.get("df_accuracy_metrics"),
-        y_pred=None,
-        validation_indices=None,
-        # df_validation=combined_dfs.get("df_validation"),
-        best_model=None,
-    )
-
-    return res
+    return written_paths
 
 
 def create_prefix(models: list, partitions: list):

@@ -99,7 +99,6 @@ def predict(
         df_cv_results=df_cv_results,
         df_feature_importance=df_feature_importance,
         df_accuracy_metrics=df_metrics,
-        # df_validation=df_validation,
         y_pred=y_pred,
         validation_indices=validation_indices,
         best_model=best_model,
@@ -142,23 +141,9 @@ def train_model(
     if config.scaling_policy == "all_variables":
         X_test = x_scaler.inverse_transform(X_test)
 
-    # df_validation = pl.DataFrame(X_test, schema=selected_cols).with_columns(
-    #     [
-    #         pl.Series("realized_wait_time", y_test),
-    #         pl.Series("estimated_wait_time", y_pred),
-    #     ]
-    # )
-
     if config.log_transform_policy in ["all_variables", "only_target"]:
         y_pred = np.expm1(y_pred)
         y_test = np.expm1(y_test)
-
-        # df_validation = utils.log_transform_input(
-        #     df_validation,
-        #     inverse=True,
-        #     log_transform_policy=config.log_transform_policy,
-        #     target=["realized_wait_time", "estimated_wait_time"],
-        # )
 
     df_metrics = utils.calc_performance_metrics(y_test, y_pred)
 

@@ -9,13 +9,41 @@ INPUT_PATH = "../anonJobs.parquet"
 EXPORT_PATH = "data/"
 
 
+def create_datasets(
+    partitions: list,
+    data_path: str = INPUT_PATH,
+    export_path: str = EXPORT_PATH,
+    type: str = "with_features",
+    truncate_pct: float = 1,
+):
+    os.makedirs(f"{export_path}/", exist_ok=True)
+
+    written_files = []
+
+    for partition in partitions:
+        dataset_name = f"{partition}.parquet"
+        path = f"{export_path}/{dataset_name}"
+
+        df_partition = get_partition(
+            partition=partition,
+            type=type,
+            truncate_pct=truncate_pct,
+            data_path=data_path,
+        )
+
+        df_partition.write_parquet(path)
+        written_files.append(path)
+
+    return written_files
+
+
 def get_partition(
     data_path: str = INPUT_PATH,
     partition: str = "largemem",
     type: str = "raw",
     truncate_pct: float = 1.0,
 ):
-    """Main function of the `input` module.
+    """Runs preprocessing and adds features for a single partition.
 
     This function takes the relative path to the raw Slurm data, and returns the
     data in the specified format. In particular, this function can either filter
@@ -61,31 +89,3 @@ def get_partition(
         df = add_features(df, partition=partition)
 
     return df
-
-
-def create_datasets(
-    partitions: list,
-    data_path: str = INPUT_PATH,
-    export_path: str = EXPORT_PATH,
-    type: str = "with_features",
-    truncate_pct: float = 1,
-):
-    os.makedirs(f"{export_path}/", exist_ok=True)
-
-    written_files = []
-
-    for partition in partitions:
-        dataset_name = f"{partition}.parquet"
-        path = f"{export_path}/{dataset_name}"
-
-        df_partition = get_partition(
-            partition=partition,
-            type=type,
-            truncate_pct=truncate_pct,
-            data_path=data_path,
-        )
-
-        df_partition.write_parquet(path)
-        written_files.append(path)
-
-    return written_files
