@@ -26,7 +26,7 @@ The dedicated `params/` folder holds the following:
 
 The main function of this module is the `train.train_models`, that creates and tunes models
 predictive models and saves results in a pickle file. This function expectes having datasets 
-as derived in the [input-module](../input/README.md). Thus, the following script...
+as derived in the [`input`](../input/README.md). Thus, the following script...
 
 ```python
 from train.train import train_models

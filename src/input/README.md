@@ -19,12 +19,15 @@ saves them under `data/`. Thus, the following script...
 ```python
 from input.input import create_datasets
 
-written_paths = create_datasets()
+written_paths = create_datasets(
+    partitions = ['small', 'small-g'],
+    truncate_pct = 0.01
+)
 ```
 ... creates the following folder structure: 
 
 ```bash
-lumi-queue
+.
 ├── data
 │   ├── small-g.parquet
 │   └── standard.parquet
