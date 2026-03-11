@@ -11,6 +11,24 @@ Functionality to preprocess and add features to raw Slurm data.
 | [`params.py`](params.py) | Parameters for preprocessing.     |
 | [`input.py`](input.py)  | Combines above and returns final datasets.      |
 
+## Usage
+
+The main function of this module is the `input.create_datasets`, that creates the new datasets and
+saves them under `data/`. Thus, the following script...
+
+```python
+from input.input import create_datasets
+
+written_paths = create_datasets()
+```
+... creates the following folder structure: 
+
+```bash
+lumi-queue
+├── data
+│   ├── small-g.parquet
+│   └── standard.parquet
+```
 ## Raw Input Data 
 
 The input for the predictions comes directly from the Slurm utility `sacct`. The data

@@ -22,6 +22,66 @@ The dedicated `params/` folder holds the following:
 | [`params_training.py`](params/params_training.py) | Holds the training specifications, i.e. what models is trained for each partition and feature-set.     |
 | [`params_features.py`](params/params_features.py) | Holds the features for each feature-set.     |
 
+## Usage 
+
+The main function of this module is the `train.train_models`, that creates and tunes models
+predictive models and saves results in a pickle file. This function expectes having datasets 
+as derived in the [input-module](../input/README.md). Thus, the following script...
+
+```python
+from train.train import train_models
+from train.params.params_models import MODEL_CONFIGS
+from train.params.params_features import FEATURE_SETS
+
+TEST_MODELS = {
+    "small-g": {
+        "models": ["rf"],
+        "feature_sets": ["perfect", "baseline"],
+    },
+    "standard": {
+        "models": ["rf", "xgb"],
+        "feature_sets": ["perfect"],
+    },
+}
+
+result_dir = train_models(
+    train_dict=TEST_MODELS,
+    feature_sets=FEATURE_SETS,
+    model_configs=MODEL_CONFIGS,
+    y_col="wait_time_seconds",
+    test_size=0.4,
+    split_method="timeseries",
+    search_method="grid",
+)
+
+result_dir = train_models()
+```
+Yields the following folder-structure:
+
+```bash
+.
+├── model_results/
+│   ├── rf-xgb__small-g-standard__20260311T1552
+│   │   ├── features.json
+│   │   ├── model_parameters.json
+│   │   ├── res_small_g_rf_baseline.pkl
+│   │   ├── res_small-g_rf_perfect.pkl
+│   │   ├── res_standard_rf_perfect.pkl
+│   │   └── res_standard_xgb_perfect.pkl
+```
+From above, each of the `.pkl` files store the various training metrics in a dataclass. In particular,
+the following are saved:
+
+| Object    | Type | Description |
+| -------- | ------ |------- |
+| `df_feature_selection`| DataFrame | Feature selection scores.  |
+| `df_cv_results`| DataFrame | Hyperparameter tuning results for each CV.  |
+| `df_feature_importance`| DataFrame |  Feature importances calculated as per `params.params_models` for the best model.|
+| `df_accuracy_metrics`| DataFrame |  Accuracy metrics for the best model.  |
+| `y_pred`| Array |  Target predictions.  |
+| `validation_indices`| Array |  Validation row indexes.  |
+| `best_model`| sklearn.Model |  Best model of hyperparameter tuning.  |
+
 ## Configurations
 ### Feature Sets 
 
@@ -101,19 +161,6 @@ TEST_MODEL_CONFIGS = {
     ),
 }
 
-training_results = train_models(
-    train_dict=TEST_MODELS,
-    feature_sets=FEATURE_SETS,
-    model_configs=TEST_MODEL_CONFIGS,
-    y_col="wait_time_seconds",
-    test_size=0.4,
-    save_results=True,
-    truncate_pct=0.02,
-    scaling_policy="none",
-    log_transform_policy="none",
-    split_method="timeseries",
-    search_method="random",
-)
 ```
 In particular, the `train_models` function trains all of the required models for each partition and 
 

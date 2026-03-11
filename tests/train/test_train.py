@@ -59,7 +59,7 @@ def prepare_datasets():
 
 
 def test_train_models():
-    written_paths = train_models(
+    result_dir = train_models(
         train_dict=TEST_MODELS,
         feature_sets=FEATURE_SETS,
         model_configs=TEST_MODEL_CONFIGS,
@@ -70,7 +70,7 @@ def test_train_models():
         input_path=INPUT_PATH,
     )
 
-    print(written_paths)
+    print(result_dir)
     # assert res
     #
     # print(

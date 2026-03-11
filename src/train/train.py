@@ -2,14 +2,13 @@ import datetime
 import json
 import logging
 import os
-from pathlib import Path
 from typing import Any
 
 import jsonpickle
 import polars as pl
-from joblib import dump, load
+from joblib import dump
 
-from train.regress import Result, predict
+from train.regress import predict
 
 logging.basicConfig(
     level=logging.INFO,
@@ -82,7 +81,7 @@ def train_models(
                 )
 
                 model_name = f"res_{partition}_{model}_{ablation_name}.pkl"
-                filename = f"{export_path}/{model_name}"
+                filename = f"{export_path}/{prefix}/{model_name}"
 
                 model_res = predict(
                     df,
@@ -109,7 +108,8 @@ def train_models(
     with open(f"{export_path}/{prefix}/model_parameters.json", "w") as f:
         f.write(jsonpickle.encode(model_configs, indent=2))
 
-    return written_paths
+    result_dir = f"{export_path}/{prefix}/"
+    return result_dir
 
 
 def create_prefix(models: list, partitions: list):
