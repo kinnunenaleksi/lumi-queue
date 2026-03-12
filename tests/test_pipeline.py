@@ -1,9 +1,6 @@
 import shutil
 
-import polars as pl
-
-from analyze.analyze import combine_results
-from analyze.utils import create_accuracy_report, create_cv_report
+from analyze.analyze import create_reports
 from input.input import create_datasets
 from train.params.params_features import FEATURE_SETS
 from train.params.params_models import TEST_MODEL_CONFIGS
@@ -48,24 +45,11 @@ def test_pipeline():
         input_path=INPUT_PATH,
     )
 
-    res = combine_results(results_dir=result_dir)
-    assert res is not None
+    res, accuracy_results, cv_results = create_reports(results_dir=result_dir)
 
-    doc_list = create_accuracy_report(
-        res.df_accuracy_metrics, output_path="test_results/accuracy_metrics.txt"
-    )
-    docs = create_cv_report(
-        res.df_cv_results, output_path="test_results/cv_results.txt"
-    )
-
-    print(doc_list[0])
-    print(docs[0])
-
-    # print(
-    #     res.df_accuracy_metrics.filter(pl.col("metric") == "med_seconds")
-    #     .sort("result_name")
-    #     .head()
-    # )
+    print(accuracy_results[0])
+    print(cv_results[0])
+    print(res.df_feature_importance.head())
 
     # shutil.rmtree(INPUT_PATH)
     # shutil.rmtree(EXPORT_PATH)
