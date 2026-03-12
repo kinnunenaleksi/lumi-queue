@@ -68,3 +68,23 @@ MODEL_CONFIGS = {
         use_permutation_importance=True,
     ),
 }
+
+TEST_MODEL_CONFIGS = {
+    "rf": ModelConfig(
+        estimator=RandomForestRegressor,
+        estimator_kwargs={"n_jobs": -1},
+        param_grid={
+            "n_estimators": [10, 20],
+        },
+        cv_folds=2,
+        use_permutation_importance=False,
+    ),
+    "xgb": ModelConfig(
+        estimator=xgb.XGBRegressor,
+        param_grid={
+            "max_depth": [1, 3],
+        },
+        cv_folds=2,
+        use_permutation_importance=True,
+    ),
+}
