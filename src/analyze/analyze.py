@@ -6,7 +6,11 @@ from analyze.utils import combine_results, explode_result_name, format_accuracy_
 
 
 def create_reports(results_dir: str):
+    """Creates combined model-training results.
 
+    Args:
+        results_dir: Directory where with the training-results.
+    """
     res = combine_results(results_dir=results_dir)
 
     accuracy_results = create_accuracy_report(
