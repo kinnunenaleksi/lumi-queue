@@ -13,7 +13,7 @@ def combine_results(results_dir: str = "results/"):
     results_path = Path(results_dir)
     combined_results = {}
 
-    for file in results_path.glob("*.pkl"):
+    for file in results_path.glob("*.xz"):
         name = file.stem
         combined_results[name] = load(file)
 

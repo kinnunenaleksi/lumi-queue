@@ -80,7 +80,7 @@ def train_models(
                     f"Ablation set: {ablation_name} ({len(ablation_features)} features)"
                 )
 
-                model_name = f"res_{partition}_{model}_{ablation_name}.pkl"
+                model_name = f"res_{partition}_{model}_{ablation_name}.xz"
                 filename = f"{export_path}/{prefix}/{model_name}"
 
                 model_res = predict(
