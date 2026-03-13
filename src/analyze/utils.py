@@ -9,7 +9,14 @@ from train.regress import Result
 
 
 def combine_results(results_dir: str = "results/"):
+    """Combines the the training results into single `Result` class.
 
+    Args:
+        results_dir: Relative path to the model-training results.
+
+    Returns:
+        Combined result object.
+    """
     results_path = Path(results_dir)
     combined_results = {}
 
@@ -48,8 +55,11 @@ def recreate_dataset(
     partition: str,
     input_path: str = "data/",
 ):
-    """Recreates the validation-set dataframe for a partition with all model
-    predictions.
+    """Recreates the validation-set dataframe with model predictions.
+
+    This function recreates the validation dataframe for a given partition, and joins
+    all available model predictions to it. Useful for analyzing the system metrics for
+    different error-sizes.
 
     Args:
         results_dir: Path to the directory containing serialized Result objects.
@@ -90,6 +100,7 @@ def recreate_dataset(
 
 
 def format_accuracy_metrics(df: pl.DataFrame):
+    """Formatting for reporting purposes."""
     return df.with_columns(
         pl.when(pl.col("metric").str.starts_with("perc"))
         .then((pl.col("value") * 100).round(2).cast(pl.Utf8) + "%")
@@ -99,7 +110,7 @@ def format_accuracy_metrics(df: pl.DataFrame):
 
 
 def explode_result_name(df: pl.DataFrame, res_name: str = "result_name"):
-
+    """Seperates the result name into distinct pieces."""
     return (
         df.with_columns(
             pl.col(res_name)
@@ -117,7 +128,7 @@ def explode_result_name(df: pl.DataFrame, res_name: str = "result_name"):
 
 
 def print_table(df: pl.DataFrame, partition: str, model: str = None):
-
+    """Dataframe to Markdown and Typst."""
     df = pd.DataFrame(df, columns=df.columns)
     md = df.to_markdown(index=False, numalign="left")
     typst = df.reset_index(drop=True).style.to_typst()

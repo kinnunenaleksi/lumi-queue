@@ -12,7 +12,13 @@ from analyze.utils import (
 
 
 def create_reports(results_dir: str):
-    """Creates combined model-training results.
+    """Main function of `analyze` module. Creates combined model-training
+    results.
+
+    This function creates the following files for reporting purposes:
+
+        `accuracy_results.txt`: Combined accuracy results.
+        `cv_results.txt`: Combined cross-validation results.
 
     Args:
         results_dir: Directory where with the training-results.
@@ -33,8 +39,9 @@ def create_reports(results_dir: str):
 
 def create_accuracy_report(
     df_accuracy_metrics: pl.DataFrame,
-    output_path: str = "tables.txt",
+    output_path: str = "accuracy_metrics.txt",
 ):
+    """Creates accuracy report."""
     df_accuracy_metrics = format_accuracy_metrics(df_accuracy_metrics)
     df_accuracy_metrics = explode_result_name(df_accuracy_metrics)
 
@@ -75,15 +82,8 @@ def create_accuracy_report(
     return doc_list
 
 
-def _product(*iterables):
-    result = [()]
-    for pool in iterables:
-        result = [x + (y,) for x in result for y in pool]
-    return result
-
-
 def create_cv_report(df: pl.DataFrame, output_path: str = "cv_results.txt"):
-
+    """Creates cross-validation report."""
     df = explode_result_name(df)
 
     rm_cols = [
@@ -143,7 +143,7 @@ def get_comparison_results(
     filter_cols: Mapping[str, str],
     pivot_col: str,
 ):
-
+    """Auxillary function for `create_accuracy_report`."""
     filter_col_names = list(filter_cols.keys())
 
     df = df.filter(
@@ -159,3 +159,10 @@ def get_comparison_results(
     res = print_table(df, partition=label)
 
     return (df, res)
+
+
+def _product(*iterables):
+    result = [()]
+    for pool in iterables:
+        result = [x + (y,) for x in result for y in pool]
+    return result
