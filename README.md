@@ -37,4 +37,4 @@ This script creates a preprocessed dataset with added features for each of the d
 sbatch batch_scripts/train_models.sh
 ```
 This script trains and tunes models for configured partitions and features as per the
-[configurations](src/train/README.md), and saves results into a new directory `results/`.
+[configurations](src/train/README.md), and saves results into a new directory `model_results/`.

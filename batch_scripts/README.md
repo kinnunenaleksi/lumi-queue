@@ -1,9 +1,14 @@
 # Batch Scipts 
 
-This directory holds the batch-job scripts for Lumi required for the analysis. In particular, 
+This directory holds the batch-job scripts for Lumi used in the thesis.  
 
-`create_datasets.sh`: Creates a preprocessed dataset for each partition with features under `data/`.
-`train_baseline_models.sh`: Creates predictive models with RF, XGB, and MLP methods and stores results for each partition under `results/`
-`train_ablation_sets.sh`: Retrains models created in `train_baseline_models` for different feature-sets and stores results under `results/`.
-`full_run.sh`: Collectively runs all above.
+## Contents
 
+| File    | Description |
+| -------- | ------- |
+| [`scripts/`](scripts/)    | Python executables that call functions from [`src`](../src/README.md) |
+| [`create_datasets.sh`](create_datasets.sh)    | Creates preprocessed datasets in Lumi. |
+| [`train_baseline_models.sh`](train_baseline_models.sh) | Trains and tunes various models for `baseline` feature-sets. |
+| [`train_ablation_sets.sh`](train_ablation_sets.sh) | Trains and tunes the best model from baseline for various feature-sets. |
+
+Both `.out` and `.err` files are stored in a new directory `runs/`.
