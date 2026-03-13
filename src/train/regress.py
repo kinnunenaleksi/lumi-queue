@@ -20,8 +20,9 @@ class Result:
         df_cv_results: Results from the hyperparameter tuning.
         df_feature_importance: Results from feature importance calculations.
         df_accuracy_metrics: Accuracy metrics for the best model.
-        df_validation:
-        best_model:
+        y_pred: Array of the model predictions for the validation set.
+        validation_indices: Indeces for validation set from the preprocessed data.
+        best_model: Best performing Sklearn model from the tuning.
     """
 
     df_feature_selection: pl.DataFrame
@@ -43,10 +44,11 @@ def predict(
     split_method: str,
     model_configs: Any,
 ):
-    """Trains and tunes a model for a single partition.
+    """Main function of `regress`. Trains and tunes a model for a single
+    partition.
 
     Args:
-        df:
+        df: Preprocessed dataframe for one partition. See `input.input.create_datasets`.
         y_col: Target variable, generally `wait_time_seconds` in this analysis.
         x_cols: Selected explanatory features.
         no_features: Number of features wanted.
@@ -54,7 +56,8 @@ def predict(
 
         model: Predictive algorithm model. Can be one of:
             - "rf": Random Forest
-            - "xgb": Gradient Boosting
+            - "gb": Gradient Boosing
+            - "xgb": XGBoost
             - "mlp": Neural Networks
 
         split_method: How dataset is divided into training and validation sets. Can be:
@@ -64,6 +67,7 @@ def predict(
         model_configs: Dictionary of model parameters. See `train.params.params_model`.
 
     Returns:
+        Result
     """
     config = model_configs[model]
 

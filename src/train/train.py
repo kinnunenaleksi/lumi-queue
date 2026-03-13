@@ -26,12 +26,14 @@ def train_models(
     y_col: str,
     test_size: float,
     split_method: str,
-    export_path: str = "results/",
+    export_path: str = "model_results/",
     input_path: str = "data/",
 ):
-    """Trains multiple models across partitions and feature-sets.
+    """Main function of `train` module. Trains multiple models across
+    partitions and feature-sets.
 
-    This function
+    This function loops over the `train.regress.predict` function for determined
+    partitions, models, and feature-sets.
 
     Args:
         train_dict: Denotes what models and feature-sets are considered.
@@ -41,12 +43,11 @@ def train_models(
         model_configs: Denotes model-specifications.
         y_col: Target column, i.e. wait_time_seconds.
         test_size: How large portion of partition's data is used for validation.
-        truncate_pct: How much raw data is truncated, useful for testing purposes.
         split_method: How the data is splitted into training and testing sets.
             Can be either `random` that uses `sklearn.train_test_split`, or
             `timeseries`, where data is split chronologically.
-
-    Returns:
+        input_path: Relative path to the folder where preprocessed datasets are.
+        export_path: Relative path to the folder in which to store model results.
     """
     models = list({m for cfg in train_dict.values() for m in cfg["models"]})
     partitions = list(train_dict.keys())
@@ -113,6 +114,21 @@ def train_models(
 
 
 def create_prefix(models: list, partitions: list):
+    """Creates the folder name for the training-results.
+
+    The prefix is in the format:
+
+    ```bash
+    model1-model2__partition1-partition2__YYYYMMDDTHHMM
+    ```
+
+    Args:
+        models: List of models that are trained.
+        partitions: List of partitions the models are trained for.
+
+    Returns:
+        String for the folder-name.
+    """
     timestamp = str(datetime.datetime.now().strftime("%Y%m%dT%H%M"))
     models_string = "-".join([m for m in models])
     partitions_string = "-".join([p for p in partitions])
