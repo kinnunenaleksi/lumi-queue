@@ -20,6 +20,6 @@ and Typst output. Thus, the following...
 from analyze.analyze import create_reports
 
 result_dir = 'model_results/rf-xgb__small-g-standard__20260311T1552'
-res, accuracy_results, cv_results = create_reports(results_dir=result_dir)
+res, _, _ = create_reports(results_dir=result_dir)
 ```
-Adds two files into the model result directory: `accuracy_results.txt` and `cv_results.txt`.
+Adds two files into the model result directory: `accuracy_results.txt` and `cv_results.txt`. 

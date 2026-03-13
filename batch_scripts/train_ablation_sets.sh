@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#SBATCH --job-name=testRunModels
+#SBATCH --output=runs/r-%x.%j.out
+#SBATCH --error=runs/r-%x.%j.err
+#SBATCH --account=project_462001312
+#SBATCH --time=00:02:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=16G
+#SBATCH --partition=small-g
+
+module load cray-python
+
+source .venv/bin/activate
+
+$HOME/.local/bin/uv sync
+
+$HOME/.local/bin/uv pip install -e .
+
+srun python batch_scripts/scripts/train_ablation_sets.py

@@ -5,16 +5,13 @@ import polars as pl
 from input.features import add_features
 from input.preprocess import preprocess
 
-INPUT_PATH = "../anonJobs.parquet"
-EXPORT_PATH = "data/"
-
 
 def create_datasets(
     partitions: list,
-    data_path: str = INPUT_PATH,
-    export_path: str = EXPORT_PATH,
+    data_path: str,
+    export_path: str,
+    truncate_pct: float,
     type: str = "with_features",
-    truncate_pct: float = 1,
 ):
     os.makedirs(f"{export_path}/", exist_ok=True)
 
@@ -38,9 +35,9 @@ def create_datasets(
 
 
 def get_partition(
-    data_path: str = INPUT_PATH,
-    partition: str = "largemem",
-    type: str = "raw",
+    data_path: str,
+    partition: str,
+    type: str,
     truncate_pct: float = 1.0,
 ):
     """Runs preprocessing and adds features for a single partition.
@@ -72,8 +69,12 @@ def get_partition(
     if partition == "all":
         lf = pl.scan_parquet(data_path)
 
-    else:
+    elif partition in ["small", "small-g", "standard", "standard-g"]:
         lf = pl.scan_parquet(data_path).filter(pl.col("Partition") == partition)
+    else:
+        raise ValueError(
+            "Partition has to be in [small, small-g, standard, standard-g]"
+        )
 
     if truncate_pct < 1.0:
         lf = lf.select(pl.all().sample(fraction=truncate_pct, seed=49))
@@ -81,11 +82,13 @@ def get_partition(
     if type == "raw":
         df = lf.collect()
 
-    if type == "preprocess":
+    elif type == "preprocess":
         df = preprocess(lf)
 
-    if type == "with_features":
+    elif type == "with_features":
         df = preprocess(lf)
         df = add_features(df, partition=partition)
+    else:
+        raise ValueError("`type` has to be in [raw, preprocess, with_features]")
 
     return df

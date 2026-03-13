@@ -76,11 +76,11 @@ the following are saved:
 | -------- | ------ |------- |
 | `df_feature_selection`| DataFrame | Feature selection scores.  |
 | `df_cv_results`| DataFrame | Hyperparameter tuning results for each CV.  |
-| `df_feature_importance`| DataFrame |  Feature importances calculated as per `params.params_models` for the best model.|
-| `df_accuracy_metrics`| DataFrame |  Accuracy metrics for the best model.  |
-| `y_pred`| Array |  Target predictions.  |
-| `validation_indices`| Array |  Validation row indexes.  |
-| `best_model`| sklearn.Model |  Best model of hyperparameter tuning.  |
+| `df_feature_importance`| DataFrame | Feature importances calculated as per `params.params_models` for the best model.|
+| `df_accuracy_metrics`| DataFrame | Accuracy metrics for the best model.  |
+| `y_pred`| Array | Target predictions.  |
+| `validation_indices`| Array | Validation row indexes.  |
+| `best_model`| sklearn.Model | Best model of hyperparameter tuning.  |
 
 ## Configurations
 ### Feature Sets 

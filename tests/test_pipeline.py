@@ -6,6 +6,7 @@ from train.params.params_features import FEATURE_SETS
 from train.params.params_models import TEST_MODEL_CONFIGS
 from train.train import train_models
 
+DATA_PATH = "../../anonJobs.parquet"
 INPUT_PATH = "test_data"
 EXPORT_PATH = "test_results"
 
@@ -26,7 +27,10 @@ PARTITIONS = list(TEST_MODELS.keys())
 def test_pipeline():
 
     written_paths = create_datasets(
-        partitions=PARTITIONS, export_path=INPUT_PATH, truncate_pct=0.02
+        partitions=PARTITIONS,
+        export_path=INPUT_PATH,
+        truncate_pct=0.02,
+        data_path=DATA_PATH,
     )
 
     assert written_paths == [

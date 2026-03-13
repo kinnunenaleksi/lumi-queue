@@ -1,8 +1,14 @@
 from collections.abc import Mapping
 
+import pandas as pd
 import polars as pl
 
-from analyze.utils import combine_results, explode_result_name, format_accuracy_metrics
+from analyze.utils import (
+    combine_results,
+    explode_result_name,
+    format_accuracy_metrics,
+    print_table,
+)
 
 
 def create_reports(results_dir: str):
