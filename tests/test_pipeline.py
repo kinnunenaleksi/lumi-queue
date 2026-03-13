@@ -6,7 +6,7 @@ from train.params.params_features import FEATURE_SETS
 from train.params.params_models import TEST_MODEL_CONFIGS
 from train.train import train_models
 
-DATA_PATH = "../../anonJobs.parquet"
+DATA_PATH = "../anonJobs.parquet"
 INPUT_PATH = "test_data"
 EXPORT_PATH = "test_results"
 
