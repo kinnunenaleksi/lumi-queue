@@ -64,12 +64,12 @@ Yields the following folder-structure:
 │   ├── rf-xgb__small-g-standard__20260311T1552
 │   │   ├── features.json
 │   │   ├── model_parameters.json
-│   │   ├── res_small_g_rf_baseline.pkl
-│   │   ├── res_small-g_rf_perfect.pkl
-│   │   ├── res_standard_rf_perfect.pkl
-│   │   └── res_standard_xgb_perfect.pkl
+│   │   ├── res_small_g_rf_baseline.xz
+│   │   ├── res_small-g_rf_perfect.xz
+│   │   ├── res_standard_rf_perfect.xz
+│   │   └── res_standard_xgb_perfect.xz
 ```
-From above, each of the `.pkl` files store the various training metrics in a dataclass. In particular,
+From above, each of the `.xz` files (compressed pickle-files) store the various training metrics in a dataclass. In particular,
 the following are saved:
 
 | Object    | Type | Description |
@@ -162,14 +162,3 @@ TEST_MODEL_CONFIGS = {
 }
 
 ```
-In particular, the `train_models` function trains all of the required models for each partition and 
-
-Models and results are then stored in a new folder `results/`, where they can be later
-gathered from.
-
-In total, three models are considered: Random Forest (RF), XGBoost (XGB) Neural Networks (MLP). All
-models go through hyperparameter tuning, and currently only the best model is saved in to the
-results.
-
-
-

@@ -75,11 +75,12 @@ After running `preprocess.py`, the data is transformed in following form:
 | Start | start_ts  | Timestamp | Start time of the job. | None | False | start_ts <= end_ts |
 | End | end_ts   | Timestamp | End time of the job. | None | False | None |
 | ElapsedRaw | elapsed_seconds   | Integer | Job duration in seconds. | None | False | Values >= 0 |
-| AllocTRES | allocated_billing   | Integer | Allocated resources. | Scraped from `AllocTRES`. | False | Values >= 0 |
 | AllocTRES | allocated_cpu   | Integer | Allocated CPUs. | Scraped from `AllocTRES`. | False | Values >= 0 |
 | AllocTRES | allocated_node   | Integer | Allocated nodes. | Scraped from `AllocTRES`. | False | Values >= 0 |
 | AllocTRES | allocated_gpu   | Integer | Allocated GPU. | Scraped from `AllocTRES`. | True | None |
 | AllocTRES | allocated_mem   | Integer | Allocated memory. | Scraped from `AllocTRES`. | True | None |
+| AllocTRES | consumed_billing   | Integer | Allocated resources. | Scraped from `AllocTRES`. | False | Values >= 0 |
+| AllocTRES | consumed_energy   | Integer | Allocated resources. | Scraped from `AllocTRES`. | False | Values >= 0 |
 | Eligible, Start | wait_time_seconds   | Integer | Target variable. | None | False | Values >= 0 |
 
 ### Added Features
