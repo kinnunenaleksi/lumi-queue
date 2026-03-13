@@ -3,7 +3,7 @@ import polars as pl
 
 
 def add_features(df: pl.DataFrame, partition: str) -> pl.DataFrame:
-    """Main function of the `features` module.
+    """Main function of `features`.
 
     This function adds all the required features into the preprocessed dataframe. When
     using this function, the dataframe has to be filtered into a specific partition,

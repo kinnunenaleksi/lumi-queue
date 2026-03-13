@@ -13,6 +13,23 @@ def create_datasets(
     truncate_pct: float,
     type: str = "with_features",
 ):
+    """Main function of `input`. Creates preprocessed datasets for defined
+    partitions.
+
+    This function loops the `get_partition` function over determined partitions.
+    Running this function on MacBook Pro 2021 M1 takes ~1min for partitions with around
+    two million rows, and ~2.5 minutes for the largest `small` partition with five
+    million rows.
+
+    Args:
+        partitions: List of partitions to create.
+        data_path: Relative path to data.
+        export_path: Relative path to the folder with new datasets.
+        truncate_pct: See function `get_partition`.
+        type: See function `get_partition`.
+
+    Returns:
+    """
     os.makedirs(f"{export_path}/", exist_ok=True)
 
     written_files = []
