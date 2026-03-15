@@ -54,7 +54,7 @@ BASELINE_CONFIGS = {
         scaling_policy="none",
         log_transform_policy="all_variables",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 100, "random_state": SEED},
+        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED},
         extra_estimator_kwargs={"verbose": 3},
     ),
     "xgb": ModelConfig(
@@ -71,7 +71,7 @@ BASELINE_CONFIGS = {
         scaling_policy="none",
         log_transform_policy="all_variables",
         use_permutation_importance=True,
-        extra_grid_search_kwargs={"n_iter": 100, "seed": SEED},
+        extra_grid_search_kwargs={"n_iter": 10, "seed": SEED},
         extra_estimator_kwargs={"verbosity": 3},
     ),
     "mlp": ModelConfig(

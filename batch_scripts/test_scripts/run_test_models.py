@@ -8,10 +8,10 @@ TEST_MODELS = {
         "models": ["rf", "xgb"],
         "feature_sets": ["perfect", "baseline"],
     },
-    "small": {
-        "models": ["rf", "xgb"],
-        "feature_sets": ["perfect", "baseline"],
-    },
+    # "small": {
+    #     "models": ["rf", "xgb"],
+    #     "feature_sets": ["perfect", "baseline"],
+    # },
     "standard": {
         "models": ["rf", "xgb"],
         "feature_sets": ["baseline", "perfect"],
