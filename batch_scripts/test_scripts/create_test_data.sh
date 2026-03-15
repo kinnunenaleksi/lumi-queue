@@ -19,5 +19,5 @@ $HOME/.local/bin/uv sync
 
 $HOME/.local/bin/uv pip install -e .
 
-srun python batch_scripts/scripts/test_scripts/create_test_data.py
+srun python batch_scripts/test_scripts/create_test_data.py
 
