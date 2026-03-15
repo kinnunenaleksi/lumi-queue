@@ -44,8 +44,7 @@ def predict(
     split_method: str,
     model_configs: Any,
 ):
-    """Main function of `regress`. Trains and tunes a model for a single
-    partition.
+    """Main function of `regress`. Trains and tunes a model for a single partition.
 
     Args:
         df: Preprocessed dataframe for one partition. See `input.input.create_datasets`.
@@ -124,7 +123,7 @@ def train_model(
     """Auxillary function for `predict`, does the training."""
     config = model_configs[model]
 
-    model = config.estimator(random_state=seed, **config.estimator_kwargs)
+    model = config.estimator(**config.estimator_kwargs)
 
     X_train, X_test, y_train, y_test, x_scaler, y_scaler = utils.scale_input(
         X_train, X_test, y_train, y_test, scaling_policy=config.scaling_policy

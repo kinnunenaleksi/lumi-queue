@@ -1,15 +1,16 @@
 import numpy as np
 import polars as pl
+from sklearn.experimental import enable_halving_search_cv
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
-    mean_absolute_percentage_error,
     median_absolute_error,
     r2_score,
     root_mean_squared_error,
 )
 from sklearn.model_selection import (
     GridSearchCV,
+    HalvingGridSearchCV,
     RandomizedSearchCV,
     train_test_split,
 )
@@ -225,8 +226,8 @@ def search_cv(model, config, search_method: str):
     common_kwargs = dict(
         estimator=model,
         cv=config.cv_folds,
-        n_jobs=-1,
-        verbose=3,
+        # n_jobs=-1,
+        # verbose=3,
         **config.grid_search_kwargs,
     )
 
@@ -235,6 +236,9 @@ def search_cv(model, config, search_method: str):
             param_grid=config.param_grid,
             **common_kwargs,
         )
+
+    elif search_method == "halving":
+        return HalvingGridSearchCV(param_grid=config.param_grid, **common_kwargs)
 
     elif search_method == "random":
         return RandomizedSearchCV(

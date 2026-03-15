@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import xgboost as xgb
+from scipy.stats import loguniform, randint, uniform
 from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
 
@@ -12,49 +13,66 @@ SEED = 49
 class ModelConfig:
     estimator: type
     param_grid: dict[str, Any]
+    search_method: str
+    use_permutation_importance: bool
+    scaling_policy: str
+    log_transform_policy: str
     cv_folds: int = 5
-    use_permutation_importance: bool = False
-    scaling_policy: str = "none"
-    log_transform_policy: str = "all_variables"
-    search_method: str = "grid"
     grid_search_kwargs: dict[str, Any] = field(
-        default_factory=lambda: {"scoring": "neg_mean_squared_error", "refit": True}
+        default_factory=lambda: {
+            "scoring": "neg_mean_squared_error",
+            # "scoring": "neg_mean_absolut_error",
+            "refit": True,
+            "n_jobs": -1,
+        }
     )
     estimator_kwargs: dict[str, Any] = field(default_factory=lambda: {"n_jobs": -1})
+    extra_grid_search_kwargs: dict[str, Any] = field(default_factory=dict)
+    extra_estimator_kwargs: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        self.grid_search_kwargs = {
+            **self.grid_search_kwargs,
+            **self.extra_grid_search_kwargs,
+        }
+        self.estimator_kwargs = {**self.estimator_kwargs, **self.extra_estimator_kwargs}
 
 
-MODEL_CONFIGS = {
+# First round training with RandomizedSearchCV
+BASELINE_CONFIGS = {
     "rf": ModelConfig(
         estimator=RandomForestRegressor,
-        estimator_kwargs={"n_jobs": -1},
         param_grid={
-            "n_estimators": [100, 200],
-            "criterion": ["squared_error"],
-            "max_depth": [None],
+            "n_estimators": randint(50, 1000),  # default = 100
+            "max_depth": [None] + list(range(1, 10)),  # default = None
+            "min_samples_split": randint(2, 10),  # default = 2
+            "min_samples_leaf": randint(1, 10),  # default = 1
+            "criterion": ["squared_error"],  # default ='squared_error'
+            "max_features": ["sqrt", "log2", None],  # default='sqrt'
         },
+        search_method="random",
+        scaling_policy="none",
+        log_transform_policy="all_variables",
         use_permutation_importance=False,
+        extra_grid_search_kwargs={"n_iter": 100, "random_state": SEED},
+        extra_estimator_kwargs={"verbose": 3},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
         param_grid={
-            # "n_estimators": [50, 100],
-            # "subsample": [0.8, 1.0],
-            "learning_rate": (0.05, 0.10, 0.15),
-            "max_depth": [3, 5],
-            # "min_child_weigth": [1, 3],
-            "gamma": [0.0, 0.01],
+            "n_estimators": randint(50, 1000),
+            "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
+            "subsample": uniform(0.01, 0.99),  # default=1
+            "max_depth": randint(1, 20),  # default=6
+            "gamma": loguniform(1e-5, 10),  # default=0
+            "min_child_weight": randint(1, 10),  # default=1
         },
+        search_method="random",
+        scaling_policy="none",
+        log_transform_policy="all_variables",
         use_permutation_importance=True,
-    ),
-    "gb": ModelConfig(
-        estimator=HistGradientBoostingRegressor,
-        param_grid={
-            "max_iter": [100, 200],
-            "learning_rate": [0.05, 0.1],
-            "max_depth": [3, 5, None],
-            "min_samples_leaf": [20],
-        },
-        use_permutation_importance=True,
+        extra_grid_search_kwargs={"n_iter": 100, "seed": SEED},
+        extra_estimator_kwargs={"verbosity": 3},
     ),
     "mlp": ModelConfig(
         estimator=MLPRegressor,
@@ -65,26 +83,129 @@ MODEL_CONFIGS = {
             "learning_rate": ["constant", "adaptive"],
             "max_iter": [1000],
         },
+        search_method="random",
+        scaling_policy="all_variables",
+        log_transform_policy="all_variables",
         use_permutation_importance=True,
+        extra_grid_search_kwargs={"n_iter": 100, "random_state": SEED},
+        extra_estimator_kwargs={"verbose": 3},
     ),
 }
 
+# Second round training: Halving search near parameters found in the first round
+# ABLATION_CONFIG = {
+#     "rf": ModelConfig(
+#         estimator=RandomForestRegressor,
+#         param_grid={
+#             "n_estimators": [100, 200],  # default = 100
+#             "min_samples_split": [1, 2, 3, 4],  # default = 2
+#             "min_samples_leaf": [1, 2, 3, 4],  # default = 1
+#             "min_sampls_criterion": ["squared_error"],
+#             "max_depth": [None],
+#         },
+#         use_permutation_importance=False,
+#     ),
+#     "xgb": ModelConfig(
+#         estimator=xgb.XGBRegressor,
+#         param_grid={
+#             # "n_estimators": [50, 100],
+#             # "subsample": [0.8, 1.0],
+#             "learning_rate": (0.05, 0.10, 0.15),
+#             "max_depth": [3, 5],
+#             # "min_child_weigth": [1, 3],
+#             "gamma": [0.0, 0.01],
+#         },
+#         use_permutation_importance=True,
+#     ),
+#     "gb": ModelConfig(
+#         estimator=HistGradientBoostingRegressor,
+#         param_grid={
+#             "learning_rate": [0.05, 0.1],  # default = 0.1
+#             "max_iter": [100, 200],  # default=100
+#             "max_leaf_nodes": [None, 31],  # default=31
+#             "max_depth": [3, 5, None],
+#             "min_samples_leaf": [20],
+#         },
+#         use_permutation_importance=True,
+#     ),
+#     "mlp": ModelConfig(
+#         estimator=MLPRegressor,
+#         param_grid={
+#             "hidden_layer_sizes": [(50,), (100,), (50, 50)],
+#             "activation": ["relu", "tanh"],
+#             "alpha": [0.0001, 0.001, 0.01],
+#             "learning_rate": ["constant", "adaptive"],
+#             "max_iter": [1000],
+#         },
+#         use_permutation_importance=True,
+#     ),
+# }
+
+# Used for unit-tests
+
+# LUMI_TEST_CONFIG = {
+#     "rf": ModelConfig(
+#         estimator=RandomForestRegressor,
+#         # param_grid={
+#         #     "n_estimators": [100, 200, 500],
+#         # },
+#         param_grid={
+#             "n_estimators": randint(50, 1000),  # default = 100
+#             "max_depth": [None] + list(range(1, 10)),  # default = None
+#             "min_samples_split": randint(2, 10),  # default = 2
+#             "min_samples_leaf": randint(1, 10),  # default = 1
+#             "criterion": ["squared_error"],  # default ='squared_error'
+#             "max_features": ["sqrt", "log2", None],  # default='sqrt'
+#         },
+#         cv_folds=2,
+#         search_method="random",
+#         scaling_policy="none",
+#         log_transform_policy="only_target",
+#         use_permutation_importance=False,
+#         extra_grid_search_kwargs={"random_state": SEED, "n_iter": 100},
+#         extra_estimator_kwargs={"verbose": 3, "random_state": SEED},
+#     ),
+#     "xgb": ModelConfig(
+#         estimator=xgb.XGBRegressor,
+#         param_grid={
+#             "max_depth": [1, 5, 10],
+#             "n_estimators": [100, 300, 500, 1000],
+#         },
+#         cv_folds=2,
+#         search_method="random",
+#         scaling_policy="none",
+#         log_transform_policy="only_target",
+#         use_permutation_importance=True,
+#         extra_grid_search_kwargs={"random_state": SEED},
+#         extra_estimator_kwargs={"verbosity": 3, "seed": SEED},
+#     ),
+# }
 TEST_MODEL_CONFIGS = {
     "rf": ModelConfig(
         estimator=RandomForestRegressor,
-        estimator_kwargs={"n_jobs": -1},
         param_grid={
             "n_estimators": [10, 20],
         },
         cv_folds=2,
+        search_method="random",
+        scaling_policy="none",
+        log_transform_policy="only_target",
         use_permutation_importance=False,
+        extra_grid_search_kwargs={"random_state": SEED},
+        extra_estimator_kwargs={"verbose": 3, "random_state": SEED},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
         param_grid={
             "max_depth": [1, 3],
+            "n_estimators": [100, 200],
         },
         cv_folds=2,
+        search_method="random",
+        scaling_policy="none",
+        log_transform_policy="only_target",
         use_permutation_importance=True,
+        extra_grid_search_kwargs={"random_state": SEED},
+        extra_estimator_kwargs={"verbosity": 3, "seed": SEED},
     ),
 }

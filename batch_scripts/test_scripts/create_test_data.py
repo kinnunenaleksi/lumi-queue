@@ -1,9 +1,9 @@
 from input.input import create_datasets
 
 DATA_PATH = "../anonJobs.parquet"
-EXPORT_PATH = "data"
+EXPORT_PATH = "test_data"
 PARTITIONS = ["small", "small-g", "standard", "standard-g"]
-TRUNCATE_PCT = 1
+TRUNCATE_PCT = 0.2
 
 
 def main():
