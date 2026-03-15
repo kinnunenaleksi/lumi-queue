@@ -6,7 +6,6 @@
 #SBATCH --account=project_462001312
 #SBATCH --time=01:00:00
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
 #SBATCH --partition=standard-g
 
 module load cray-python
