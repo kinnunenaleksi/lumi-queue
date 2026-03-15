@@ -56,7 +56,7 @@ BASELINE_CONFIGS = {
         log_transform_policy="all_variables",
         use_permutation_importance=False,
         extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED, "refit": True},
-        extra_estimator_kwargs={"verbose": 1},
+        extra_estimator_kwargs={"verbose": 1, "n_jobs": 8},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
@@ -72,7 +72,7 @@ BASELINE_CONFIGS = {
         scaling_policy="none",
         log_transform_policy="all_variables",
         use_permutation_importance=True,
-        extra_grid_search_kwargs={"n_iter": 10, "seed": SEED},
+        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED, "refit": True},
         extra_estimator_kwargs={"verbosity": 1},
     ),
     "mlp": ModelConfig(
