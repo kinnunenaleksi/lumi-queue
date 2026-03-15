@@ -26,7 +26,8 @@ class ModelConfig:
             "n_jobs": -1,
         }
     )
-    estimator_kwargs: dict[str, Any] = field(default_factory=lambda: {"n_jobs": -1})
+    # estimator_kwargs: dict[str, Any] = field(default_factory=lambda: {"n_jobs": -1})
+    estimator_kwargs: dict[str, Any] = field(default_factory=lambda: {})
     extra_grid_search_kwargs: dict[str, Any] = field(default_factory=dict)
     extra_estimator_kwargs: dict[str, Any] = field(default_factory=dict)
 
@@ -54,8 +55,8 @@ BASELINE_CONFIGS = {
         scaling_policy="none",
         log_transform_policy="all_variables",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED},
-        extra_estimator_kwargs={"verbose": 3},
+        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED, "refit": True},
+        extra_estimator_kwargs={"verbose": 1},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
@@ -72,7 +73,7 @@ BASELINE_CONFIGS = {
         log_transform_policy="all_variables",
         use_permutation_importance=True,
         extra_grid_search_kwargs={"n_iter": 10, "seed": SEED},
-        extra_estimator_kwargs={"verbosity": 3},
+        extra_estimator_kwargs={"verbosity": 1},
     ),
     "mlp": ModelConfig(
         estimator=MLPRegressor,
