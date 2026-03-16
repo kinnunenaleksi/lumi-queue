@@ -21,11 +21,11 @@ TEST_MODELS = {
     #     "feature_sets": ["baseline", "perfect"],
     # },
     "small-g": {
-        "models": ["rf"],
+        "models": ["rf", "xgb"],
         "feature_sets": ["baseline"],
     },
     "standard-g": {
-        "models": ["rf"],
+        "models": ["rf", "xgb"],
         "feature_sets": ["baseline"],
     },
 }

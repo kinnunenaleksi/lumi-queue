@@ -47,8 +47,8 @@ BASELINE_CONFIGS = {
         param_grid={
             "n_estimators": randint(50, 200),  # default = 100
             "max_depth": [None] + list(range(1, 20)),  # default = None
-            "min_samples_split": randint(2, 20),  # default = 2
-            "min_samples_leaf": randint(1, 20),  # default = 1
+            "min_samples_split": randint(2, 10),  # default = 2
+            "min_samples_leaf": randint(1, 10),  # default = 1
             "criterion": ["squared_error"],  # default ='squared_error'
             "max_features": ["sqrt", "log2", None],  # default='sqrt'
         },
@@ -57,13 +57,13 @@ BASELINE_CONFIGS = {
         log_transform_policy="only_target",
         sample_weight_method="rank",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 20, "random_state": SEED, "refit": True},
+        extra_grid_search_kwargs={"n_iter": 30, "random_state": SEED, "refit": True},
         extra_estimator_kwargs={"verbose": 1, "n_jobs": 8},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
         param_grid={
-            "n_estimators": randint(50, 200),
+            "n_estimators": randint(50, 300),
             "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
             "subsample": uniform(0.01, 0.99),  # default=1
             "max_depth": randint(1, 20),  # default=6
@@ -72,10 +72,10 @@ BASELINE_CONFIGS = {
         },
         search_method="random",
         scaling_policy="none",
-        sample_weight_method="rank",
-        log_transform_policy="all_variables",
+        sample_weight_method="none",
+        log_transform_policy="only_target",
         use_permutation_importance=True,
-        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED, "refit": True},
+        extra_grid_search_kwargs={"n_iter": 20, "random_state": SEED, "refit": True},
         extra_estimator_kwargs={"verbosity": 1},
     ),
     "mlp": ModelConfig(
