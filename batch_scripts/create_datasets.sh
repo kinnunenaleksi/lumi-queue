@@ -4,11 +4,10 @@
 #SBATCH --output=runs/r-%x.%j.out
 #SBATCH --error=runs/r-%x.%j.err
 #SBATCH --account=project_462001312
-#SBATCH --time=00:02:00
+#SBATCH --time=00:20:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=128
-#SBATCH --mem=16G
 #SBATCH --partition=small
 
 module load cray-python
