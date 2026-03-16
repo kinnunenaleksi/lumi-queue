@@ -13,6 +13,7 @@ from sklearn.model_selection import (
     GridSearchCV,
     HalvingGridSearchCV,
     RandomizedSearchCV,
+    TimeSeriesSplit,
     train_test_split,
 )
 from sklearn.preprocessing import StandardScaler
@@ -73,7 +74,8 @@ def log_transform_input(
     predictor_cols = [
         c
         for c in df.columns
-        if c.startswith("allocated") or c.startswith("active") or c.startswith("queued")
+        # if c.startswith("allocated") or c.startswith("active") or c.startswith("queued")
+        if c.startswith("active") or c.startswith("queued")
     ]
 
     if log_transform_policy == "all_variables":
@@ -184,7 +186,7 @@ def fetch_cv_results(cv_results: dict):
         if dt == pl.Object
     ]
 
-    df_cv_results = pl.DataFrame(df_cv_results).with_columns(
+    df_cv_results = df_cv_results.with_columns(
         [
             pl.col(c)
             .map_elements(
@@ -196,9 +198,22 @@ def fetch_cv_results(cv_results: dict):
         ]
     )
 
-    df_cv_results = (
-        pl.DataFrame(df_cv_results).sort("rank_test_score", descending=True)
-    ).unnest("params")
+    param_cols = [c for c in df_cv_results.columns if c.startswith("param_")]
+    non_param_cols = [
+        c for c in df_cv_results.columns if not c.startswith("param_") and c != "params"
+    ]
+
+    param_df = df_cv_results.select(param_cols).rename(
+        {c: c.removeprefix("param_") for c in param_cols}
+    )
+
+    rank_cols = [c for c in df_cv_results.columns if c.startswith("rank_test_")]
+    sort_col = rank_cols[0] if rank_cols else "rank_test_score"
+
+    df_cv_results = pl.concat(
+        [df_cv_results.select(non_param_cols), param_df], how="horizontal"
+    ).sort(sort_col, descending=True)
+    # )#.sort("rank_test_score", descending=True)
 
     return df_cv_results
 
@@ -267,11 +282,14 @@ def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
 
 def search_cv(model, config, search_method: str):
     """Auxillary function for hyperparameter tuning."""
+    if config.cv_strategy == "timeseries":
+        cv = TimeSeriesSplit(n_splits=config.cv_folds)
+    else:
+        cv = config.cv_folds
+
     common_kwargs = dict(
         estimator=model,
-        cv=config.cv_folds,
-        # n_jobs=-1,
-        # verbose=3,
+        cv=cv,
         **config.grid_search_kwargs,
     )
 

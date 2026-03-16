@@ -18,13 +18,21 @@ class ModelConfig:
     scaling_policy: str
     log_transform_policy: str
     sample_weight_method: str = "none"
+    cv_strategy: str = "kfold"
     cv_folds: int = 5
     grid_search_kwargs: dict[str, Any] = field(
         default_factory=lambda: {
             # "scoring": "neg_mean_squared_error",
-            "scoring": "neg_mean_absolute_error",
+            # "scoring": "neg_mean_absolute_error",
             # "scoring": "r2",
-            "refit": True,
+            "scoring": {
+                "mae": "neg_mean_absolute_error",
+                "mape": "neg_mean_absolute_percentage_error",
+                "rmse": "neg_root_mean_squared_error",
+                "r2": "r2",
+            },
+            "refit": "mae",
+            # "refit": True,
             "n_jobs": -1,
         }
     )
@@ -46,8 +54,8 @@ BASELINE_CONFIGS = {
     "rf": ModelConfig(
         estimator=RandomForestRegressor,
         param_grid={
-            "n_estimators": randint(10, 200),  # default = 100
-            "max_depth": [None] + list(range(1, 20)),  # default = None
+            "n_estimators": randint(50, 500),  # default = 100
+            "max_depth": [None] + list(range(5, 30)),  # default = None
             "min_samples_split": randint(2, 10),  # default = 2
             "min_samples_leaf": randint(1, 10),  # default = 1
             "criterion": ["squared_error"],  # default ='squared_error'
@@ -55,28 +63,31 @@ BASELINE_CONFIGS = {
         },
         search_method="random",
         scaling_policy="none",
-        log_transform_policy="only_target",
+        log_transform_policy="all_variables",
         sample_weight_method="rank",
+        cv_strategy="timeseries",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 30, "random_state": SEED, "refit": True},
+        extra_grid_search_kwargs={"n_iter": 30, "random_state": SEED},
         extra_estimator_kwargs={"verbose": 1, "n_jobs": 8},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
         param_grid={
-            "n_estimators": randint(10, 300),
+            "n_estimators": randint(10, 500),
             "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
-            "subsample": uniform(0.01, 0.99),  # default=1
-            "max_depth": randint(1, 20),  # default=6
-            "gamma": loguniform(1e-5, 10),  # default=0
+            "subsample": uniform(0.5, 0.5),  # default=1
+            "max_depth": randint(3, 30),  # default=6
+            "gamma": loguniform(1e-5, 1.0),  # default=0
             "min_child_weight": randint(1, 10),  # default=1
+            "colsample_bytree": uniform(0.5, 0.5),
         },
         search_method="random",
         scaling_policy="none",
-        sample_weight_method="none",
-        log_transform_policy="only_target",
+        sample_weight_method="rank",
+        log_transform_policy="all_variables",
+        cv_strategy="timeseries",
         use_permutation_importance=True,
-        extra_grid_search_kwargs={"n_iter": 20, "random_state": SEED, "refit": True},
+        extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED},
         extra_estimator_kwargs={"verbosity": 1},
     ),
     "mlp": ModelConfig(
@@ -91,6 +102,7 @@ BASELINE_CONFIGS = {
         search_method="random",
         scaling_policy="all_variables",
         log_transform_policy="all_variables",
+        cv_strategy="timeseries",
         use_permutation_importance=True,
         extra_grid_search_kwargs={"n_iter": 100, "random_state": SEED},
         extra_estimator_kwargs={"verbose": 3},

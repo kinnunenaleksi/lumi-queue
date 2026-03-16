@@ -55,5 +55,5 @@ def test_pipeline():
     print(cv_results[0])
     print(res.df_feature_importance.head())
 
-    shutil.rmtree(INPUT_PATH)
-    shutil.rmtree(EXPORT_PATH)
+    # shutil.rmtree(INPUT_PATH)
+    # shutil.rmtree(EXPORT_PATH)

@@ -12,8 +12,7 @@ from analyze.utils import (
 
 
 def create_reports(results_dir: str):
-    """Main function of `analyze` module. Creates combined model-training
-    results.
+    """Main function of `analyze` module. Creates combined model-training results.
 
     This function creates the following files for reporting purposes:
 
@@ -93,7 +92,10 @@ def create_cv_report(df: pl.DataFrame, output_path: str = "cv_results.txt"):
         or c.startswith("std")
         or c.startswith("mean_score")
         or c.startswith("param")
-        or c.startswith("mean_fit_time")
+        # or c.startswith("mean_fit_time")
+        or c.startswith("rank_test_mape")
+        or c.startswith("rank_test_rmse")
+        or c.startswith("rank_test_r2")
     ]
 
     df = df.drop(rm_cols)
@@ -117,12 +119,19 @@ def create_cv_report(df: pl.DataFrame, output_path: str = "cv_results.txt"):
 
             df_filter = df_filter.select(cols_without_nulls)
 
-            first_cols = ["feature_set", "mean_test_score", "rank_test_score"]
+            first_cols = [
+                "feature_set",
+                "mean_test_mae",
+                "mean_test_rmse",
+                "mean_test_r2",
+                "mean_test_mape",
+                "rank_test_mae",
+            ]
             df_filter = df_filter.select(
                 first_cols + [c for c in df_filter.columns if c not in first_cols]
             )
             df_filter = df_filter.sort(
-                ["feature_set", "rank_test_score"], descending=False
+                ["feature_set", "rank_test_mae"], descending=False
             )
 
             df_pd = pd.DataFrame(df_filter, columns=df_filter.columns)
