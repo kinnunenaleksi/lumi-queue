@@ -45,19 +45,19 @@ BASELINE_CONFIGS = {
     "rf": ModelConfig(
         estimator=RandomForestRegressor,
         param_grid={
-            "n_estimators": randint(50, 1000),  # default = 100
-            "max_depth": [None] + list(range(1, 10)),  # default = None
-            "min_samples_split": randint(2, 10),  # default = 2
-            "min_samples_leaf": randint(1, 10),  # default = 1
+            "n_estimators": randint(50, 700),  # default = 100
+            "max_depth": [None] + list(range(1, 20)),  # default = None
+            "min_samples_split": randint(2, 20),  # default = 2
+            "min_samples_leaf": randint(1, 20),  # default = 1
             "criterion": ["squared_error"],  # default ='squared_error'
             "max_features": ["sqrt", "log2", None],  # default='sqrt'
         },
         search_method="random",
         scaling_policy="none",
-        log_transform_policy="all_variables",
+        log_transform_policy="only_target",
         sample_weight_method="rank",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED, "refit": True},
+        extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED, "refit": True},
         extra_estimator_kwargs={"verbose": 1, "n_jobs": 8},
     ),
     "xgb": ModelConfig(
