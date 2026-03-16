@@ -4,6 +4,7 @@ from sklearn.experimental import enable_halving_search_cv
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
+    mean_absolute_percentage_error,
     median_absolute_error,
     r2_score,
     root_mean_squared_error,
@@ -235,7 +236,7 @@ def fetch_feature_importance(
 def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
     """Calculates model performance metrics from the validation set."""
     rmse = root_mean_squared_error(y_test, y_pred)
-    # mape = mean_absolute_percentage_error(y_test, y_pred)
+    mape = mean_absolute_percentage_error(y_test, y_pred)
     med = median_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
@@ -251,7 +252,7 @@ def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
         {
             "rmse": rmse,
             "r2": r2,
-            # "mape": mape,
+            "mape": mape,
             "med_seconds": med,
             "perc_err_under_1min": mask_1min.mean(),
             "perc_err_under_3min": mask_3min.mean(),
