@@ -59,7 +59,7 @@ BASELINE_CONFIGS = {
             "min_samples_split": randint(2, 10),  # default = 2
             "min_samples_leaf": randint(1, 10),  # default = 1
             "criterion": ["squared_error"],  # default ='squared_error'
-            "max_features": ["sqrt", "log2", None],  # default='sqrt'
+            "max_features": ["sqrt", "log2", None, 0.2, 0.5, 1.0],  # default=1.0
         },
         search_method="random",
         scaling_policy="none",
