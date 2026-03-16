@@ -4,25 +4,33 @@ from train.params.params_models import BASELINE_CONFIGS
 from train.train import train_models
 
 TEST_MODELS = {
-    "small-g": {
-        "models": ["rf", "xgb"],
-        "feature_sets": ["perfect", "baseline"],
-    },
-    # "small": {
+    # "small-g": {
     #     "models": ["rf", "xgb"],
     #     "feature_sets": ["perfect", "baseline"],
     # },
-    "standard": {
-        "models": ["rf", "xgb"],
-        "feature_sets": ["baseline", "perfect"],
+    # # "small": {
+    # #     "models": ["rf", "xgb"],
+    # #     "feature_sets": ["perfect", "baseline"],
+    # # },
+    # "standard": {
+    #     "models": ["rf", "xgb"],
+    #     "feature_sets": ["baseline", "perfect"],
+    # },
+    # "standard-g": {
+    #     "models": ["rf", "xgb"],
+    #     "feature_sets": ["baseline", "perfect"],
+    # },
+    "small-g": {
+        "models": ["rf"],
+        "feature_sets": ["baseline"],
     },
     "standard-g": {
-        "models": ["rf", "xgb"],
-        "feature_sets": ["baseline", "perfect"],
+        "models": ["rf"],
+        "feature_sets": ["baseline"],
     },
 }
 
-INPUT_PATH = "test_data"
+INPUT_PATH = "data"
 EXPORT_PATH = "test_model_results"
 PARTITIONS = list(TEST_MODELS.keys())
 
@@ -34,7 +42,7 @@ def main():
         feature_sets=FEATURE_SETS,
         model_configs=BASELINE_CONFIGS,
         y_col="wait_time_seconds",
-        test_size=0.4,
+        test_size=0.2,
         split_method="timeseries",
         export_path=EXPORT_PATH,
         input_path=INPUT_PATH,
