@@ -22,8 +22,8 @@ class ModelConfig:
     grid_search_kwargs: dict[str, Any] = field(
         default_factory=lambda: {
             # "scoring": "neg_mean_squared_error",
-            # "scoring": "neg_mean_absolut_error",
-            "scoring": "r2",
+            "scoring": "neg_mean_absolute_error",
+            # "scoring": "r2",
             "refit": True,
             "n_jobs": -1,
         }
