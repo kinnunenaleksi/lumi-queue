@@ -45,7 +45,7 @@ BASELINE_CONFIGS = {
     "rf": ModelConfig(
         estimator=RandomForestRegressor,
         param_grid={
-            "n_estimators": randint(50, 200),  # default = 100
+            "n_estimators": randint(10, 200),  # default = 100
             "max_depth": [None] + list(range(1, 20)),  # default = None
             "min_samples_split": randint(2, 10),  # default = 2
             "min_samples_leaf": randint(1, 10),  # default = 1
@@ -63,7 +63,7 @@ BASELINE_CONFIGS = {
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
         param_grid={
-            "n_estimators": randint(50, 300),
+            "n_estimators": randint(10, 300),
             "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
             "subsample": uniform(0.01, 0.99),  # default=1
             "max_depth": randint(1, 20),  # default=6
