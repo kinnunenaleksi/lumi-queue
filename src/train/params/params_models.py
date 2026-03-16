@@ -17,6 +17,7 @@ class ModelConfig:
     use_permutation_importance: bool
     scaling_policy: str
     log_transform_policy: str
+    sample_weight_method: str = "none"
     cv_folds: int = 5
     grid_search_kwargs: dict[str, Any] = field(
         default_factory=lambda: {
@@ -54,6 +55,7 @@ BASELINE_CONFIGS = {
         search_method="random",
         scaling_policy="none",
         log_transform_policy="all_variables",
+        sample_weight_method="rank",
         use_permutation_importance=False,
         extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED, "refit": True},
         extra_estimator_kwargs={"verbose": 1, "n_jobs": 8},
@@ -70,6 +72,7 @@ BASELINE_CONFIGS = {
         },
         search_method="random",
         scaling_policy="none",
+        sample_weight_method="rank",
         log_transform_policy="all_variables",
         use_permutation_importance=True,
         extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED, "refit": True},

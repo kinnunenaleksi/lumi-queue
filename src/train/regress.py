@@ -72,6 +72,8 @@ def predict(
 
     df = df.sort(pl.col("start_ts"), descending=False)
 
+    df = df.with_columns(pl.col("wait_time_seconds").clip(lower_bound=1))
+
     df = utils.log_transform_input(
         df,
         target=[y_col],
@@ -87,6 +89,10 @@ def predict(
         X, y, test_size=test_size, split_method=split_method
     )
 
+    sample_weights = utils.compute_sample_weights(
+        y_train, method=config.sample_weight_method
+    )
+
     df_feature_importance, df_cv_results, df_metrics, y_pred, best_model = train_model(
         X_train,
         X_test,
@@ -95,6 +101,7 @@ def predict(
         selected_cols,
         model=model,
         model_configs=model_configs,
+        sample_weights=sample_weights,
     )
 
     res = Result(
@@ -118,6 +125,7 @@ def train_model(
     selected_cols: list,
     model: str,
     model_configs: Any,
+    sample_weights: np.ndarray | None = None,
     seed: int = SEED,
 ):
     """Auxillary function for `predict`, does the training."""
@@ -133,7 +141,11 @@ def train_model(
         model=model, config=config, search_method=config.search_method
     )
 
-    grid_search.fit(X_train, y_train)
+    fit_params = {}
+    if sample_weights is not None:
+        fit_params["sample_weight"] = sample_weights
+
+    grid_search.fit(X_train, y_train, **fit_params)
     best_model = grid_search.best_estimator_
     y_pred = grid_search.predict(X_test)
 

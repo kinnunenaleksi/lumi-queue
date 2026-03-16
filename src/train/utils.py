@@ -19,6 +19,49 @@ from sklearn.preprocessing import StandardScaler
 from train.params.params_models import SEED
 
 
+def compute_sample_weights(
+    y: np.ndarray,
+    method: str = "rank",
+) -> np.ndarray:
+    """Computes sample weights that emphasize higher target values.
+
+    Args:
+        y: Target variable array (training set only).
+        method: Weighting strategy. Can be one of:
+            - "none": Uniform weights (no weighting).
+            - "linear": Weights proportional to normalized target values.
+            - "rank": Weights based on percentile rank (robust to outliers).
+
+    Returns:
+        Array of sample weights, normalized to mean of 1.0.
+    """
+    if method == "none":
+        return np.ones(len(y))
+
+    if method == "linear":
+        y_min = y.min()
+        y_range = y.max() - y_min
+        if y_range == 0:
+            return np.ones(len(y))
+        weights = 1.0 + (y - y_min) / y_range
+
+    elif method == "rank":
+        from scipy.stats import rankdata
+
+        ranks = rankdata(y, method="average")
+        weights = ranks / len(ranks)
+        weights = 0.5 + weights
+
+    else:
+        raise ValueError(
+            f"Unknown sample_weight_method '{method}'. "
+            "Must be one of 'none', 'linear', 'rank'."
+        )
+
+    weights = weights * len(weights) / weights.sum()
+    return weights
+
+
 def log_transform_input(
     df: pl.DataFrame,
     log_transform_policy: str,
