@@ -33,6 +33,7 @@ def compute_sample_weights(
             - "none": Uniform weights (no weighting).
             - "linear": Weights proportional to normalized target values.
             - "rank": Weights based on percentile rank (robust to outliers).
+            - "aggressive": Exponential `rank`.
 
     Returns:
         Array of sample weights, normalized to mean of 1.0.
@@ -53,6 +54,17 @@ def compute_sample_weights(
         ranks = rankdata(y, method="average")
         weights = ranks / len(ranks)
         weights = 0.5 + weights
+
+    elif method == "aggressive":
+        from scipy.stats import rankdata
+
+        ranks = rankdata(y, method="average")
+        n = len(ranks)
+        if n <= 1:
+            return np.ones(n)
+        rank_frac = (ranks - 1) / (n - 1)
+        alpha = 4.0
+        weights = np.exp(alpha * rank_frac)
 
     else:
         raise ValueError(
@@ -180,9 +192,7 @@ def fetch_cv_results(cv_results: dict):
     """Auxillary function to make dataframe from the cv results."""
     for key in cv_results:
         if key.startswith("param_"):
-            cv_results[key] = [
-                None if v is None else str(v) for v in cv_results[key]
-            ]
+            cv_results[key] = [None if v is None else str(v) for v in cv_results[key]]
 
     df_cv_results = pl.DataFrame(cv_results)
 

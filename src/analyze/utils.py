@@ -70,7 +70,7 @@ def recreate_dataset(
         from each model/ablation combination.
     """
     results_path = Path(results_dir)
-    result_files = sorted(results_path.glob(f"res_{partition}_*.pkl"))
+    result_files = sorted(results_path.glob(f"res_{partition}_*.xz"))
 
     if not result_files:
         raise FileNotFoundError(
