@@ -106,7 +106,7 @@ BASELINE_CONFIGS = {
         cv_strategy="timeseries",
         use_permutation_importance=True,
         extra_grid_search_kwargs={"n_iter": 20, "random_state": SEED},
-        extra_estimator_kwargs={"verbose": 3, "n_jobs": 8},
+        extra_estimator_kwargs={"verbose": 3},
     ),
 }
 
