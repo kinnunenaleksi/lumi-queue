@@ -194,7 +194,7 @@ def fetch_cv_results(cv_results: dict):
         if key.startswith("param_"):
             cv_results[key] = [None if v is None else str(v) for v in cv_results[key]]
 
-    df_cv_results = pl.DataFrame(cv_results)
+    df_cv_results = pl.DataFrame(cv_results, strict=False)
 
     obj_cols = [
         c
