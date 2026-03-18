@@ -93,19 +93,20 @@ BASELINE_CONFIGS = {
     "mlp": ModelConfig(
         estimator=MLPRegressor,
         param_grid={
-            "hidden_layer_sizes": [(50,), (100,), (50, 50)],
+            "hidden_layer_sizes": [(50,), (100,), (50, 50), (100, 100)],
             "activation": ["relu", "tanh"],
-            "alpha": [0.0001, 0.001, 0.01],
+            "alpha": [0.0001, 0.001, 0.01, 0.1],
             "learning_rate": ["constant", "adaptive"],
             "max_iter": [1000],
         },
         search_method="random",
-        scaling_policy="all_variables",
+        scaling_policy="none",
         log_transform_policy="all_variables",
+        sample_weight_method="aggressive",
         cv_strategy="timeseries",
         use_permutation_importance=True,
-        extra_grid_search_kwargs={"n_iter": 100, "random_state": SEED},
-        extra_estimator_kwargs={"verbose": 3},
+        extra_grid_search_kwargs={"n_iter": 20, "random_state": SEED},
+        extra_estimator_kwargs={"verbose": 3, "n_jobs": 8},
     ),
 }
 

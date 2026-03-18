@@ -25,7 +25,8 @@ TEST_MODELS = {
     #     "feature_sets": ["baseline"],
     # },
     "standard": {
-        "models": ["rf", "xgb"],
+        # "models": ["rf", "xgb"],
+        "models": ["mlp"],
         "feature_sets": ["baseline"],
     },
 }
