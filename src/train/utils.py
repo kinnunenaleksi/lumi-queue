@@ -4,6 +4,8 @@ from sklearn.experimental import enable_halving_search_cv
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
+    max_error,
+    mean_absolute_error,
     mean_absolute_percentage_error,
     median_absolute_error,
     r2_score,
@@ -268,8 +270,10 @@ def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
     """Calculates model performance metrics from the validation set."""
     rmse = root_mean_squared_error(y_test, y_pred)
     mape = mean_absolute_percentage_error(y_test, y_pred)
-    med = median_absolute_error(y_test, y_pred)
+    median_ae = median_absolute_error(y_test, y_pred)
+    mean_ae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
+    maximum_error = max_error(y_test, y_pred)
 
     abs_err = abs(y_test - y_pred)
 
@@ -278,18 +282,22 @@ def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
     mask_5min = abs_err <= 300
     mask_10min = abs_err <= 600
     mask_30min = abs_err <= 1800
+    mask_60min = abs_err <= 3600
 
     df_metrics = pl.DataFrame(
         {
             "rmse": rmse,
-            "r2": r2,
             "mape": mape,
-            "med_seconds": med,
+            "r2": r2,
+            "median_ae": median_ae,
+            "mean_ae": mean_ae,
+            "max_error": maximum_error,
             "perc_err_under_1min": mask_1min.mean(),
             "perc_err_under_3min": mask_3min.mean(),
             "perc_err_under_5min": mask_5min.mean(),
             "perc_err_under_10min": mask_10min.mean(),
             "perc_err_under_30min": mask_30min.mean(),
+            "perc_err_under_60min": mask_60min.mean(),
         }
     ).transpose(include_header=True, header_name="metric", column_names=["value"])
 
