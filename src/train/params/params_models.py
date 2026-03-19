@@ -67,7 +67,7 @@ BASELINE_CONFIGS = {
         sample_weight_method="aggressive",
         cv_strategy="timeseries",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 30, "random_state": SEED},
+        extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED},
         extra_estimator_kwargs={"verbose": 1, "n_jobs": 8},
     ),
     "xgb": ModelConfig(
@@ -101,6 +101,10 @@ BASELINE_CONFIGS = {
                 (200,),
                 (200, 100),
                 (200, 200),
+                (250,),
+                (250, 150),
+                (250, 200),
+                (250, 250),
             ],
             "activation": ["relu", "tanh"],
             "alpha": [0.0001, 0.001, 0.01, 0.1],
@@ -115,7 +119,7 @@ BASELINE_CONFIGS = {
         cv_strategy="timeseries",
         use_permutation_importance=True,
         extra_grid_search_kwargs={"n_iter": 30, "random_state": SEED},
-        extra_estimator_kwargs={"verbose": 3},
+        extra_estimator_kwargs={"verbose": 1},
     ),
 }
 
