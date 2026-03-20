@@ -50,7 +50,7 @@ def main():
         feature_sets=FEATURE_SETS,
         model_configs=BASELINE_CONFIGS,
         y_col="wait_time_seconds",
-        test_size=0.3,
+        test_size=0.2,
         split_method="timeseries",
         export_path=EXPORT_PATH,
         input_path=INPUT_PATH,

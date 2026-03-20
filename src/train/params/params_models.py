@@ -73,7 +73,7 @@ BASELINE_CONFIGS = {
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
         param_grid={
-            "n_estimators": randint(10, 500),
+            "n_estimators": randint(80, 500),
             "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
             "subsample": uniform(0.5, 0.5),  # default=1
             "max_depth": randint(3, 30),  # default=6
