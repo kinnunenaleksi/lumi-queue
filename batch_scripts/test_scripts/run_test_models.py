@@ -24,7 +24,13 @@ TEST_MODELS = {
     #     "models": ["rf", "xgb"],
     #     "feature_sets": ["baseline"],
     # },
-    "standard": {
+    # "standard": {
+    #     # "models": ["rf", "xgb"],
+    #     # "models": ["mlp"],
+    #     "models": ["rf", "xgb", "mlp"],
+    #     "feature_sets": ["baseline"],
+    # },
+    "small-g": {
         # "models": ["rf", "xgb"],
         # "models": ["mlp"],
         "models": ["rf", "xgb", "mlp"],
