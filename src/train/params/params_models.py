@@ -54,7 +54,7 @@ BASELINE_CONFIGS = {
     "rf": ModelConfig(
         estimator=RandomForestRegressor,
         param_grid={
-            "n_estimators": randint(50, 500),  # default = 100
+            "n_estimators": randint(80, 200),  # default = 100
             "max_depth": [None] + list(range(5, 30)),  # default = None
             "min_samples_split": randint(2, 10),  # default = 2
             "min_samples_leaf": randint(1, 10),  # default = 1
@@ -68,7 +68,7 @@ BASELINE_CONFIGS = {
         cv_strategy="timeseries",
         use_permutation_importance=False,
         extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED},
-        extra_estimator_kwargs={"verbose": 1, "n_jobs": 1},
+        extra_estimator_kwargs={"verbose": 1, "n_jobs": 4},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
@@ -109,7 +109,7 @@ BASELINE_CONFIGS = {
             "activation": ["relu", "tanh"],
             "alpha": [0.0001, 0.001, 0.01, 0.1],
             # "learning_rate": ["constant", "adaptive"],
-            "max_iter": [3000],
+            "max_iter": [2000],
             "learning_rate_init": [0.0003, 0.001, 0.01],
         },
         search_method="random",
