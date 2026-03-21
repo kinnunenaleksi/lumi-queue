@@ -73,6 +73,9 @@ def predict(
     df = df.sort(pl.col("start_ts"), descending=False)
 
     df = df.with_columns(pl.col("wait_time_seconds").clip(lower_bound=1))
+    df = df.with_columns(
+        wait_time_minutes=pl.col("wait_time_seconds").round().cast(pl.Int64)
+    )
 
     df = utils.log_transform_input(
         df,
