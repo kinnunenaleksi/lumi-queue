@@ -3,8 +3,8 @@ from typing import Any
 
 import xgboost as xgb
 from scipy.stats import loguniform, randint, uniform
-from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
-from sklearn.neural_network import MLPRegressor
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.neural_network import MLPClassifier, MLPRegressor
 
 SEED = 49
 
@@ -68,7 +68,7 @@ BASELINE_CONFIGS = {
         cv_strategy="timeseries",
         use_permutation_importance=False,
         extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED},
-        extra_estimator_kwargs={"verbose": 1, "n_jobs": 4},
+        extra_estimator_kwargs={"verbose": 1, "n_jobs": 2},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
@@ -122,6 +122,80 @@ BASELINE_CONFIGS = {
         extra_estimator_kwargs={"verbose": 1},
     ),
 }
+
+CLASSIFIER_CONFIGS = {
+    "rf": ModelConfig(
+        estimator=RandomForestClassifier,
+        param_grid={
+            "n_estimators": randint(80, 200),  # default = 100
+            "max_depth": [None] + list(range(5, 30)),  # default = None
+            "min_samples_split": randint(2, 10),  # default = 2
+            "min_samples_leaf": randint(1, 10),  # default = 1
+            "criterion": ["gini", "entropy", "log_loss"],  # default ='squared_error'
+            "max_features": ["sqrt", "log2", None, 0.2, 0.5, 1.0],  # default=1.0
+        },
+        search_method="random",
+        scaling_policy="none",
+        log_transform_policy="all_variables",
+        sample_weight_method="aggressive",
+        cv_strategy="timeseries",
+        use_permutation_importance=False,
+        extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED},
+        extra_estimator_kwargs={"verbose": 1, "n_jobs": 4},
+    ),
+    "xgb": ModelConfig(
+        estimator=xgb.XGBClassifier,
+        param_grid={
+            "n_estimators": randint(80, 500),
+            "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
+            "subsample": uniform(0.5, 0.5),  # default=1
+            "max_depth": randint(3, 30),  # default=6
+            "gamma": loguniform(1e-5, 1.0),  # default=0
+            "min_child_weight": randint(1, 10),  # default=1
+            "colsample_bytree": uniform(0.5, 0.5),
+        },
+        search_method="random",
+        scaling_policy="none",
+        sample_weight_method="aggressive",
+        log_transform_policy="all_variables",
+        cv_strategy="timeseries",
+        use_permutation_importance=True,
+        extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED},
+        extra_estimator_kwargs={"verbosity": 1},
+    ),
+    "mlp": ModelConfig(
+        estimator=MLPClassifier,
+        param_grid={
+            "hidden_layer_sizes": [
+                (50,),
+                (100,),
+                (50, 50),
+                (100, 100),
+                (200,),
+                (200, 100),
+                (200, 200),
+                (250,),
+                (250, 150),
+                (250, 200),
+                (250, 250),
+            ],
+            "activation": ["relu", "tanh"],
+            "alpha": [0.0001, 0.001, 0.01, 0.1],
+            # "learning_rate": ["constant", "adaptive"],
+            "max_iter": [2000],
+            "learning_rate_init": [0.0003, 0.001, 0.01],
+        },
+        search_method="random",
+        scaling_policy="all_variables",
+        log_transform_policy="all_variables",
+        sample_weight_method="aggressive",
+        cv_strategy="timeseries",
+        use_permutation_importance=True,
+        extra_grid_search_kwargs={"n_iter": 30, "random_state": SEED},
+        extra_estimator_kwargs={"verbose": 1},
+    ),
+}
+
 
 # Second round training: Halving search near parameters found in the first round
 # ABLATION_CONFIG = {
