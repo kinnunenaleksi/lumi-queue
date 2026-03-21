@@ -8,7 +8,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --partition=standard
-#SBATCH --cpus-per-task=128
+#SBATCH --cpus-per-task=64
 
 module load cray-python
 
