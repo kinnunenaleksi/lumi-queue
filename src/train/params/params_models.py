@@ -68,7 +68,7 @@ BASELINE_CONFIGS = {
         cv_strategy="timeseries",
         use_permutation_importance=False,
         extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED},
-        extra_estimator_kwargs={"verbose": 1, "n_jobs": 2},
+        extra_estimator_kwargs={"verbose": 1, "n_jobs": 8},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,

@@ -1,4 +1,5 @@
 import datetime
+import gc
 import json
 import logging
 import os
@@ -29,8 +30,8 @@ def train_models(
     export_path: str = "model_results/",
     input_path: str = "data/",
 ):
-    """Main function of `train` module. Trains multiple models across
-    partitions and feature-sets.
+    """Main function of `train` module. Trains multiple models across partitions and
+    feature-sets.
 
     This function loops over the `train.regress.predict` function for determined
     partitions, models, and feature-sets.
@@ -98,6 +99,10 @@ def train_models(
                 os.makedirs(f"{export_path}/{prefix}/", exist_ok=True)
                 dump(value=model_res, filename=filename)
                 logger.info(f"Saved results to {filename}")
+
+                # This should empty memory in between models and runs
+                del model_res
+                gc.collect()
 
                 written_paths.append(model_name)
 
