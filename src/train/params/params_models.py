@@ -60,7 +60,7 @@ BASELINE_CONFIGS = {
             "max_features": ["sqrt", "log2", None, 0.2, 0.5, 1.0],  # default=1.0
         },
         lower_bound=1,
-        upper_bound=1440,
+        upper_bound=300,
         search_method="random",
         scaling_policy="none",
         log_transform_policy="only_target",
@@ -82,7 +82,7 @@ BASELINE_CONFIGS = {
             "colsample_bytree": uniform(0.5, 0.5),
         },
         lower_bound=1,
-        upper_bound=1440,
+        upper_bound=300,
         search_method="random",
         scaling_policy="none",
         sample_weight_method="aggressive",
