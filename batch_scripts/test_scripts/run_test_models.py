@@ -38,7 +38,7 @@ TEST_MODELS = {
     # },
 }
 
-INPUT_PATH = "data"
+INPUT_PATH = "test_data"
 EXPORT_PATH = "test_model_results"
 PARTITIONS = list(TEST_MODELS.keys())
 
