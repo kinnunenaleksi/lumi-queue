@@ -20,16 +20,16 @@ TEST_MODELS = {
     #     "models": ["rf", "xgb"],
     #     "feature_sets": ["baseline", "perfect"],
     # },
-    # "small": {
+    "small": {
+        "models": ["xgb"],
+        "feature_sets": ["baseline"],
+    },
+    # "standard": {
+    #     # "models": ["rf", "xgb"],
+    #     # "models": ["mlp"],
     #     "models": ["rf", "xgb"],
     #     "feature_sets": ["baseline"],
     # },
-    "standard": {
-        # "models": ["rf", "xgb"],
-        # "models": ["mlp"],
-        "models": ["rf", "xgb"],
-        "feature_sets": ["baseline"],
-    },
     # "small-g": {
     #     # "models": ["rf", "xgb"],
     #     # "models": ["mlp"],

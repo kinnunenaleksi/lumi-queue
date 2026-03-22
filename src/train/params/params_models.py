@@ -82,7 +82,7 @@ BASELINE_CONFIGS = {
             "colsample_bytree": uniform(0.5, 0.5),
         },
         lower_bound=1,
-        upper_bound=300,
+        upper_bound=1440,
         search_method="random",
         scaling_policy="none",
         sample_weight_method="aggressive",
