@@ -8,7 +8,7 @@ from joblib import load
 from train.regress import Result
 
 
-def combine_results(results_dir: str = "results/"):
+def combine_results(results_dir: str = "results/", compression: str = "xz"):
     """Combines the the training results into single `Result` class.
 
     Args:
@@ -20,7 +20,7 @@ def combine_results(results_dir: str = "results/"):
     results_path = Path(results_dir)
     combined_results = {}
 
-    for file in results_path.glob("*.xz"):
+    for file in results_path.glob(f"*.{compression}"):
         name = file.stem
         combined_results[name] = load(file)
 
@@ -51,9 +51,7 @@ def combine_results(results_dir: str = "results/"):
 
 
 def recreate_dataset(
-    results_dir: str,
-    partition: str,
-    input_path: str = "data/",
+    results_dir: str, partition: str, input_path: str = "data/", compression: str = "xz"
 ):
     """Recreates the validation-set dataframe with model predictions.
 
@@ -70,7 +68,7 @@ def recreate_dataset(
         from each model/ablation combination.
     """
     results_path = Path(results_dir)
-    result_files = sorted(results_path.glob(f"res_{partition}_*.xz"))
+    result_files = sorted(results_path.glob(f"res_{partition}_*.{compression}"))
 
     if not result_files:
         raise FileNotFoundError(

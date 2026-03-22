@@ -266,7 +266,9 @@ def fetch_feature_importance(
     return df_feature_importance
 
 
-def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
+def calc_performance_metrics(
+    y_test: np.ndarray, y_pred: np.ndarray, y_col="wait_time_seconds"
+):
     """Calculates model performance metrics from the validation set."""
     rmse = root_mean_squared_error(y_test, y_pred)
     mape = mean_absolute_percentage_error(y_test, y_pred)
@@ -277,12 +279,23 @@ def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
 
     abs_err = abs(y_test - y_pred)
 
-    mask_1min = abs_err <= 60
-    mask_3min = abs_err <= 180
-    mask_5min = abs_err <= 300
-    mask_10min = abs_err <= 600
-    mask_30min = abs_err <= 1800
-    mask_60min = abs_err <= 3600
+    if y_col == "wait_time_seconds":
+        mask_1min = abs_err <= 60
+        mask_3min = abs_err <= 180
+        mask_5min = abs_err <= 300
+        mask_10min = abs_err <= 600
+        mask_30min = abs_err <= 1800
+        mask_60min = abs_err <= 3600
+
+    elif y_col == "wait_time_minutes":
+        mask_1min = abs_err <= 1
+        mask_3min = abs_err <= 3
+        mask_5min = abs_err <= 5
+        mask_10min = abs_err <= 10
+        mask_30min = abs_err <= 30
+        mask_60min = abs_err <= 60
+    else:
+        raise ValueError("y_col must be in `wait_time_seconds", "wait_time_minutes")
 
     df_metrics = pl.DataFrame(
         {

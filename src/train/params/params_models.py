@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+import numpy as np
 import xgboost as xgb
 from scipy.stats import loguniform, randint, uniform
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
@@ -20,11 +21,10 @@ class ModelConfig:
     sample_weight_method: str = "none"
     cv_strategy: str = "kfold"
     cv_folds: int = 5
+    lower_bound: int = 0
+    upper_bound: float = np.inf
     grid_search_kwargs: dict[str, Any] = field(
         default_factory=lambda: {
-            # "scoring": "neg_mean_squared_error",
-            # "scoring": "neg_mean_absolute_error",
-            # "scoring": "r2",
             "scoring": {
                 "mae": "neg_mean_absolute_error",
                 "mape": "neg_mean_absolute_percentage_error",
@@ -32,11 +32,9 @@ class ModelConfig:
                 "r2": "r2",
             },
             "refit": "mae",
-            # "refit": True,
             "n_jobs": -1,
         }
     )
-    # estimator_kwargs: dict[str, Any] = field(default_factory=lambda: {"n_jobs": -1})
     estimator_kwargs: dict[str, Any] = field(default_factory=lambda: {})
     extra_grid_search_kwargs: dict[str, Any] = field(default_factory=dict)
     extra_estimator_kwargs: dict[str, Any] = field(default_factory=dict)
@@ -61,6 +59,8 @@ BASELINE_CONFIGS = {
             "criterion": ["squared_error"],  # default ='squared_error'
             "max_features": ["sqrt", "log2", None, 0.2, 0.5, 1.0],  # default=1.0
         },
+        lower_bound=1,
+        upper_bound=1440,
         search_method="random",
         scaling_policy="none",
         log_transform_policy="only_target",
@@ -81,6 +81,8 @@ BASELINE_CONFIGS = {
             "min_child_weight": randint(1, 10),  # default=1
             "colsample_bytree": uniform(0.5, 0.5),
         },
+        lower_bound=1,
+        upper_bound=1440,
         search_method="random",
         scaling_policy="none",
         sample_weight_method="aggressive",
@@ -295,6 +297,8 @@ TEST_MODEL_CONFIGS = {
         cv_folds=2,
         search_method="random",
         scaling_policy="none",
+        lower_bound=1,
+        upper_bound=1000,
         sample_weight_method="aggressive",
         log_transform_policy="all_variables",
         use_permutation_importance=False,
@@ -310,6 +314,8 @@ TEST_MODEL_CONFIGS = {
         cv_folds=2,
         search_method="random",
         scaling_policy="none",
+        lower_bound=1,
+        upper_bound=1000,
         log_transform_policy="only_target",
         sample_weight_method="aggressive",
         use_permutation_importance=True,

@@ -1,6 +1,9 @@
 import shutil
 
+import polars as pl
+
 from analyze.analyze import create_reports
+from analyze.utils import recreate_dataset
 from input.input import create_datasets
 from train.params.params_features import FEATURE_SETS
 from train.params.params_models import TEST_MODEL_CONFIGS
@@ -44,12 +47,25 @@ def test_pipeline():
         model_configs=TEST_MODEL_CONFIGS,
         input_path=INPUT_PATH,
         export_path=EXPORT_PATH,
-        y_col="wait_time_seconds",
+        # y_col="wait_time_seconds",
+        y_col="wait_time_minutes",
         test_size=0.4,
         split_method="timeseries",
+        compression="pkl",
     )
 
-    res, accuracy_results, cv_results = create_reports(results_dir=result_dir)
+    df = recreate_dataset(
+        results_dir=result_dir,
+        partition="standard",
+        input_path=INPUT_PATH,
+        compression="pkl",
+    )
+
+    print(df.select(pl.col("wait_time_seconds", "wait_time_minutes")).describe())
+
+    res, accuracy_results, cv_results = create_reports(
+        results_dir=result_dir, compression="pkl"
+    )
 
     print(accuracy_results[0])
     print(cv_results[0])

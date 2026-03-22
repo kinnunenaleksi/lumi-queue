@@ -34,6 +34,15 @@ class Result:
     best_model: Any
 
 
+def adjust_target(df: pl.DataFrame, y_col: str, lower_bound: int, upper_bound):
+
+    return df.with_columns(
+        pl.col(y_col)
+        .clip(lower_bound=lower_bound, upper_bound=upper_bound)
+        .alias(y_col)
+    )
+
+
 def predict(
     df: pl.DataFrame,
     y_col: str,
@@ -72,9 +81,10 @@ def predict(
 
     df = df.sort(pl.col("start_ts"), descending=False)
 
-    df = df.with_columns(pl.col("wait_time_seconds").clip(lower_bound=1))
-    df = df.with_columns(
-        wait_time_minutes=pl.col("wait_time_seconds").round().cast(pl.Int64)
+    # df = df.with_columns(pl.col("wait_time_seconds").clip(lower_bound=1))
+
+    df = adjust_target(
+        df, y_col=y_col, lower_bound=config.lower_bound, upper_bound=config.upper_bound
     )
 
     df = utils.log_transform_input(
@@ -102,6 +112,7 @@ def predict(
         y_train,
         y_test,
         selected_cols,
+        y_col,
         model=model,
         model_configs=model_configs,
         sample_weights=sample_weights,
@@ -126,6 +137,7 @@ def train_model(
     y_train,
     y_test,
     selected_cols: list,
+    y_col: str,
     model: str,
     model_configs: Any,
     sample_weights: np.ndarray | None = None,
@@ -163,7 +175,7 @@ def train_model(
         y_pred = np.expm1(y_pred)
         y_test = np.expm1(y_test)
 
-    df_metrics = utils.calc_performance_metrics(y_test, y_pred)
+    df_metrics = utils.calc_performance_metrics(y_test, y_pred, y_col)
 
     df_feature_importance = utils.fetch_feature_importance(
         best_model,

@@ -29,6 +29,7 @@ def train_models(
     split_method: str,
     export_path: str = "model_results/",
     input_path: str = "data/",
+    compression: str = "xz",
 ):
     """Main function of `train` module. Trains multiple models across partitions and
     feature-sets.
@@ -82,7 +83,7 @@ def train_models(
                     f"Ablation set: {ablation_name} ({len(ablation_features)} features)"
                 )
 
-                model_name = f"res_{partition}_{model}_{ablation_name}.xz"
+                model_name = f"res_{partition}_{model}_{ablation_name}.{compression}"
                 filename = f"{export_path}/{prefix}/{model_name}"
 
                 model_res = predict(

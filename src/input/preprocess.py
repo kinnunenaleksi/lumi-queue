@@ -77,16 +77,15 @@ def add_cols(df: pl.LazyFrame) -> pl.LazyFrame:
 def add_target(df: pl.LazyFrame) -> pl.LazyFrame:
     """Adds the target variable to the data."""
 
-    # edges = [x * 60 for x in [0, 5, 15, 30, 60, 120, 240, 480, 960, 1920]]
-    #
-    # labels = list(range(len(edges) - 1))
-    # labels = [str(x) for x in labels]
-
     df = df.with_columns(
         wait_time_seconds=(
             pl.col("start_ts") - pl.col("eligible_start_ts")
         ).dt.total_seconds(),
     ).filter(pl.col("wait_time_seconds") >= 0)
+
+    df = df.with_columns(
+        wait_time_minutes=(pl.col("wait_time_seconds") / 60).round().cast(pl.Int64)
+    )
 
     w = pl.col("wait_time_seconds")
     df = df.with_columns(
@@ -112,14 +111,6 @@ def add_target(df: pl.LazyFrame) -> pl.LazyFrame:
         .cast(pl.Int8)
         .alias("wait_time_bin")
     )
-
-    # df = df.with_columns(
-    #     pl.col("wait_time_seconds")
-    #     .cut(breaks=edges, left_closed=True, labels=labels)
-    #     .cast(pl.Int8)
-    #     .fill_null(9)
-    #     .alias("wait_time_bin")
-    # )
 
     return df
 

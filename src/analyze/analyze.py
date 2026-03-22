@@ -11,7 +11,7 @@ from analyze.utils import (
 )
 
 
-def create_reports(results_dir: str):
+def create_reports(results_dir: str, compression: str = "xz"):
     """Main function of `analyze` module. Creates combined model-training results.
 
     This function creates the following files for reporting purposes:
@@ -22,7 +22,7 @@ def create_reports(results_dir: str):
     Args:
         results_dir: Directory where with the training-results.
     """
-    res = combine_results(results_dir=results_dir)
+    res = combine_results(results_dir=results_dir, compression=compression)
 
     accuracy_results = create_accuracy_report(
         df_accuracy_metrics=res.df_accuracy_metrics,
