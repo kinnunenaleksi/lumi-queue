@@ -52,7 +52,8 @@ def main():
         # y_col="wait_time_seconds",
         y_col="wait_time_minutes",
         test_size=0.2,
-        split_method="timeseries",
+        # split_method="timeseries",
+        split_method="random",
         export_path=EXPORT_PATH,
         input_path=INPUT_PATH,
     )
