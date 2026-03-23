@@ -48,7 +48,7 @@ def test_pipeline():
         input_path=INPUT_PATH,
         export_path=EXPORT_PATH,
         # y_col="wait_time_seconds",
-        y_col="wait_time_minutes",
+        y_col="wait_time_seconds",
         test_size=0.4,
         split_method="timeseries",
         compression="pkl",

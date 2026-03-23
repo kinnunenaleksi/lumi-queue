@@ -22,7 +22,7 @@ class ModelConfig:
     cv_strategy: str = "kfold"
     cv_folds: int = 5
     lower_bound: int = 0
-    upper_bound: float = np.inf
+    upper_bound: float = 1000000
     grid_search_kwargs: dict[str, Any] = field(
         default_factory=lambda: {
             "scoring": {
