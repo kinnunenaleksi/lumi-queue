@@ -63,6 +63,8 @@ def test_pipeline():
 
     print(df.select(pl.col("wait_time_seconds", "wait_time_minutes")).describe())
 
+    print(df.columns)
+
     res, accuracy_results, cv_results = create_reports(
         results_dir=result_dir, compression="pkl"
     )

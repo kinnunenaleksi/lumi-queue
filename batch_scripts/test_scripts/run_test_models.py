@@ -20,16 +20,16 @@ TEST_MODELS = {
     #     "models": ["rf", "xgb"],
     #     "feature_sets": ["baseline", "perfect"],
     # },
-    "small": {
-        "models": ["xgb"],
-        "feature_sets": ["baseline"],
-    },
-    # "standard": {
-    #     # "models": ["rf", "xgb"],
-    #     # "models": ["mlp"],
-    #     "models": ["rf", "xgb"],
+    # "small": {
+    #     "models": ["xgb"],
     #     "feature_sets": ["baseline"],
     # },
+    "standard": {
+        # "models": ["rf", "xgb"],
+        # "models": ["mlp"],
+        "models": ["rf", "xgb"],
+        "feature_sets": ["baseline"],
+    },
     # "small-g": {
     #     # "models": ["rf", "xgb"],
     #     # "models": ["mlp"],
@@ -49,11 +49,11 @@ def main():
         train_dict=TEST_MODELS,
         feature_sets=FEATURE_SETS,
         model_configs=BASELINE_CONFIGS,
-        # y_col="wait_time_seconds",
-        y_col="wait_time_minutes",
+        y_col="wait_time_seconds",
+        # y_col="wait_time_minutes",
         test_size=0.2,
-        # split_method="timeseries",
-        split_method="random",
+        split_method="timeseries",
+        # split_method="random",
         export_path=EXPORT_PATH,
         input_path=INPUT_PATH,
     )
