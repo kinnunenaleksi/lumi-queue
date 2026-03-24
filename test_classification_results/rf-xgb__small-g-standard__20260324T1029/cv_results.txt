@@ -1,0 +1,47 @@
+----- small-g, rf -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_balanced_accuracy   | mean_test_roc_auc   | rank_test_f1_macro   | mean_fit_time   | n_estimators   |
+|:--------------|:---------------------|:------------------------------|:--------------------|:---------------------|:----------------|:---------------|
+| baseline      | 0.151154             | 0.163119                      | nan                 | 1                    | 0.508513        | 15             |
+| baseline      | 0.148603             | 0.161775                      | nan                 | 2                    | 0.421066        | 16             |
+| baseline      | 0.145711             | 0.160737                      | nan                 | 3                    | 0.571693        | 18             |
+| perfect       | 0.149194             | 0.162468                      | nan                 | 1                    | 0.710225        | 18             |
+| perfect       | 0.148028             | 0.160868                      | nan                 | 2                    | 0.584521        | 15             |
+| perfect       | 0.147455             | 0.160106                      | nan                 | 3                    | 0.385186        | 16             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_balanced_accuracy], [mean_test_roc_auc], [rank_test_f1_macro], [mean_fit_time], [n_estimators],
+
+  [baseline], [0.151154], [0.163119], [nan], [0.508513], [baseline], [0.148603], [0.161775], [nan], [0.421066], [baseline], [0.145711], [0.160737], [nan], [0.571693], [perfect], [0.149194], [0.162468], [nan], [0.710225], [perfect], [0.148028], [0.160868], [nan], [0.584521], [perfect], [0.147455], [0.160106], [nan], [0.385186], )
+
+
+----- standard, rf -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_balanced_accuracy   | mean_test_roc_auc   | rank_test_f1_macro   | mean_fit_time   | n_estimators   |
+|:--------------|:---------------------|:------------------------------|:--------------------|:---------------------|:----------------|:---------------|
+| perfect       | 0.141558             | 0.162848                      | nan                 | 1                    | 0.350038        | 18             |
+| perfect       | 0.138799             | 0.161662                      | nan                 | 2                    | 0.207927        | 16             |
+| perfect       | 0.137748             | 0.161986                      | nan                 | 3                    | 0.268349        | 15             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_balanced_accuracy], [mean_test_roc_auc], [rank_test_f1_macro], [mean_fit_time], [n_estimators],
+
+  [perfect], [0.141558], [0.162848], [nan], [0.350038], [perfect], [0.138799], [0.161662], [nan], [0.207927], [perfect], [0.137748], [0.161986], [nan], [0.268349], )
+
+
+----- standard, xgb -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_balanced_accuracy   | mean_test_roc_auc   | rank_test_f1_macro   | mean_fit_time   | n_estimators   |
+|:--------------|:---------------------|:------------------------------|:--------------------|:---------------------|:----------------|:---------------|
+| perfect       | 0.171959             | 0.190519                      | nan                 | 1                    | 0.28858         | 16             |
+| perfect       | 0.170596             | 0.190038                      | nan                 | 2                    | 0.280117        | 15             |
+| perfect       | 0.170358             | 0.18838                       | nan                 | 3                    | 0.324271        | 18             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_balanced_accuracy], [mean_test_roc_auc], [rank_test_f1_macro], [mean_fit_time], [n_estimators],
+
+  [perfect], [0.171959], [0.190519], [nan], [0.288580], [perfect], [0.170596], [0.190038], [nan], [0.280117], [perfect], [0.170358], [0.188380], [nan], [0.324271], )
+

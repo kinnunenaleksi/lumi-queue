@@ -1,0 +1,465 @@
+{
+  "rf": {
+    "py/object": "train.params.params_classification.ClassifierConfig",
+    "estimator": {
+      "py/type": "sklearn.ensemble._forest.RandomForestClassifier"
+    },
+    "param_grid": {
+      "n_estimators": {
+        "py/object": "scipy.stats._distn_infrastructure.rv_discrete_frozen",
+        "args": {
+          "py/tuple": [
+            10,
+            20
+          ]
+        },
+        "kwds": {},
+        "dist": {
+          "py/object": "scipy.stats._discrete_distns.randint_gen",
+          "py/state": {
+            "_stats_has_moments": false,
+            "_random_state": {
+              "py/reduce": [
+                {
+                  "py/function": "numpy.random._pickle.__randomstate_ctor"
+                },
+                {
+                  "py/tuple": [
+                    {
+                      "py/reduce": [
+                        {
+                          "py/function": "numpy.random._pickle.__bit_generator_ctor"
+                        },
+                        {
+                          "py/tuple": [
+                            {
+                              "py/type": "numpy.random._mt19937.MT19937"
+                            }
+                          ]
+                        },
+                        {
+                          "py/tuple": [
+                            {
+                              "bit_generator": "MT19937",
+                              "state": {
+                                "key": {
+                                  "py/reduce": [
+                                    {
+                                      "py/function": "numpy._core.multiarray._reconstruct"
+                                    },
+                                    {
+                                      "py/tuple": [
+                                        {
+                                          "py/type": "numpy.ndarray"
+                                        },
+                                        {
+                                          "py/tuple": [
+                                            0
+                                          ]
+                                        },
+                                        {
+                                          "py/b64": "Yg=="
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "py/tuple": [
+                                        1,
+                                        {
+                                          "py/tuple": [
+                                            624
+                                          ]
+                                        },
+                                        {
+                                          "py/reduce": [
+                                            {
+                                              "py/type": "numpy.dtype"
+                                            },
+                                            {
+                                              "py/tuple": [
+                                                "u4",
+                                                false,
+                                                true
+                                              ]
+                                            },
+                                            {
+                                              "py/tuple": [
+                                                3,
+                                                "<",
+                                                null,
+                                                null,
+                                                null,
+                                                -1,
+                                                -1,
+                                                0
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        false,
+                                        {
+                                          "py/b64": "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"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                "pos": 51
+                              }
+                            },
+                            {
+                              "py/reduce": [
+                                {
+                                  "py/function": "numpy.random.bit_generator.__pyx_unpickle_SeedSequence"
+                                },
+                                {
+                                  "py/tuple": [
+                                    {
+                                      "py/type": "numpy.random.bit_generator.SeedSequence"
+                                    },
+                                    65708578,
+                                    null
+                                  ]
+                                },
+                                {
+                                  "py/tuple": [
+                                    171353535089639311995867361974015008607,
+                                    0,
+                                    {
+                                      "py/reduce": [
+                                        {
+                                          "py/function": "numpy._core.multiarray._reconstruct"
+                                        },
+                                        {
+                                          "py/tuple": [
+                                            {
+                                              "py/type": "numpy.ndarray"
+                                            },
+                                            {
+                                              "py/tuple": [
+                                                0
+                                              ]
+                                            },
+                                            {
+                                              "py/b64": "Yg=="
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "py/tuple": [
+                                            1,
+                                            {
+                                              "py/tuple": [
+                                                4
+                                              ]
+                                            },
+                                            {
+                                              "py/id": 12
+                                            },
+                                            false,
+                                            {
+                                              "py/b64": "tDg3PL+UnKIRjvZ7KvFXTQ=="
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    4,
+                                    {
+                                      "py/tuple": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "bit_generator": "MT19937",
+                  "state": {
+                    "key": {
+                      "py/reduce": [
+                        {
+                          "py/function": "numpy._core.multiarray._reconstruct"
+                        },
+                        {
+                          "py/tuple": [
+                            {
+                              "py/type": "numpy.ndarray"
+                            },
+                            {
+                              "py/tuple": [
+                                0
+                              ]
+                            },
+                            {
+                              "py/b64": "Yg=="
+                            }
+                          ]
+                        },
+                        {
+                          "py/tuple": [
+                            1,
+                            {
+                              "py/tuple": [
+                                624
+                              ]
+                            },
+                            {
+                              "py/id": 12
+                            },
+                            false,
+                            {
+                              "py/b64": "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"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "pos": 51
+                  },
+                  "has_gauss": 0,
+                  "gauss": 0.0
+                }
+              ]
+            },
+            "_ctor_param": {
+              "a": 0,
+              "b": Infinity,
+              "name": "randint",
+              "badvalue": NaN,
+              "moment_tol": 1e-08,
+              "values": null,
+              "inc": 1,
+              "longname": "A discrete uniform (random integer)",
+              "shapes": "low, high",
+              "seed": null
+            },
+            "badvalue": NaN,
+            "a": 0,
+            "b": Infinity,
+            "moment_tol": 1e-08,
+            "inc": 1,
+            "shapes": "low, high",
+            "_parse_arg_template": "\ndef _parse_args(self, low, high,  loc=0):\n    return (low, high, ), loc, 1\n\ndef _parse_args_rvs(self, low, high,  loc=0, size=None):\n    return self._argcheck_rvs(low, high,  loc, 1, size=size)\n\ndef _parse_args_stats(self, low, high,  loc=0, moments='mv'):\n    return (low, high, ), loc, 1, moments\n",
+            "numargs": 2,
+            "vecentropy": {
+              "py/object": "numpy.vectorize",
+              "cache": false,
+              "signature": null,
+              "__name__": "_entropy",
+              "_ufunc": {},
+              "_doc": null,
+              "__doc__": null,
+              "otypes": null,
+              "excluded": {
+                "py/set": []
+              },
+              "_in_and_out_core_dims": null
+            },
+            "name": "randint",
+            "__doc__": "A uniform discrete random variable.\n\n    As an instance of the `rv_discrete` class, `randint` object inherits from it\n    a collection of generic methods (see below for the full list),\n    and completes them with details specific for this particular distribution.\n    \n    Methods\n    -------\n    rvs(low, high, loc=0, size=1, random_state=None)\n        Random variates.\n    pmf(k, low, high, loc=0)\n        Probability mass function.\n    logpmf(k, low, high, loc=0)\n        Log of the probability mass function.\n    cdf(k, low, high, loc=0)\n        Cumulative distribution function.\n    logcdf(k, low, high, loc=0)\n        Log of the cumulative distribution function.\n    sf(k, low, high, loc=0)\n        Survival function  (also defined as ``1 - cdf``, but `sf` is sometimes more accurate).\n    logsf(k, low, high, loc=0)\n        Log of the survival function.\n    ppf(q, low, high, loc=0)\n        Percent point function (inverse of ``cdf`` --- percentiles).\n    isf(q, low, high, loc=0)\n        Inverse survival function (inverse of ``sf``).\n    stats(low, high, loc=0, moments='mv')\n        Mean('m'), variance('v'), skew('s'), and/or kurtosis('k').\n    entropy(low, high, loc=0)\n        (Differential) entropy of the RV.\n    expect(func, args=(low, high), loc=0, lb=None, ub=None, conditional=False)\n        Expected value of a function (of one argument) with respect to the distribution.\n    median(low, high, loc=0)\n        Median of the distribution.\n    mean(low, high, loc=0)\n        Mean of the distribution.\n    var(low, high, loc=0)\n        Variance of the distribution.\n    std(low, high, loc=0)\n        Standard deviation of the distribution.\n    interval(confidence, low, high, loc=0)\n        Confidence interval with equal areas around the median.\n\n    Notes\n    -----\n    The probability mass function for `randint` is:\n\n    .. math::\n\n        f(k) = \\frac{1}{\\texttt{high} - \\texttt{low}}\n\n    for :math:`k \\in \\{\\texttt{low}, \\dots, \\texttt{high} - 1\\}`.\n\n    `randint` takes :math:`\\texttt{low}` and :math:`\\texttt{high}` as shape\n    parameters.\n\n    The probability mass function above is defined in the \"standardized\" form.\n    To shift distribution use the ``loc`` parameter.\n    Specifically, ``randint.pmf(k, low, high, loc)`` is identically\n    equivalent to ``randint.pmf(k - loc, low, high)``.\n\n    Examples\n    --------\n    >>> import numpy as np\n    >>> from scipy.stats import randint\n    >>> import matplotlib.pyplot as plt\n    >>> fig, ax = plt.subplots(1, 1)\n\n    Calculate the first four moments:\n\n    >>> low, high = 7, 31\n    >>> mean, var, skew, kurt = randint.stats(low, high, moments='mvsk')\n\n    Display the probability mass function (``pmf``):\n\n    >>> x = np.arange(low - 5, high + 5)\n    >>> ax.plot(x, randint.pmf(x, low, high), 'bo', ms=8, label='randint pmf')\n    >>> ax.vlines(x, 0, randint.pmf(x, low, high), colors='b', lw=5, alpha=0.5)\n\n    Alternatively, the distribution object can be called (as a function) to\n    fix the shape and location. This returns a \"frozen\" RV object holding the\n    given parameters fixed.\n\n    Freeze the distribution and display the frozen ``pmf``:\n\n    >>> rv = randint(low, high)\n    >>> ax.vlines(x, 0, rv.pmf(x), colors='k', linestyles='-',\n    ...           lw=1, label='frozen pmf')\n    >>> ax.legend(loc='lower center')\n    >>> plt.show()\n\n    Check the relationship between the cumulative distribution function\n    (``cdf``) and its inverse, the percent point function (``ppf``):\n\n    >>> q = np.arange(low, high)\n    >>> p = randint.cdf(q, low, high)\n    >>> np.allclose(q, randint.ppf(p, low, high))\n    True\n\n    Generate random numbers:\n\n    >>> r = randint.rvs(low, high, size=1000)\n\n    "
+          }
+        },
+        "a": 10,
+        "b": 19
+      }
+    },
+    "search_method": "random",
+    "use_permutation_importance": false,
+    "scaling_policy": "none",
+    "log_transform_policy": "none",
+    "sample_weight_method": "aggressive",
+    "cv_strategy": "kfold",
+    "cv_folds": 5,
+    "lower_bound": 0,
+    "upper_bound": 11,
+    "grid_search_kwargs": {
+      "scoring": {
+        "f1_macro": "f1_macro",
+        "accuracy": "accuracy"
+      },
+      "refit": "f1_macro",
+      "n_jobs": -1,
+      "n_iter": 3,
+      "random_state": 49
+    },
+    "estimator_kwargs": {
+      "verbose": 1,
+      "n_jobs": 4
+    },
+    "extra_grid_search_kwargs": {
+      "n_iter": 3,
+      "random_state": 49
+    },
+    "extra_estimator_kwargs": {
+      "verbose": 1,
+      "n_jobs": 4
+    }
+  },
+  "xgb": {
+    "py/object": "train.params.params_classification.ClassifierConfig",
+    "estimator": {
+      "py/type": "xgboost.sklearn.XGBClassifier"
+    },
+    "param_grid": {
+      "n_estimators": {
+        "py/object": "scipy.stats._distn_infrastructure.rv_discrete_frozen",
+        "args": {
+          "py/tuple": [
+            10,
+            20
+          ]
+        },
+        "kwds": {},
+        "dist": {
+          "py/object": "scipy.stats._discrete_distns.randint_gen",
+          "py/state": {
+            "_stats_has_moments": false,
+            "_random_state": {
+              "py/id": 7
+            },
+            "_ctor_param": {
+              "a": 0,
+              "b": Infinity,
+              "name": "randint",
+              "badvalue": NaN,
+              "moment_tol": 1e-08,
+              "values": null,
+              "inc": 1,
+              "longname": "A discrete uniform (random integer)",
+              "shapes": "low, high",
+              "seed": null
+            },
+            "badvalue": NaN,
+            "a": 0,
+            "b": Infinity,
+            "moment_tol": 1e-08,
+            "inc": 1,
+            "shapes": "low, high",
+            "_parse_arg_template": "\ndef _parse_args(self, low, high,  loc=0):\n    return (low, high, ), loc, 1\n\ndef _parse_args_rvs(self, low, high,  loc=0, size=None):\n    return self._argcheck_rvs(low, high,  loc, 1, size=size)\n\ndef _parse_args_stats(self, low, high,  loc=0, moments='mv'):\n    return (low, high, ), loc, 1, moments\n",
+            "numargs": 2,
+            "vecentropy": {
+              "py/object": "numpy.vectorize",
+              "cache": false,
+              "signature": null,
+              "__name__": "_entropy",
+              "_ufunc": {},
+              "_doc": null,
+              "__doc__": null,
+              "otypes": null,
+              "excluded": {
+                "py/set": []
+              },
+              "_in_and_out_core_dims": null
+            },
+            "name": "randint",
+            "__doc__": "A uniform discrete random variable.\n\n    As an instance of the `rv_discrete` class, `randint` object inherits from it\n    a collection of generic methods (see below for the full list),\n    and completes them with details specific for this particular distribution.\n    \n    Methods\n    -------\n    rvs(low, high, loc=0, size=1, random_state=None)\n        Random variates.\n    pmf(k, low, high, loc=0)\n        Probability mass function.\n    logpmf(k, low, high, loc=0)\n        Log of the probability mass function.\n    cdf(k, low, high, loc=0)\n        Cumulative distribution function.\n    logcdf(k, low, high, loc=0)\n        Log of the cumulative distribution function.\n    sf(k, low, high, loc=0)\n        Survival function  (also defined as ``1 - cdf``, but `sf` is sometimes more accurate).\n    logsf(k, low, high, loc=0)\n        Log of the survival function.\n    ppf(q, low, high, loc=0)\n        Percent point function (inverse of ``cdf`` --- percentiles).\n    isf(q, low, high, loc=0)\n        Inverse survival function (inverse of ``sf``).\n    stats(low, high, loc=0, moments='mv')\n        Mean('m'), variance('v'), skew('s'), and/or kurtosis('k').\n    entropy(low, high, loc=0)\n        (Differential) entropy of the RV.\n    expect(func, args=(low, high), loc=0, lb=None, ub=None, conditional=False)\n        Expected value of a function (of one argument) with respect to the distribution.\n    median(low, high, loc=0)\n        Median of the distribution.\n    mean(low, high, loc=0)\n        Mean of the distribution.\n    var(low, high, loc=0)\n        Variance of the distribution.\n    std(low, high, loc=0)\n        Standard deviation of the distribution.\n    interval(confidence, low, high, loc=0)\n        Confidence interval with equal areas around the median.\n\n    Notes\n    -----\n    The probability mass function for `randint` is:\n\n    .. math::\n\n        f(k) = \\frac{1}{\\texttt{high} - \\texttt{low}}\n\n    for :math:`k \\in \\{\\texttt{low}, \\dots, \\texttt{high} - 1\\}`.\n\n    `randint` takes :math:`\\texttt{low}` and :math:`\\texttt{high}` as shape\n    parameters.\n\n    The probability mass function above is defined in the \"standardized\" form.\n    To shift distribution use the ``loc`` parameter.\n    Specifically, ``randint.pmf(k, low, high, loc)`` is identically\n    equivalent to ``randint.pmf(k - loc, low, high)``.\n\n    Examples\n    --------\n    >>> import numpy as np\n    >>> from scipy.stats import randint\n    >>> import matplotlib.pyplot as plt\n    >>> fig, ax = plt.subplots(1, 1)\n\n    Calculate the first four moments:\n\n    >>> low, high = 7, 31\n    >>> mean, var, skew, kurt = randint.stats(low, high, moments='mvsk')\n\n    Display the probability mass function (``pmf``):\n\n    >>> x = np.arange(low - 5, high + 5)\n    >>> ax.plot(x, randint.pmf(x, low, high), 'bo', ms=8, label='randint pmf')\n    >>> ax.vlines(x, 0, randint.pmf(x, low, high), colors='b', lw=5, alpha=0.5)\n\n    Alternatively, the distribution object can be called (as a function) to\n    fix the shape and location. This returns a \"frozen\" RV object holding the\n    given parameters fixed.\n\n    Freeze the distribution and display the frozen ``pmf``:\n\n    >>> rv = randint(low, high)\n    >>> ax.vlines(x, 0, rv.pmf(x), colors='k', linestyles='-',\n    ...           lw=1, label='frozen pmf')\n    >>> ax.legend(loc='lower center')\n    >>> plt.show()\n\n    Check the relationship between the cumulative distribution function\n    (``cdf``) and its inverse, the percent point function (``ppf``):\n\n    >>> q = np.arange(low, high)\n    >>> p = randint.cdf(q, low, high)\n    >>> np.allclose(q, randint.ppf(p, low, high))\n    True\n\n    Generate random numbers:\n\n    >>> r = randint.rvs(low, high, size=1000)\n\n    "
+          }
+        },
+        "a": 10,
+        "b": 19
+      }
+    },
+    "search_method": "random",
+    "use_permutation_importance": true,
+    "scaling_policy": "none",
+    "log_transform_policy": "none",
+    "sample_weight_method": "aggressive",
+    "cv_strategy": "kfold",
+    "cv_folds": 5,
+    "lower_bound": 0,
+    "upper_bound": 11,
+    "grid_search_kwargs": {
+      "scoring": {
+        "f1_macro": "f1_macro",
+        "accuracy": "accuracy"
+      },
+      "refit": "f1_macro",
+      "n_jobs": -1,
+      "n_iter": 3,
+      "random_state": 49
+    },
+    "estimator_kwargs": {
+      "verbosity": 1
+    },
+    "extra_grid_search_kwargs": {
+      "n_iter": 3,
+      "random_state": 49
+    },
+    "extra_estimator_kwargs": {
+      "verbosity": 1
+    }
+  },
+  "mlp": {
+    "py/object": "train.params.params_classification.ClassifierConfig",
+    "estimator": {
+      "py/type": "sklearn.neural_network._multilayer_perceptron.MLPClassifier"
+    },
+    "param_grid": {
+      "hidden_layer_sizes": [
+        {
+          "py/tuple": [
+            10
+          ]
+        },
+        {
+          "py/tuple": [
+            15
+          ]
+        }
+      ],
+      "activation": [
+        "relu",
+        "tanh"
+      ],
+      "alpha": [
+        0.0001,
+        0.001,
+        0.01,
+        0.1
+      ],
+      "max_iter": [
+        2000
+      ],
+      "learning_rate_init": [
+        0.0003,
+        0.001,
+        0.01
+      ]
+    },
+    "search_method": "random",
+    "use_permutation_importance": true,
+    "scaling_policy": "all_variables",
+    "log_transform_policy": "all_variables",
+    "sample_weight_method": "aggressive",
+    "cv_strategy": "timeseries",
+    "cv_folds": 5,
+    "lower_bound": 0,
+    "upper_bound": 11,
+    "grid_search_kwargs": {
+      "scoring": {
+        "f1_macro": "f1_macro",
+        "accuracy": "accuracy"
+      },
+      "refit": "f1_macro",
+      "n_jobs": -1,
+      "n_iter": 30,
+      "random_state": 49
+    },
+    "estimator_kwargs": {
+      "verbose": 1
+    },
+    "extra_grid_search_kwargs": {
+      "n_iter": 30,
+      "random_state": 49
+    },
+    "extra_estimator_kwargs": {
+      "verbose": 1
+    }
+  }
+}

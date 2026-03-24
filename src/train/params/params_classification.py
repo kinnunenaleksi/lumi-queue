@@ -21,16 +21,21 @@ class ClassifierConfig:
     cv_strategy: str = "kfold"
     cv_folds: int = 5
     lower_bound: int = 0
-    upper_bound: float = 1000000
+    upper_bound: float = 11
     grid_search_kwargs: dict[str, Any] = field(
         default_factory=lambda: {
             "scoring": {
-                "mae": "neg_mean_absolute_error",
-                "mape": "neg_mean_absolute_percentage_error",
-                "rmse": "neg_root_mean_squared_error",
-                "r2": "r2",
+                # "mae": "neg_mean_absolute_error",
+                # "mape": "neg_mean_absolute_percentage_error",
+                # "rmse": "neg_root_mean_squared_error",
+                # "r2": "r2",
+                "f1_macro": "f1_macro",
+                "balanced_accuracy": "balanced_accuracy",
+                "roc_auc": "roc_auc_ovr_weighted",
+                # "roc_auc_ovo": "roc_auc_ovo",
             },
-            "refit": "mae",
+            "refit": "f1_macro",
+            # "refit": "mae",
             "n_jobs": -1,
         }
     )
@@ -46,6 +51,59 @@ class ClassifierConfig:
         self.estimator_kwargs = {**self.estimator_kwargs, **self.extra_estimator_kwargs}
 
 
+TEST_CLASSIFIER_CONFIG = {
+    "rf": ClassifierConfig(
+        estimator=RandomForestClassifier,
+        param_grid={
+            "n_estimators": randint(10, 20),  # default = 100
+        },
+        search_method="random",
+        scaling_policy="none",
+        log_transform_policy="none",
+        sample_weight_method="none",
+        cv_strategy="kfold",
+        use_permutation_importance=False,
+        extra_grid_search_kwargs={"n_iter": 3, "random_state": SEED},
+        extra_estimator_kwargs={"verbose": 1, "n_jobs": 4},
+    ),
+    "xgb": ClassifierConfig(
+        estimator=xgb.XGBClassifier,
+        param_grid={
+            "n_estimators": randint(10, 20),
+        },
+        search_method="random",
+        scaling_policy="none",
+        sample_weight_method="none",
+        log_transform_policy="none",
+        cv_strategy="kfold",
+        use_permutation_importance=True,
+        extra_grid_search_kwargs={"n_iter": 3, "random_state": SEED},
+        extra_estimator_kwargs={"verbosity": 1},
+    ),
+    "mlp": ClassifierConfig(
+        estimator=MLPClassifier,
+        param_grid={
+            "hidden_layer_sizes": [
+                (10,),
+                (15,),
+            ],
+            "activation": ["relu", "tanh"],
+            "alpha": [0.0001, 0.001, 0.01, 0.1],
+            # "learning_rate": ["constant", "adaptive"],
+            "max_iter": [2000],
+            "learning_rate_init": [0.0003, 0.001, 0.01],
+        },
+        search_method="random",
+        scaling_policy="all_variables",
+        log_transform_policy="all_variables",
+        sample_weight_method="aggressive",
+        cv_strategy="timeseries",
+        use_permutation_importance=True,
+        extra_grid_search_kwargs={"n_iter": 30, "random_state": SEED},
+        extra_estimator_kwargs={"verbose": 1},
+    ),
+}
+
 CLASSIFIER_CONFIGS = {
     "rf": ClassifierConfig(
         estimator=RandomForestClassifier,
@@ -59,9 +117,9 @@ CLASSIFIER_CONFIGS = {
         },
         search_method="random",
         scaling_policy="none",
-        log_transform_policy="all_variables",
-        sample_weight_method="aggressive",
-        cv_strategy="timeseries",
+        log_transform_policy="none",
+        sample_weight_method="none",
+        cv_strategy="kfold",
         use_permutation_importance=False,
         extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED},
         extra_estimator_kwargs={"verbose": 1, "n_jobs": 4},
@@ -79,9 +137,9 @@ CLASSIFIER_CONFIGS = {
         },
         search_method="random",
         scaling_policy="none",
-        sample_weight_method="aggressive",
+        sample_weight_method="none",
         log_transform_policy="all_variables",
-        cv_strategy="timeseries",
+        cv_strategy="kfold",
         use_permutation_importance=True,
         extra_grid_search_kwargs={"n_iter": 50, "random_state": SEED},
         extra_estimator_kwargs={"verbosity": 1},

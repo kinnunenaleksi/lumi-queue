@@ -164,6 +164,9 @@ def train_model(
     best_model = grid_search.best_estimator_
     y_pred = grid_search.predict(X_test)
 
+    if y_col == "wait_time_bin":
+        y_proba = best_model.predict_proba(X_test)
+
     if config.scaling_policy in ["all_variables", "only_target"]:
         y_pred = y_scaler.inverse_transform(y_pred.reshape(-1, 1)).ravel()
         y_test = y_scaler.inverse_transform(y_test.reshape(-1, 1)).ravel()
@@ -175,7 +178,10 @@ def train_model(
         y_pred = np.expm1(y_pred)
         y_test = np.expm1(y_test)
 
-    df_metrics = utils.calc_performance_metrics(y_test, y_pred, y_col)
+    if y_col in ["wait_time_seconds", "wait_time_minutes"]:
+        df_metrics = utils.calc_performance_metrics(y_test, y_pred, y_col)
+    elif y_col in ["wait_time_bin"]:
+        df_metrics = utils.calc_classification_metrics(y_test, y_pred, y_proba)
 
     df_feature_importance = utils.fetch_feature_importance(
         best_model,

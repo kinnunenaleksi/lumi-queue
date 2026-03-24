@@ -7,6 +7,7 @@ from analyze.utils import recreate_dataset
 from input.input import create_datasets
 from train.params.params_features import FEATURE_SETS
 from train.params.params_models import TEST_MODEL_CONFIGS
+from train.regress import predict
 from train.train import train_models
 
 DATA_PATH = "../anonJobs.parquet"
@@ -66,7 +67,7 @@ def test_pipeline():
     print(df.columns)
 
     res, accuracy_results, cv_results = create_reports(
-        results_dir=result_dir, compression="pkl"
+        results_dir=result_dir, compression="pkl", prediction_type="regression"
     )
 
     print(accuracy_results[0])

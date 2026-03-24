@@ -4,11 +4,14 @@ from sklearn.experimental import enable_halving_search_cv
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
+    balanced_accuracy_score,
+    f1_score,
     max_error,
     mean_absolute_error,
     mean_absolute_percentage_error,
     median_absolute_error,
     r2_score,
+    roc_auc_score,
     root_mean_squared_error,
 )
 from sklearn.model_selection import (
@@ -26,7 +29,7 @@ from train.params.params_models import SEED
 def compute_sample_weights(
     y: np.ndarray,
     method: str = "rank",
-) -> np.ndarray:
+) -> np.ndarray | None:
     """Computes sample weights that emphasize higher target values.
 
     Args:
@@ -41,7 +44,8 @@ def compute_sample_weights(
         Array of sample weights, normalized to mean of 1.0.
     """
     if method == "none":
-        return np.ones(len(y))
+        # return np.ones(len(y))
+        return None
 
     if method == "linear":
         y_min = y.min()
@@ -311,6 +315,40 @@ def calc_performance_metrics(
             "perc_err_under_10min": mask_10min.mean(),
             "perc_err_under_30min": mask_30min.mean(),
             "perc_err_under_60min": mask_60min.mean(),
+        }
+    ).transpose(include_header=True, header_name="metric", column_names=["value"])
+
+    return df_metrics
+
+
+def calc_classification_metrics(
+    y_test: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray
+):
+    """Calculates model performance metrics from the validation set."""
+
+    f1 = f1_score(y_test, y_pred, average="macro")
+    balanced_accuracy = balanced_accuracy_score(y_test, y_pred)
+    roc_auc_weighted_ovo = roc_auc_score(
+        y_test, y_proba, average="weighted", multi_class="ovo"
+    )
+    roc_auc_weighted_ovr = roc_auc_score(
+        y_test, y_proba, average="weighted", multi_class="ovr"
+    )
+    roc_auc_macro_ovr = roc_auc_score(
+        y_test, y_proba, average="macro", multi_class="ovr"
+    )
+    roc_auc_macro_ovo = roc_auc_score(
+        y_test, y_proba, average="macro", multi_class="ovo"
+    )
+
+    df_metrics = pl.DataFrame(
+        {
+            "f1": f1,
+            "balanced_accuracy": balanced_accuracy,
+            "roc_auc_weighted_ovo": roc_auc_weighted_ovo,
+            "roc_auc_weighted_ovr": roc_auc_weighted_ovr,
+            "roc_auc_macro_ovo": roc_auc_macro_ovo,
+            "roc_auc_macro_ovr": roc_auc_macro_ovr,
         }
     ).transpose(include_header=True, header_name="metric", column_names=["value"])
 

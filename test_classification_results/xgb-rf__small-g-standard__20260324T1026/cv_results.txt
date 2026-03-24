@@ -1,0 +1,47 @@
+----- small-g, rf -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_balanced_accuracy   | rank_test_f1_macro   | mean_fit_time   | rank_test_balanced_accuracy   | n_estimators   |
+|:--------------|:---------------------|:------------------------------|:---------------------|:----------------|:------------------------------|:---------------|
+| baseline      | 0.153207             | 0.167692                      | 1                    | 0.600892        | 1                             | 18             |
+| baseline      | 0.147936             | 0.160099                      | 2                    | 0.380906        | 3                             | 16             |
+| baseline      | 0.147195             | 0.160767                      | 3                    | 0.511251        | 2                             | 15             |
+| perfect       | 0.15398              | 0.16676                       | 1                    | 0.809959        | 1                             | 18             |
+| perfect       | 0.152688             | 0.164818                      | 2                    | 0.426555        | 2                             | 16             |
+| perfect       | 0.147657             | 0.161173                      | 3                    | 0.591577        | 3                             | 15             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_balanced_accuracy], [rank_test_f1_macro], [mean_fit_time], [rank_test_balanced_accuracy], [n_estimators],
+
+  [baseline], [0.153207], [0.167692], [0.600892], [baseline], [0.147936], [0.160099], [0.380906], [baseline], [0.147195], [0.160767], [0.511251], [perfect], [0.153980], [0.166760], [0.809959], [perfect], [0.152688], [0.164818], [0.426555], [perfect], [0.147657], [0.161173], [0.591577], )
+
+
+----- standard, xgb -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_balanced_accuracy   | rank_test_f1_macro   | mean_fit_time   | rank_test_balanced_accuracy   | n_estimators   |
+|:--------------|:---------------------|:------------------------------|:---------------------|:----------------|:------------------------------|:---------------|
+| perfect       | 0.170158             | 0.190486                      | 1                    | 0.283608        | 1                             | 16             |
+| perfect       | 0.170088             | 0.188828                      | 2                    | 0.338942        | 3                             | 18             |
+| perfect       | 0.168295             | 0.189063                      | 3                    | 0.290178        | 2                             | 15             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_balanced_accuracy], [rank_test_f1_macro], [mean_fit_time], [rank_test_balanced_accuracy], [n_estimators],
+
+  [perfect], [0.170158], [0.190486], [0.283608], [perfect], [0.170088], [0.188828], [0.338942], [perfect], [0.168295], [0.189063], [0.290178], )
+
+
+----- standard, rf -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_balanced_accuracy   | rank_test_f1_macro   | mean_fit_time   | rank_test_balanced_accuracy   | n_estimators   |
+|:--------------|:---------------------|:------------------------------|:---------------------|:----------------|:------------------------------|:---------------|
+| perfect       | 0.145736             | 0.166265                      | 1                    | 0.278159        | 3                             | 15             |
+| perfect       | 0.145642             | 0.167203                      | 2                    | 0.220562        | 2                             | 16             |
+| perfect       | 0.145066             | 0.16759                       | 3                    | 0.368937        | 1                             | 18             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_balanced_accuracy], [rank_test_f1_macro], [mean_fit_time], [rank_test_balanced_accuracy], [n_estimators],
+
+  [perfect], [0.145736], [0.166265], [0.278159], [perfect], [0.145642], [0.167203], [0.220562], [perfect], [0.145066], [0.167590], [0.368937], )
+

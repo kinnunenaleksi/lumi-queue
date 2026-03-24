@@ -1,0 +1,37 @@
+from analyze.analyze import create_reports
+from train.params.params_classification import CLASSIFIER_CONFIGS
+from train.params.params_features import FEATURE_SETS
+from train.train import train_models
+
+TEST_MODELS = {
+    "standard": {
+        "models": ["rf", "xgb"],
+        "feature_sets": ["baseline"],
+    },
+}
+
+INPUT_PATH = "test_data"
+EXPORT_PATH = "test_classification_results"
+PARTITIONS = list(TEST_MODELS.keys())
+
+
+def main():
+
+    results_dir = train_models(
+        train_dict=TEST_MODELS,
+        feature_sets=FEATURE_SETS,
+        model_configs=CLASSIFIER_CONFIGS,
+        y_col="wait_time_bin",
+        # y_col="wait_time_minutes",
+        test_size=0.2,
+        split_method="timeseries",
+        # split_method="random",
+        export_path=EXPORT_PATH,
+        input_path=INPUT_PATH,
+    )
+
+    _, _, _ = create_reports(results_dir=results_dir, prediction_type="classification")
+
+
+if __name__ == "__main__":
+    main()

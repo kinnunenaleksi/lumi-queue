@@ -1,0 +1,47 @@
+----- small-g, rf -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_accuracy   | mean_fit_time   | rank_test_f1_macro   | rank_test_accuracy   | n_estimators   |
+|:--------------|:---------------------|:---------------------|:----------------|:---------------------|:---------------------|:---------------|
+| baseline      | 0.146006             | 0.373014             | 0.634772        | 1                    | 2                    | 18             |
+| baseline      | 0.145907             | 0.372812             | 0.510151        | 2                    | 3                    | 15             |
+| baseline      | 0.144615             | 0.378434             | 0.473952        | 3                    | 1                    | 16             |
+| perfect       | 0.151573             | 0.381648             | 0.590204        | 1                    | 1                    | 15             |
+| perfect       | 0.148547             | 0.377774             | 0.527477        | 2                    | 3                    | 16             |
+| perfect       | 0.144121             | 0.379566             | 0.646063        | 3                    | 2                    | 18             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_accuracy], [mean_fit_time], [rank_test_f1_macro], [rank_test_accuracy], [n_estimators],
+
+  [baseline], [0.146006], [0.373014], [0.634772], [baseline], [0.145907], [0.372812], [0.510151], [baseline], [0.144615], [0.378434], [0.473952], [perfect], [0.151573], [0.381648], [0.590204], [perfect], [0.148547], [0.377774], [0.527477], [perfect], [0.144121], [0.379566], [0.646063], )
+
+
+----- standard, xgb -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_accuracy   | mean_fit_time   | rank_test_f1_macro   | rank_test_accuracy   | n_estimators   |
+|:--------------|:---------------------|:---------------------|:----------------|:---------------------|:---------------------|:---------------|
+| perfect       | 0.17266              | 0.453756             | 0.264304        | 1                    | 1                    | 15             |
+| perfect       | 0.172258             | 0.450555             | 0.281893        | 2                    | 2                    | 16             |
+| perfect       | 0.1704               | 0.444901             | 0.325187        | 3                    | 3                    | 18             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_accuracy], [mean_fit_time], [rank_test_f1_macro], [rank_test_accuracy], [n_estimators],
+
+  [perfect], [0.172660], [0.453756], [0.264304], [perfect], [0.172258], [0.450555], [0.281893], [perfect], [0.170400], [0.444901], [0.325187], )
+
+
+----- standard, rf -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_accuracy   | mean_fit_time   | rank_test_f1_macro   | rank_test_accuracy   | n_estimators   |
+|:--------------|:---------------------|:---------------------|:----------------|:---------------------|:---------------------|:---------------|
+| perfect       | 0.144539             | 0.410716             | 0.291498        | 1                    | 1                    | 15             |
+| perfect       | 0.140325             | 0.40621              | 0.188546        | 2                    | 2                    | 16             |
+| perfect       | 0.135069             | 0.393331             | 0.327191        | 3                    | 3                    | 18             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_accuracy], [mean_fit_time], [rank_test_f1_macro], [rank_test_accuracy], [n_estimators],
+
+  [perfect], [0.144539], [0.410716], [0.291498], [perfect], [0.140325], [0.406210], [0.188546], [perfect], [0.135069], [0.393331], [0.327191], )
+

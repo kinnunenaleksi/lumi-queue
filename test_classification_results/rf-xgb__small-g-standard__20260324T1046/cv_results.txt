@@ -1,0 +1,47 @@
+----- standard, rf -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_balanced_accuracy   | mean_test_roc_auc   | rank_test_f1_macro   | mean_fit_time   | n_estimators   |
+|:--------------|:---------------------|:------------------------------|:--------------------|:---------------------|:----------------|:---------------|
+| perfect       | 0.168133             | 0.168767                      | 0.735222            | 1                    | 0.263877        | 15             |
+| perfect       | 0.165943             | 0.16788                       | 0.74624             | 2                    | 0.2443          | 16             |
+| perfect       | 0.158962             | 0.160534                      | 0.738385            | 3                    | 0.329576        | 18             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_balanced_accuracy], [mean_test_roc_auc], [rank_test_f1_macro], [mean_fit_time], [n_estimators],
+
+  [perfect], [0.168133], [0.168767], [0.735222], [0.263877], [perfect], [0.165943], [0.167880], [0.746240], [0.244300], [perfect], [0.158962], [0.160534], [0.738385], [0.329576], )
+
+
+----- standard, xgb -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_balanced_accuracy   | mean_test_roc_auc   | rank_test_f1_macro   | mean_fit_time   | n_estimators   |
+|:--------------|:---------------------|:------------------------------|:--------------------|:---------------------|:----------------|:---------------|
+| perfect       | 0.168695             | 0.174585                      | 0.81558             | 1                    | 0.259856        | 15             |
+| perfect       | 0.167677             | 0.173842                      | 0.813756            | 2                    | 0.2543          | 16             |
+| perfect       | 0.16758              | 0.172828                      | 0.812517            | 3                    | 0.302921        | 18             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_balanced_accuracy], [mean_test_roc_auc], [rank_test_f1_macro], [mean_fit_time], [n_estimators],
+
+  [perfect], [0.168695], [0.174585], [0.815580], [0.259856], [perfect], [0.167677], [0.173842], [0.813756], [0.254300], [perfect], [0.167580], [0.172828], [0.812517], [0.302921], )
+
+
+----- small-g, rf -----
+
+| feature_set   | mean_test_f1_macro   | mean_test_balanced_accuracy   | mean_test_roc_auc   | rank_test_f1_macro   | mean_fit_time   | n_estimators   |
+|:--------------|:---------------------|:------------------------------|:--------------------|:---------------------|:----------------|:---------------|
+| baseline      | 0.171392             | 0.166005                      | 0.700331            | 1                    | 0.436776        | 16             |
+| baseline      | 0.170159             | 0.164691                      | 0.678265            | 2                    | 0.500613        | 15             |
+| baseline      | 0.167465             | 0.1617                        | 0.689877            | 3                    | 0.62987         | 18             |
+| perfect       | 0.179647             | 0.169256                      | 0.725806            | 1                    | 0.422609        | 16             |
+| perfect       | 0.176485             | 0.168812                      | 0.718914            | 2                    | 0.568108        | 15             |
+| perfect       | 0.172172             | 0.164912                      | 0.726767            | 3                    | 0.68412         | 18             |
+
+#table(
+  columns: 8,
+  [feature_set], [mean_test_f1_macro], [mean_test_balanced_accuracy], [mean_test_roc_auc], [rank_test_f1_macro], [mean_fit_time], [n_estimators],
+
+  [baseline], [0.171392], [0.166005], [0.700331], [0.436776], [baseline], [0.170159], [0.164691], [0.678265], [0.500613], [baseline], [0.167465], [0.161700], [0.689877], [0.629870], [perfect], [0.179647], [0.169256], [0.725806], [0.422609], [perfect], [0.176485], [0.168812], [0.718914], [0.568108], [perfect], [0.172172], [0.164912], [0.726767], [0.684120], )
+

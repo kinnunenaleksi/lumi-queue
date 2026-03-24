@@ -11,7 +11,7 @@ from analyze.utils import (
 )
 
 
-def create_reports(results_dir: str, compression: str = "xz"):
+def create_reports(results_dir: str, prediction_type: str, compression: str = "xz"):
     """Main function of `analyze` module. Creates combined model-training results.
 
     This function creates the following files for reporting purposes:
@@ -30,7 +30,9 @@ def create_reports(results_dir: str, compression: str = "xz"):
     )
 
     cv_results = create_cv_report(
-        res.df_cv_results, output_path=f"{results_dir}/cv_results.txt"
+        res.df_cv_results,
+        output_path=f"{results_dir}/cv_results.txt",
+        prediction_type=prediction_type,
     )
 
     return res, accuracy_results, cv_results
@@ -81,7 +83,11 @@ def create_accuracy_report(
     return doc_list
 
 
-def create_cv_report(df: pl.DataFrame, output_path: str = "cv_results.txt"):
+def create_cv_report(
+    df: pl.DataFrame,
+    prediction_type: str,
+    output_path: str = "cv_results.txt",
+):
     """Creates cross-validation report."""
     df = explode_result_name(df)
 
@@ -92,10 +98,13 @@ def create_cv_report(df: pl.DataFrame, output_path: str = "cv_results.txt"):
         or c.startswith("std")
         or c.startswith("mean_score")
         or c.startswith("param")
-        # or c.startswith("mean_fit_time")
+        # regression
         or c.startswith("rank_test_mape")
         or c.startswith("rank_test_rmse")
         or c.startswith("rank_test_r2")
+        # classification
+        or c.startswith("rank_test_balanced_accuracy")
+        or c.startswith("rank_test_roc_auc")
     ]
 
     df = df.drop(rm_cols)
@@ -119,20 +128,37 @@ def create_cv_report(df: pl.DataFrame, output_path: str = "cv_results.txt"):
 
             df_filter = df_filter.select(cols_without_nulls)
 
-            first_cols = [
-                "feature_set",
-                "mean_test_mae",
-                "mean_test_rmse",
-                "mean_test_r2",
-                "mean_test_mape",
-                "rank_test_mae",
-            ]
+            if prediction_type == "regression":
+                first_cols = [
+                    "feature_set",
+                    "mean_test_mae",
+                    "mean_test_rmse",
+                    "mean_test_r2",
+                    "mean_test_mape",
+                    "rank_test_mae",
+                ]
+
+                sort_cols = ["feature_set", "rank_test_mae"]
+
+            elif prediction_type == "classification":
+                first_cols = [
+                    "feature_set",
+                    "mean_test_f1_macro",
+                    "mean_test_balanced_accuracy",
+                    "mean_test_roc_auc",
+                    "rank_test_f1_macro",
+                ]
+
+                sort_cols = ["feature_set", "rank_test_f1_macro"]
+
+            else:
+                raise ValueError("prediction type must be in ")
+
             df_filter = df_filter.select(
                 first_cols + [c for c in df_filter.columns if c not in first_cols]
             )
-            df_filter = df_filter.sort(
-                ["feature_set", "rank_test_mae"], descending=False
-            )
+
+            df_filter = df_filter.sort(sort_cols, descending=False)
 
             df_pd = pd.DataFrame(df_filter, columns=df_filter.columns)
 
