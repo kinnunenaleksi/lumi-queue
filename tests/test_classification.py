@@ -50,7 +50,7 @@ def test_pipeline():
         # y_col="wait_time_seconds",
         y_col="wait_time_bin",
         test_size=0.4,
-        split_method="timeseries",
+        split_method="random",
         compression="pkl",
     )
 
@@ -73,7 +73,17 @@ def test_pipeline():
     print(cv_results[0])
     print(res.df_feature_importance.head())
 
-    print(df.select(pl.col("y_pred_rf_perfect")).to_series().value_counts())
+    # print(df.select(pl.col("y_pred_rf_perfect")).to_series().value_counts())
+
+    pred_vals = df.select(pl.col("y_pred_rf_perfect")).to_series().value_counts()
+    true_vals = df.select(pl.col("wait_time_bin")).to_series().value_counts()
+    df_join = pred_vals.join(
+        true_vals, left_on="y_pred_rf_perfect", right_on="wait_time_bin"
+    )
+    print(df_join.sort("y_pred_rf_perfect"))
+
+    print(df.select(pl.col("hour")).to_series().value_counts().sort("count").head(10))
+
     # print(df.columns)
 
     # shutil.rmtree(INPUT_PATH)

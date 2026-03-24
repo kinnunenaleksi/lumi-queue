@@ -43,6 +43,32 @@ def adjust_target(df: pl.DataFrame, y_col: str, lower_bound: int, upper_bound):
     )
 
 
+def bin_target(df: pl.DataFrame, bin_strategy: str):
+
+    w = pl.col("wait_time_minutes")
+
+    if bin_strategy == "simple":
+        df = df.with_columns(
+            pl.when((w >= 0) & (w < 15))
+            .then(0)
+            .when((w >= 15) & (w < 60))
+            .then(1)
+            .when((w >= 60) & (w < 120))
+            .then(2)
+            .when((w >= 120) & (w < 240))
+            .then(3)
+            .when((w >= 240) & (w < 480))
+            .then(4)
+            .otherwise(5)
+            .cast(pl.Int8)
+            .alias("wait_time_bin")
+        )
+    else:
+        raise ValueError("must be simple")
+
+    return df
+
+
 def predict(
     df: pl.DataFrame,
     y_col: str,
@@ -86,6 +112,8 @@ def predict(
     df = adjust_target(
         df, y_col=y_col, lower_bound=config.lower_bound, upper_bound=config.upper_bound
     )
+
+    df = bin_target(df, bin_strategy="simple")
 
     df = utils.log_transform_input(
         df,

@@ -6,12 +6,21 @@ BASELINE_FEATURES = [
     "allocated_timelimit_seconds",
     "queued_timelimit_seconds",
     "active_timelimit_seconds",
+    "active_timelimit_seconds_remaining",
     "queued_count_small_jobs",
     "queued_count_medium_jobs",
     "queued_count_large_jobs",
     "active_count_small_jobs",
     "active_count_medium_jobs",
     "active_count_large_jobs",
+    "month",
+    "year",
+    "hour",
+    "day",
+    "day_of_week",
+    "day_flag",
+    "night_flag",
+    "weekend_flag",
 ]
 
 # For the perfect-feature-set, the timelimits are changed to actual run-times

@@ -15,27 +15,21 @@ class ClassifierConfig:
     param_grid: dict[str, Any]
     search_method: str
     use_permutation_importance: bool
-    scaling_policy: str
-    log_transform_policy: str
-    sample_weight_method: str = "none"
-    cv_strategy: str = "kfold"
+    scaling_policy: str = "none"
+    log_transform_policy: str = "none"  # prequisite for classification
+    sample_weight_method: str = "none"  # prequisite for classification
+    cv_strategy: str = "kfold"  # prequisite for classification
     cv_folds: int = 5
     lower_bound: int = 0
     upper_bound: float = 11
     grid_search_kwargs: dict[str, Any] = field(
         default_factory=lambda: {
             "scoring": {
-                # "mae": "neg_mean_absolute_error",
-                # "mape": "neg_mean_absolute_percentage_error",
-                # "rmse": "neg_root_mean_squared_error",
-                # "r2": "r2",
                 "f1_macro": "f1_macro",
                 "balanced_accuracy": "balanced_accuracy",
                 "roc_auc": "roc_auc_ovr_weighted",
-                # "roc_auc_ovo": "roc_auc_ovo",
             },
             "refit": "f1_macro",
-            # "refit": "mae",
             "n_jobs": -1,
         }
     )
