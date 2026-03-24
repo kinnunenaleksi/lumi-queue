@@ -38,3 +38,27 @@ sbatch batch_scripts/train_models.sh
 ```
 This script trains and tunes models for configured partitions and features as per the
 [configurations](src/train/README.md), and saves results into a new directory `model_results/`.
+
+## Local Development 
+
+1. Pull this repository into local machine with
+
+```bash
+git clone git@github.com:kinnunenaleksi/lumi-queue.git
+```
+
+2. Move the dataset (see [data specifications](src/input/README.md)) into the same folder with 
+
+```bash
+mv <PATH-TO-DATA> projappl/<PROJECT_ID>/lumi-queue
+```
+
+3. Sync dependencies with
+```bash
+uv sync
+```
+
+4. Run unit-tests with 
+```bash
+pytest
+```
