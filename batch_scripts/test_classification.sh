@@ -18,4 +18,4 @@ $HOME/.local/bin/uv sync
 
 $HOME/.local/bin/uv pip install -e .
 
-srun python batch_scripts/test_classification.sh
+srun python batch_scripts/scripts/test_classification.py
