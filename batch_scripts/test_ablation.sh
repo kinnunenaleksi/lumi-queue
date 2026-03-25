@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=testRunModels
+#SBATCH --job-name=testAblationModels
 #SBATCH --output=runs/r-%x.%j.out
 #SBATCH --error=runs/r-%x.%j.err
 #SBATCH --account=project_462001312
