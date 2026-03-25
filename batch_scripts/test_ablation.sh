@@ -4,7 +4,7 @@
 #SBATCH --output=runs/r-%x.%j.out
 #SBATCH --error=runs/r-%x.%j.err
 #SBATCH --account=project_462001312
-#SBATCH --time=03:00:00
+#SBATCH --time=05:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --partition=standard
