@@ -5,15 +5,15 @@ from train.train import train_models
 
 TEST_MODELS = {
     "standard": {
-        "models": ["rf", "xgb"],
+        "models": ["xgb"],
         "feature_sets": ["perfect", "system", "baseline", "naive"],
     },
     "small-g": {
-        "models": ["rf", "xgb"],
+        "models": ["xgb"],
         "feature_sets": ["perfect", "system", "baseline", "naive"],
     },
     "standard-g": {
-        "models": ["rf", "xgb"],
+        "models": ["xgb"],
         "feature_sets": ["perfect", "system", "baseline", "naive"],
     },
 }
