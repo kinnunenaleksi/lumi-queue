@@ -66,13 +66,14 @@ def test_pipeline():
 
     print(df.columns)
 
-    res, accuracy_results, cv_results = create_reports(
+    res, accuracy_results, cv_results, feature_importance_results = create_reports(
         results_dir=result_dir, compression="pkl", prediction_type="regression"
     )
 
     print(accuracy_results[0])
     print(cv_results[0])
     print(res.df_feature_importance.head())
+    print(feature_importance_results[0])
 
     # shutil.rmtree(INPUT_PATH)
     # shutil.rmtree(EXPORT_PATH)

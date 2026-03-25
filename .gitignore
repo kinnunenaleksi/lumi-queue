@@ -192,3 +192,5 @@ local_scripts/
 test_data/
 test_results/
 test_classification_results/
+data/
+classification_results/

@@ -6,6 +6,7 @@ import polars as pl
 from joblib import load
 
 from train.regress import Result
+from train.utils import calc_performance_metrics
 
 
 def combine_results(results_dir: str = "results/", compression: str = "xz"):
@@ -143,3 +144,65 @@ def print_table(df: pl.DataFrame, partition: str, model: str = None):
     print(res)
 
     return res
+
+
+def evaluate_by_wait_time_bins(
+    df: pl.DataFrame,
+    bins: list[int],
+    wait_col: str = "wait_time_minutes",
+    y_true_col: str = "wait_time_seconds",
+    y_pred_col: str = "y_pred_rf_baseline",
+) -> pl.DataFrame:
+
+    results = []
+    labels = []
+
+    for i in range(len(bins) - 1):
+        lower = bins[i]
+        upper = bins[i + 1]
+
+        df_bin = df.filter((pl.col(wait_col) >= lower) & (pl.col(wait_col) < upper))
+
+        res = calc_performance_metrics(
+            y_test=df_bin.select(pl.col(y_true_col)).to_numpy(),
+            y_pred=df_bin.select(pl.col(y_pred_col)).to_numpy(),
+            y_col=y_true_col,
+        ).head(10)
+
+        results.append(res)
+        labels.append(f"{lower}_{upper}")
+
+    df_bin = df.filter(pl.col(wait_col) >= bins[-1])
+
+    res = calc_performance_metrics(
+        y_test=df_bin.select(pl.col(y_true_col)).to_numpy(),
+        y_pred=df_bin.select(pl.col(y_pred_col)).to_numpy(),
+        y_col=y_true_col,
+    ).head(10)
+
+    results.append(res)
+    labels.append(f"{bins[-1]}+")
+
+    # Combine results
+    res_combined = results[0]
+    for i in range(1, len(results)):
+        res_combined = res_combined.join(
+            results[i], on="metric", suffix=f"_{labels[i]}"
+        )
+
+    return res_combined
+
+
+def explode_res_name(df: pl.DataFrame, res_name: str = "metric"):
+    """Seperates the result name into distinct pieces."""
+    return (
+        df.with_columns(
+            pl.col(res_name)
+            .str.replace("^y_pred_", "")
+            .str.split_exact("_", 1)
+            .struct.rename_fields(["model", "feature_set"])
+            .alias("parsed")
+        )
+        .unnest("parsed")
+        .select(["model", "feature_set"] + [c for c in df.columns if c != "metric"])
+    )

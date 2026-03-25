@@ -49,7 +49,13 @@ GPU_FEATURES = ["allocated_gpu", "queued_gpu", "active_gpu"]
 NODE_FEATURES = ["allocated_node", "queued_node", "active_node"]
 
 LOAD_FEATURES = CPU_FEATURES + MEM_FEATURES + GPU_FEATURES + NODE_FEATURES
-
+"""
+1. PERFECT 
+2. PERFECT WITHOUT TEMPORAL
+3. BASELINE 
+4. BASELINE WITHOUT USAGE 
+5. BASELINE WITHOUT NODE_FEATURES 
+"""
 
 FEATURE_SETS = {
     "standard": {

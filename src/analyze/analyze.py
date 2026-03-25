@@ -5,6 +5,8 @@ import polars as pl
 
 from analyze.utils import (
     combine_results,
+    evaluate_by_wait_time_bins,
+    explode_res_name,
     explode_result_name,
     format_accuracy_metrics,
     print_table,
@@ -35,7 +37,12 @@ def create_reports(results_dir: str, prediction_type: str, compression: str = "x
         prediction_type=prediction_type,
     )
 
-    return res, accuracy_results, cv_results
+    feature_results = create_combined_feature_importance(
+        df=res.df_feature_importance,
+        output_path=f"{results_dir}/feature_importance.txt",
+    )
+
+    return res, accuracy_results, cv_results, feature_results
 
 
 def create_accuracy_report(
@@ -173,6 +180,25 @@ def create_cv_report(
     return res_list
 
 
+def create_granular_summary(df, metric: str, bins: list = [0, 30, 60, 120, 240]):
+
+    cols = [c for c in df.columns if c.startswith("y_pred")]
+
+    dfs = []
+
+    for res in cols:
+        df_ev = evaluate_by_wait_time_bins(df, y_pred_col=res, bins=bins)
+        df_ev_metric = df_ev.filter(pl.col("metric") == metric)
+        df_ev_metric[0, 0] = res
+        dfs.append(df_ev_metric)
+
+    df_concat = pl.concat(dfs)
+
+    df_concat = explode_res_name(df_concat)
+
+    return df_concat
+
+
 def get_comparison_results(
     df: pl.DataFrame,
     filter_cols: Mapping[str, str],
@@ -194,6 +220,68 @@ def get_comparison_results(
     res = print_table(df, partition=label)
 
     return (df, res)
+
+
+def create_combined_feature_importance(
+    df: pl.DataFrame, output_path: str
+) -> pl.DataFrame:
+
+    df = explode_result_name(df)
+
+    partitions = df.select(pl.col("partition")).unique().to_series().to_list()
+    models = df.select(pl.col("model")).unique().to_series().to_list()
+
+    res_list = []
+
+    for partition in partitions:
+        for model in models:
+            df_filter = df.filter(
+                (pl.col("partition") == partition) & (pl.col("model") == model)
+            )
+            df_res = (
+                df_filter.with_columns(
+                    (
+                        pl.col("value")
+                        / pl.col("value").sum().over(["feature_set", "model"])
+                    ).alias("pct_contribution")
+                )
+                .select(["feature", "feature_set", "pct_contribution"])
+                .pivot(
+                    values="pct_contribution",
+                    index="feature",
+                    on="feature_set",
+                    aggregate_function="first",
+                )
+                .fill_null(0.0)
+                # .sort(["naive", "baseline", "without", "perfect"], descending=True)
+            )
+
+            # df_res = df_res.drop(["model"])
+
+            # df_res = df_res.select(
+            #     pl.col(
+            #         [
+            #             "feature",
+            #             "model",
+            #             "feature_set",
+            #             "perfect",
+            #             "without",
+            #             "baseline",
+            #             "naive",
+            #         ]
+            #     )
+            # )
+            df_pd = pd.DataFrame(df_res, columns=df_res.columns)
+
+            if df_pd.shape[0] > 0:
+                res = print_table(df_pd, partition=partition, model=model)
+
+                res_list.append(res)
+
+    with open(output_path, "w") as f:
+        f.write("\n".join(res_list))
+
+    return res_list
 
 
 def _product(*iterables):
