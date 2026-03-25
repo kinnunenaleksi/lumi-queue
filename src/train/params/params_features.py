@@ -13,6 +13,19 @@ BASELINE_FEATURES = [
     "active_count_small_jobs",
     "active_count_medium_jobs",
     "active_count_large_jobs",
+]
+
+# For the perfect-feature-set, the timelimits are changed to actual run-times
+PERFECT_FEATURE_MAPPING = {
+    "allocated_timelimit_seconds": "allocated_elapsed_seconds",
+    "queued_timelimit_seconds": "queued_elapsed_seconds",
+    "active_timelimit_seconds": "active_elapsed_seconds",
+    "active_timelimit_seconds_remaining": "active_elapsed_seconds_remaining",
+}
+
+PERFECT_FEATURES = [PERFECT_FEATURE_MAPPING.get(f, f) for f in BASELINE_FEATURES]
+
+TEMPORAL_FEATURES = [
     "month",
     "year",
     "hour",
@@ -23,14 +36,11 @@ BASELINE_FEATURES = [
     "weekend_flag",
 ]
 
-# For the perfect-feature-set, the timelimits are changed to actual run-times
-PERFECT_FEATURE_MAPPING = {
-    "allocated_timelimit_seconds": "allocated_elapsed_seconds",
-    "queued_timelimit_seconds": "queued_elapsed_seconds",
-    "active_timelimit_seconds": "active_elapsed_seconds",
-}
+USAGE_FEATURES = [
+    "count_user_submitted_jobs_7d",
+    "count_account_submitted_jobs_7d",
+]
 
-PERFECT_FEATURES = [PERFECT_FEATURE_MAPPING.get(f, f) for f in BASELINE_FEATURES]
 
 # Features for resource-allocatable partitions
 CPU_FEATURES = ["allocated_cpu", "queued_cpu", "active_cpu"]
@@ -43,8 +53,13 @@ LOAD_FEATURES = CPU_FEATURES + MEM_FEATURES + GPU_FEATURES + NODE_FEATURES
 
 FEATURE_SETS = {
     "standard": {
+        "perfect": PERFECT_FEATURES
+        + NODE_FEATURES
+        + TEMPORAL_FEATURES
+        + USAGE_FEATURES,
+        "without_temporal": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
         "baseline": BASELINE_FEATURES + NODE_FEATURES,
-        "perfect": PERFECT_FEATURES + NODE_FEATURES,
+        "naive": BASELINE_FEATURES,
     },
     "standard-g": {
         "baseline": BASELINE_FEATURES + NODE_FEATURES,

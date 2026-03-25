@@ -38,6 +38,7 @@ def add_features(df: pl.DataFrame, partition: str) -> pl.DataFrame:
     df2 = add_reservation_flag(df2)
     df2 = add_chained_flag(df2)
     df2 = add_temporal_features(df2)
+    df2 = add_user_usage(df2)
     df2 = df2.drop(helper_columns)
     return df2
 
@@ -76,6 +77,34 @@ def add_temporal_features(df: pl.DataFrame) -> pl.DataFrame:
         night_flag=((hour < 6) | (hour >= 18)).cast(pl.Int8),
         day_of_week=ts.dt.weekday(),
         weekend_flag=ts.dt.weekday().is_in([6, 7]).cast(pl.Int8),
+    )
+
+
+def add_user_usage(df: pl.DataFrame) -> pl.DataFrame:
+    if df.height == 0:
+        return df
+    return (
+        df.with_row_index("row_idx")
+        .sort(["submit_ts", "row_idx"])
+        .with_columns(
+            pl.repeat(1, pl.len()).cast(pl.Int32).alias("_one"),
+        )
+        .with_columns(
+            pl.col("_one")
+            .rolling_sum_by("submit_ts", window_size="7d", closed="left")
+            .over("user_id")
+            .fill_null(0)
+            .cast(pl.Int32)
+            .alias("count_user_submitted_jobs_7d"),
+            pl.col("_one")
+            .rolling_sum_by("submit_ts", window_size="7d", closed="left")
+            .over("account_id")
+            .fill_null(0)
+            .cast(pl.Int32)
+            .alias("count_account_submitted_jobs_7d"),
+        )
+        .sort("row_idx")
+        .drop("row_idx", "_one")
     )
 
 
@@ -404,41 +433,49 @@ def add_active_allocs_with_remaining_timelimit(
         )
     else:
         active_base = work.select("row_idx")
-    # 2) Timelimit as remaining seconds, capped by actual end time
-    if timelimit_col in resource_cols:
-        work_tl = work.with_columns(
+
+    # 2) Remaining-seconds features for duration-like allocations
+    remaining_specs = [
+        ("allocated_timelimit_seconds", "active_timelimit_seconds_remaining"),
+        ("allocated_elapsed_seconds", "active_elapsed_seconds_remaining"),
+    ]
+    remaining_frames: list[pl.DataFrame] = []
+    for alloc_col, out_col in remaining_specs:
+        if alloc_col not in resource_cols:
+            continue
+        work_rem = work.with_columns(
             (
                 pl.col("start_ts")
-                + pl.col(timelimit_col).cast(pl.Int64) * pl.duration(seconds=1)
+                + pl.col(alloc_col).cast(pl.Int64) * pl.duration(seconds=1)
             ).alias("_requested_deadline")
         ).with_columns(
             pl.min_horizontal("end_ts", "_requested_deadline")
             .cast(pl.Datetime("ns"))
             .alias("_effective_deadline")
         )
-        starts_tl = work_tl.select(
+        starts_rem = work_rem.select(
             pl.col("start_ts").alias("ts"),
             pl.col("_effective_deadline").dt.epoch("s").alias("deadline_s"),
             pl.lit(1).alias("cnt"),
             pl.lit(1).alias("etype"),
         ).with_columns(pl.col("ts").cast(pl.Datetime("ns")))
-        ends_tl = work_tl.select(
+        ends_rem = work_rem.select(
             pl.col("_effective_deadline").alias("ts"),
             (-pl.col("_effective_deadline").dt.epoch("s")).alias("deadline_s"),
             pl.lit(-1).alias("cnt"),
             pl.lit(0).alias("etype"),
         ).with_columns(pl.col("ts").cast(pl.Datetime("ns")))
-        events_tl = (
-            pl.concat([starts_tl, ends_tl])
+        events_rem = (
+            pl.concat([starts_rem, ends_rem])
             .sort(["ts", "etype"])
             .with_columns(
                 pl.col("cnt").cum_sum().alias("_cum_cnt"),
                 pl.col("deadline_s").cum_sum().alias("_cum_deadline_s"),
             )
         )
-        active_tl = (
-            work_tl.join_asof(
-                events_tl,
+        active_rem = (
+            work_rem.join_asof(
+                events_rem,
                 left_on="eligible_start_ts",
                 right_on="ts",
                 strategy="backward",
@@ -453,7 +490,7 @@ def add_active_allocs_with_remaining_timelimit(
             .with_columns(
                 (pl.col("_cum_deadline_s") - pl.col("_elig_s") * pl.col("_cum_cnt"))
                 .clip(lower_bound=0)
-                .alias("active_timelimit_seconds_remaining")
+                .alias(out_col)
             )
             .with_columns(
                 pl.when(
@@ -461,19 +498,95 @@ def add_active_allocs_with_remaining_timelimit(
                     & (pl.col("eligible_start_ts") < pl.col("_effective_deadline"))
                 )
                 .then(
-                    pl.col("active_timelimit_seconds_remaining")
+                    pl.col(out_col)
                     - (
                         pl.col("_effective_deadline").dt.epoch("s")
                         - pl.col("eligible_start_ts").dt.epoch("s")
                     ).clip(lower_bound=0)
                 )
-                .otherwise(pl.col("active_timelimit_seconds_remaining"))
+                .otherwise(pl.col(out_col))
                 .clip(lower_bound=0)
-                .alias("active_timelimit_seconds_remaining")
+                .alias(out_col)
             )
-            .select("row_idx", "active_timelimit_seconds_remaining")
+            .select("row_idx", out_col)
         )
-    else:
-        active_tl = work.select("row_idx")
-    active = active_base.join(active_tl, on="row_idx", how="left").sort("row_idx")
+        remaining_frames.append(active_rem)
+    active = active_base
+    for frame in remaining_frames:
+        active = active.join(frame, on="row_idx", how="left")
+    active = active.sort("row_idx")
     return df.join(active, on="row_idx", how="left").sort("row_idx").drop("row_idx")
+
+    # # 2) Timelimit as remaining seconds, capped by actual end time
+    # if timelimit_col in resource_cols:
+    #     work_tl = work.with_columns(
+    #         (
+    #             pl.col("start_ts")
+    #             + pl.col(timelimit_col).cast(pl.Int64) * pl.duration(seconds=1)
+    #         ).alias("_requested_deadline")
+    #     ).with_columns(
+    #         pl.min_horizontal("end_ts", "_requested_deadline")
+    #         .cast(pl.Datetime("ns"))
+    #         .alias("_effective_deadline")
+    #     )
+    #     starts_tl = work_tl.select(
+    #         pl.col("start_ts").alias("ts"),
+    #         pl.col("_effective_deadline").dt.epoch("s").alias("deadline_s"),
+    #         pl.lit(1).alias("cnt"),
+    #         pl.lit(1).alias("etype"),
+    #     ).with_columns(pl.col("ts").cast(pl.Datetime("ns")))
+    #     ends_tl = work_tl.select(
+    #         pl.col("_effective_deadline").alias("ts"),
+    #         (-pl.col("_effective_deadline").dt.epoch("s")).alias("deadline_s"),
+    #         pl.lit(-1).alias("cnt"),
+    #         pl.lit(0).alias("etype"),
+    #     ).with_columns(pl.col("ts").cast(pl.Datetime("ns")))
+    #     events_tl = (
+    #         pl.concat([starts_tl, ends_tl])
+    #         .sort(["ts", "etype"])
+    #         .with_columns(
+    #             pl.col("cnt").cum_sum().alias("_cum_cnt"),
+    #             pl.col("deadline_s").cum_sum().alias("_cum_deadline_s"),
+    #         )
+    #     )
+    #     active_tl = (
+    #         work_tl.join_asof(
+    #             events_tl,
+    #             left_on="eligible_start_ts",
+    #             right_on="ts",
+    #             strategy="backward",
+    #         )
+    #         .with_columns(
+    #             pl.coalesce([pl.col("_cum_cnt"), pl.lit(0)]).alias("_cum_cnt"),
+    #             pl.coalesce([pl.col("_cum_deadline_s"), pl.lit(0)]).alias(
+    #                 "_cum_deadline_s"
+    #             ),
+    #             pl.col("eligible_start_ts").dt.epoch("s").alias("_elig_s"),
+    #         )
+    #         .with_columns(
+    #             (pl.col("_cum_deadline_s") - pl.col("_elig_s") * pl.col("_cum_cnt"))
+    #             .clip(lower_bound=0)
+    #             .alias("active_timelimit_seconds_remaining")
+    #         )
+    #         .with_columns(
+    #             pl.when(
+    #                 (pl.col("eligible_start_ts") >= pl.col("start_ts"))
+    #                 & (pl.col("eligible_start_ts") < pl.col("_effective_deadline"))
+    #             )
+    #             .then(
+    #                 pl.col("active_timelimit_seconds_remaining")
+    #                 - (
+    #                     pl.col("_effective_deadline").dt.epoch("s")
+    #                     - pl.col("eligible_start_ts").dt.epoch("s")
+    #                 ).clip(lower_bound=0)
+    #             )
+    #             .otherwise(pl.col("active_timelimit_seconds_remaining"))
+    #             .clip(lower_bound=0)
+    #             .alias("active_timelimit_seconds_remaining")
+    #         )
+    #         .select("row_idx", "active_timelimit_seconds_remaining")
+    #     )
+    # else:
+    #     active_tl = work.select("row_idx")
+    # active = active_base.join(active_tl, on="row_idx", how="left").sort("row_idx")
+    # return df.join(active, on="row_idx", how="left").sort("row_idx").drop("row_idx")
