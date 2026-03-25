@@ -6,7 +6,15 @@ from train.train import train_models
 TEST_MODELS = {
     "standard": {
         "models": ["rf", "xgb"],
-        "feature_sets": ["perfect", "without_temporal", "baseline", "naive"],
+        "feature_sets": ["perfect", "system", "baseline", "naive"],
+    },
+    "small-g": {
+        "models": ["rf", "xgb"],
+        "feature_sets": ["perfect", "system", "baseline", "naive"],
+    },
+    "standard-g": {
+        "models": ["rf", "xgb"],
+        "feature_sets": ["perfect", "system", "baseline", "naive"],
     },
 }
 
@@ -28,7 +36,7 @@ def main():
         input_path=INPUT_PATH,
     )
 
-    _, _, _ = create_reports(results_dir=results_dir, prediction_type="regression")
+    _, _, _, _ = create_reports(results_dir=results_dir, prediction_type="regression")
 
 
 if __name__ == "__main__":

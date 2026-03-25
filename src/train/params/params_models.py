@@ -129,9 +129,9 @@ ABLATION_CONFIG = {
         estimator=RandomForestRegressor,
         param_grid={
             "n_estimators": randint(80, 120),  # default = 100
-            "max_depth": [None] + list(range(5, 20)),  # default = None
-            "min_samples_split": randint(2, 10),  # default = 2
-            "min_samples_leaf": randint(1, 10),  # default = 1
+            # "max_depth": [None] + list(range(5, 20)),  # default = None
+            # "min_samples_split": randint(2, 10),  # default = 2
+            # "min_samples_leaf": randint(1, 10),  # default = 1
             # "max_features": ["sqrt", "log2", None, 0.2, 0.5, 1.0],  # default=1.0
         },
         lower_bound=1,
@@ -142,14 +142,14 @@ ABLATION_CONFIG = {
         sample_weight_method="aggressive",
         cv_strategy="kfold",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED},
+        extra_grid_search_kwargs={"n_iter": 1, "random_state": SEED},
         extra_estimator_kwargs={"verbose": 1, "n_jobs": 4},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
         param_grid={
-            "n_estimators": randint(80, 500),
-            "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
+            "n_estimators": randint(400, 500),
+            # "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
             # "subsample": uniform(0.5, 0.5),  # default=1
             # "max_depth": randint(3, 30),  # default=6
             # "gamma": loguniform(1e-5, 1.0),  # default=0
@@ -164,7 +164,7 @@ ABLATION_CONFIG = {
         log_transform_policy="only_target",
         cv_strategy="kfold",
         use_permutation_importance=True,
-        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED},
+        extra_grid_search_kwargs={"n_iter": 1, "random_state": SEED},
         extra_estimator_kwargs={"verbosity": 1},
     ),
 }

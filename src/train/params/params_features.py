@@ -49,34 +49,68 @@ GPU_FEATURES = ["allocated_gpu", "queued_gpu", "active_gpu"]
 NODE_FEATURES = ["allocated_node", "queued_node", "active_node"]
 
 LOAD_FEATURES = CPU_FEATURES + MEM_FEATURES + GPU_FEATURES + NODE_FEATURES
-"""
-1. PERFECT 
+"""1.
+
+PERFECT
 2. PERFECT WITHOUT TEMPORAL
-3. BASELINE 
-4. BASELINE WITHOUT USAGE 
-5. BASELINE WITHOUT NODE_FEATURES 
+3. BASELINE
+4. BASELINE WITHOUT USAGE
+5. BASELINE WITHOUT NODE_FEATURES
 """
 
 FEATURE_SETS = {
     "standard": {
-        "perfect": PERFECT_FEATURES
+        "perfect": BASELINE_FEATURES
         + NODE_FEATURES
-        + TEMPORAL_FEATURES
-        + USAGE_FEATURES,
-        "without_temporal": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
-        "baseline": BASELINE_FEATURES + NODE_FEATURES,
+        + USAGE_FEATURES
+        + TEMPORAL_FEATURES,
+        "baseline": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
+        "system": BASELINE_FEATURES + NODE_FEATURES,
         "naive": BASELINE_FEATURES,
     },
     "standard-g": {
-        "baseline": BASELINE_FEATURES + NODE_FEATURES,
-        "perfect": PERFECT_FEATURES + NODE_FEATURES,
+        "perfect": BASELINE_FEATURES
+        + NODE_FEATURES
+        + USAGE_FEATURES
+        + TEMPORAL_FEATURES,
+        "baseline": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
+        "system": BASELINE_FEATURES + NODE_FEATURES,
+        "naive": BASELINE_FEATURES,
     },
     "small": {
         "baseline": BASELINE_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
         "perfect": PERFECT_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
     },
     "small-g": {
-        "baseline": BASELINE_FEATURES + LOAD_FEATURES,
-        "perfect": PERFECT_FEATURES + LOAD_FEATURES,
+        "perfect": BASELINE_FEATURES
+        + LOAD_FEATURES
+        + USAGE_FEATURES
+        + TEMPORAL_FEATURES,
+        "baseline": BASELINE_FEATURES + LOAD_FEATURES + USAGE_FEATURES,
+        "system": BASELINE_FEATURES + LOAD_FEATURES,
+        "naive": BASELINE_FEATURES,
     },
 }
+# FEATURE_SETS = {
+#     "standard": {
+#         "perfect": PERFECT_FEATURES
+#         + NODE_FEATURES
+#         + TEMPORAL_FEATURES
+#         + USAGE_FEATURES,
+#         "without_temporal": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
+#         "baseline": BASELINE_FEATURES + NODE_FEATURES,
+#         "naive": BASELINE_FEATURES,
+#     },
+#     "standard-g": {
+#         "baseline": BASELINE_FEATURES + NODE_FEATURES,
+#         "perfect": PERFECT_FEATURES + NODE_FEATURES,
+#     },
+#     "small": {
+#         "baseline": BASELINE_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
+#         "perfect": PERFECT_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
+#     },
+#     "small-g": {
+#         "baseline": BASELINE_FEATURES + LOAD_FEATURES,
+#         "perfect": PERFECT_FEATURES + LOAD_FEATURES,
+#     },
+# }
