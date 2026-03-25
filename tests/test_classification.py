@@ -10,8 +10,8 @@ from train.params.params_features import FEATURE_SETS
 from train.train import train_models
 
 DATA_PATH = "../anonJobs.parquet"
-INPUT_PATH = "test_data"
-EXPORT_PATH = "test_classification_results"
+INPUT_PATH = "data"
+EXPORT_PATH = "classification_results"
 
 TEST_MODELS = {
     "small-g": {

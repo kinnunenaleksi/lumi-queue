@@ -4,42 +4,14 @@ from train.params.params_models import ABLATION_CONFIG
 from train.train import train_models
 
 TEST_MODELS = {
-    # "small-g": {
-    #     "models": ["rf", "xgb"],
-    #     "feature_sets": ["perfect", "baseline"],
-    # },
-    # # "small": {
-    # #     "models": ["rf", "xgb"],
-    # #     "feature_sets": ["perfect", "baseline"],
-    # # },
-    # "standard": {
-    #     "models": ["rf", "xgb"],
-    #     "feature_sets": ["baseline", "perfect"],
-    # },
-    # "standard-g": {
-    #     "models": ["rf", "xgb"],
-    #     "feature_sets": ["baseline", "perfect"],
-    # },
-    # "small": {
-    #     "models": ["xgb"],
-    #     "feature_sets": ["baseline"],
-    # },
     "standard": {
-        # "models": ["rf", "xgb"],
-        # "models": ["mlp"],
         "models": ["rf", "xgb"],
         "feature_sets": ["perfect", "without_temporal", "baseline", "naive"],
     },
-    # "small-g": {
-    #     # "models": ["rf", "xgb"],
-    #     # "models": ["mlp"],
-    #     "models": ["rf", "xgb", "mlp"],
-    #     "feature_sets": ["baseline"],
-    # },
 }
 
-INPUT_PATH = "test_data"
-EXPORT_PATH = "test_model_results"
+INPUT_PATH = "data"
+EXPORT_PATH = "regression_results"
 PARTITIONS = list(TEST_MODELS.keys())
 
 
