@@ -173,33 +173,35 @@ TEST_MODEL_CONFIGS = {
     "rf": ModelConfig(
         estimator=RandomForestRegressor,
         param_grid={
-            "n_estimators": [10, 20],
-            "max_features": ["sqrt", "log2", None, 0.2, 0.5, 1.0],  # default=1.0
+            # "n_estimators": [10, 20],
+            # "max_features": ["sqrt", "log2", None, 0.2, 0.5, 1.0],  # default=1.0
+            "n_estimators": [20, 80, 120]
         },
         cv_folds=2,
         search_method="random",
         scaling_policy="none",
         cv_strategy="kfold",
         lower_bound=1,
-        upper_bound=1000,
+        upper_bound=1000000,
         sample_weight_method="aggressive",
         log_transform_policy="all_variables",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 2, "random_state": SEED},
+        extra_grid_search_kwargs={"n_iter": 5, "random_state": SEED},
         extra_estimator_kwargs={"n_jobs": 2, "verbose": 3, "random_state": SEED},
     ),
     "xgb": ModelConfig(
         estimator=xgb.XGBRegressor,
         param_grid={
-            "max_depth": [1, 3],
-            "n_estimators": [10, 20],
+            # "max_depth": [1, 3],
+            # "n_estimators": [10, 20],
+            "n_estimators": [100]
         },
         cv_folds=2,
         search_method="random",
         cv_strategy="kfold",
         scaling_policy="none",
         lower_bound=1,
-        upper_bound=1000,
+        upper_bound=1000000,
         log_transform_policy="only_target",
         sample_weight_method="aggressive",
         use_permutation_importance=True,
