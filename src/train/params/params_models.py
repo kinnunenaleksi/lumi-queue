@@ -149,12 +149,12 @@ ABLATION_CONFIG = {
         estimator=xgb.XGBRegressor,
         param_grid={
             "n_estimators": randint(400, 500),
-            # "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
-            # "subsample": uniform(0.5, 0.5),  # default=1
-            # "max_depth": randint(3, 30),  # default=6
-            # "gamma": loguniform(1e-5, 1.0),  # default=0
-            # "min_child_weight": randint(1, 10),  # default=1
-            # "colsample_bytree": uniform(0.5, 0.5),
+            "learning_rate": loguniform(1e-3, 3e-1),  # default=0.3
+            "subsample": uniform(0.5, 0.5),  # default=1
+            "max_depth": randint(3, 30),  # default=6
+            "gamma": loguniform(1e-5, 1.0),  # default=0
+            "min_child_weight": randint(1, 10),  # default=1
+            "colsample_bytree": uniform(0.5, 0.5),
         },
         lower_bound=1,
         upper_bound=1000000,
@@ -164,7 +164,7 @@ ABLATION_CONFIG = {
         log_transform_policy="only_target",
         cv_strategy="kfold",
         use_permutation_importance=True,
-        extra_grid_search_kwargs={"n_iter": 1, "random_state": SEED},
+        extra_grid_search_kwargs={"n_iter": 20, "random_state": SEED},
         extra_estimator_kwargs={"verbosity": 1},
     ),
 }
