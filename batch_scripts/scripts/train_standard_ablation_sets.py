@@ -5,16 +5,8 @@ from train.train import train_models
 
 TEST_MODELS = {
     "standard": {
-        "models": ["xgb"],
-        "feature_sets": ["perfect", "system", "baseline", "naive"],
-    },
-    "small-g": {
-        "models": ["xgb"],
-        "feature_sets": ["perfect", "system", "baseline", "naive"],
-    },
-    "standard-g": {
-        "models": ["xgb"],
-        "feature_sets": ["perfect", "system", "baseline", "naive"],
+        "models": ["xgb", "rf"],
+        "feature_sets": ["full", "baseline", "naive", "minimal"],
     },
 }
 
@@ -36,7 +28,12 @@ def main():
         input_path=INPUT_PATH,
     )
 
-    _, _, _, _ = create_reports(results_dir=results_dir, prediction_type="regression")
+    _ = create_reports(
+        results_dir=results_dir,
+        prediction_type="regression",
+        input_path=INPUT_PATH,
+        partitions=PARTITIONS,
+    )
 
 
 if __name__ == "__main__":
