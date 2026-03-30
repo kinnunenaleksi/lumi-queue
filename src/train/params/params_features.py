@@ -1,6 +1,5 @@
 # These features are used for all baseline models
 BASELINE_FEATURES = [
-    "priority",
     "reservation_flag",
     "chained_flag",
     "allocated_timelimit_seconds",
@@ -16,14 +15,14 @@ BASELINE_FEATURES = [
 ]
 
 # For the perfect-feature-set, the timelimits are changed to actual run-times
-PERFECT_FEATURE_MAPPING = {
-    "allocated_timelimit_seconds": "allocated_elapsed_seconds",
-    "queued_timelimit_seconds": "queued_elapsed_seconds",
-    "active_timelimit_seconds": "active_elapsed_seconds",
-    "active_timelimit_seconds_remaining": "active_elapsed_seconds_remaining",
-}
+# PERFECT_FEATURE_MAPPING = {
+#     "allocated_timelimit_seconds": "allocated_elapsed_seconds",
+#     "queued_timelimit_seconds": "queued_elapsed_seconds",
+#     "active_timelimit_seconds": "active_elapsed_seconds",
+#     "active_timelimit_seconds_remaining": "active_elapsed_seconds_remaining",
+# }
 
-PERFECT_FEATURES = [PERFECT_FEATURE_MAPPING.get(f, f) for f in BASELINE_FEATURES]
+# PERFECT_FEATURES = [PERFECT_FEATURE_MAPPING.get(f, f) for f in BASELINE_FEATURES]
 
 TEMPORAL_FEATURES = [
     "month",
@@ -31,14 +30,15 @@ TEMPORAL_FEATURES = [
     "hour",
     "day",
     "day_of_week",
-    "day_flag",
-    "night_flag",
-    "weekend_flag",
+    # "day_flag",
+    # "night_flag",
+    # "weekend_flag",
 ]
 
 USAGE_FEATURES = [
     "count_user_submitted_jobs_7d",
     "count_account_submitted_jobs_7d",
+    "priority",
 ]
 
 
@@ -60,35 +60,37 @@ PERFECT
 
 FEATURE_SETS = {
     "standard": {
-        "perfect": BASELINE_FEATURES
-        + NODE_FEATURES
-        + USAGE_FEATURES
-        + TEMPORAL_FEATURES,
+        "full": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES + TEMPORAL_FEATURES,
         "baseline": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
-        "system": BASELINE_FEATURES + NODE_FEATURES,
-        "naive": BASELINE_FEATURES,
+        "naive": BASELINE_FEATURES + NODE_FEATURES,
+        "minimal": BASELINE_FEATURES,
     },
     "standard-g": {
-        "perfect": BASELINE_FEATURES
+        "full": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES + TEMPORAL_FEATURES,
+        "baseline": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
+        "naive": BASELINE_FEATURES + NODE_FEATURES,
+        "minimal": BASELINE_FEATURES,
+    },
+    "small": {
+        "full": BASELINE_FEATURES
+        + CPU_FEATURES
+        + MEM_FEATURES
         + NODE_FEATURES
         + USAGE_FEATURES
         + TEMPORAL_FEATURES,
-        "baseline": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
-        "system": BASELINE_FEATURES + NODE_FEATURES,
-        "naive": BASELINE_FEATURES,
-    },
-    "small": {
-        "baseline": BASELINE_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
-        "perfect": PERFECT_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
+        "baseline": BASELINE_FEATURES
+        + CPU_FEATURES
+        + MEM_FEATURES
+        + NODE_FEATURES
+        + USAGE_FEATURES,
+        "naive": BASELINE_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
+        "minimal": BASELINE_FEATURES,
     },
     "small-g": {
-        "perfect": BASELINE_FEATURES
-        + LOAD_FEATURES
-        + USAGE_FEATURES
-        + TEMPORAL_FEATURES,
+        "full": BASELINE_FEATURES + LOAD_FEATURES + USAGE_FEATURES + TEMPORAL_FEATURES,
         "baseline": BASELINE_FEATURES + LOAD_FEATURES + USAGE_FEATURES,
-        "system": BASELINE_FEATURES + LOAD_FEATURES,
-        "naive": BASELINE_FEATURES,
+        "naive": BASELINE_FEATURES + LOAD_FEATURES,
+        "minimal": BASELINE_FEATURES,
     },
 }
 # FEATURE_SETS = {

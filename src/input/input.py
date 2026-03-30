@@ -12,7 +12,7 @@ def create_datasets(
     export_path: str,
     truncate_pct: float,
     type: str = "with_features",
-    filter: bool = False,
+    filter_geq_minutes: int = 10,
 ):
     """Main function of `input`. Creates preprocessed datasets for defined partitions.
 
@@ -46,7 +46,9 @@ def create_datasets(
         )
 
         if filter:
-            df_partition = df_partition.filter(pl.col("wait_time_minutes") >= 10)
+            df_partition = df_partition.filter(
+                pl.col("wait_time_minutes") >= filter_geq_minutes
+            )
 
         df_partition.write_parquet(path)
         written_files.append(path)

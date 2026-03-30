@@ -95,7 +95,21 @@ def recreate_dataset(
 
     df_validation = df_validation.drop("__row_idx")
 
+    df_validation = add_err_cols(df_validation)
+
     return df_validation
+
+
+def add_err_cols(df: pl.DataFrame, y_col: str = "wait_time_seconds") -> pl.DataFrame:
+    pred_cols = [c for c in df.columns if c.startswith("y_pred_")]
+    err_exprs = []
+    for col in pred_cols:
+        rest = col.removeprefix("y_pred_")
+        model, feature_set = rest.split("_", 1) if "_" in rest else (rest, "default")
+        err_exprs.append(
+            (pl.col(y_col) - pl.col(col)).alias(f"{model}_{feature_set}_err")
+        )
+    return df.with_columns(err_exprs) if err_exprs else df
 
 
 def format_accuracy_metrics(df: pl.DataFrame):
@@ -126,7 +140,7 @@ def explode_result_name(df: pl.DataFrame, res_name: str = "result_name"):
     )
 
 
-def print_table(df: pl.DataFrame, partition: str, model: str = None):
+def print_table(df: pl.DataFrame, partition: str, model: str | None = None):
     """Dataframe to Markdown and Typst."""
     df = pd.DataFrame(df, columns=df.columns)
     md = df.to_markdown(index=False, numalign="left")

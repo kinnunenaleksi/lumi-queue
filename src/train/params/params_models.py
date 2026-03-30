@@ -173,9 +173,10 @@ TEST_MODEL_CONFIGS = {
     "rf": ModelConfig(
         estimator=RandomForestRegressor,
         param_grid={
-            # "n_estimators": [10, 20],
+            # "n_estimators": [100],
+            "n_estimators": [10, 20],
             # "max_features": ["sqrt", "log2", None, 0.2, 0.5, 1.0],  # default=1.0
-            "n_estimators": [20, 80, 120]
+            # "n_estimators": [20, 80, 120]
         },
         cv_folds=2,
         search_method="random",
@@ -186,7 +187,7 @@ TEST_MODEL_CONFIGS = {
         sample_weight_method="aggressive",
         log_transform_policy="all_variables",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 5, "random_state": SEED},
+        extra_grid_search_kwargs={"n_iter": 1, "random_state": SEED},
         extra_estimator_kwargs={"n_jobs": 2, "verbose": 3, "random_state": SEED},
     ),
     "xgb": ModelConfig(

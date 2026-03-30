@@ -328,31 +328,31 @@ def calc_classification_metrics(
 
     f1 = f1_score(y_test, y_pred, average="macro")
     balanced_accuracy = balanced_accuracy_score(y_test, y_pred)
-    roc_auc_weighted_ovo = roc_auc_score(
-        y_test, y_proba, average="weighted", multi_class="ovo"
-    )
-    roc_auc_weighted_ovr = roc_auc_score(
-        y_test, y_proba, average="weighted", multi_class="ovr"
-    )
-    roc_auc_macro_ovr = roc_auc_score(
-        y_test, y_proba, average="macro", multi_class="ovr"
-    )
-    roc_auc_macro_ovo = roc_auc_score(
-        y_test, y_proba, average="macro", multi_class="ovo"
-    )
 
-    df_metrics = pl.DataFrame(
-        {
-            "f1": f1,
-            "balanced_accuracy": balanced_accuracy,
-            "roc_auc_weighted_ovo": roc_auc_weighted_ovo,
-            "roc_auc_weighted_ovr": roc_auc_weighted_ovr,
-            "roc_auc_macro_ovo": roc_auc_macro_ovo,
-            "roc_auc_macro_ovr": roc_auc_macro_ovr,
-        }
-    ).transpose(include_header=True, header_name="metric", column_names=["value"])
+    metrics = {"f1": f1, "balanced_accuracy": balanced_accuracy}
 
-    return df_metrics
+    if y_proba.ndim == 2 and y_proba.shape[1] == 2:
+        metrics["roc_auc"] = roc_auc_score(y_test, y_proba[:, 1])
+
+    elif y_proba.ndim == 2 and y_proba.shape[1] > 2:
+        metrics["roc_auc_weighted_ovo"] = roc_auc_score(
+            y_test, y_proba, average="weighted", multi_class="ovo"
+        )
+        metrics["roc_auc_weighted_ovr"] = roc_auc_score(
+            y_test, y_proba, average="weighted", multi_class="ovr"
+        )
+        metrics["roc_auc_macro_ovr"] = roc_auc_score(
+            y_test, y_proba, average="macro", multi_class="ovr"
+        )
+        metrics["roc_auc_macro_ovo"] = roc_auc_score(
+            y_test, y_proba, average="macro", multi_class="ovo"
+        )
+    else:
+        metrics["roc_auc"] = roc_auc_score(y_test, y_proba)
+
+    return pl.DataFrame(metrics).transpose(
+        include_header=True, header_name="metric", column_names=["value"]
+    )
 
 
 def search_cv(model, config, search_method: str):

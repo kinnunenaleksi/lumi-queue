@@ -63,6 +63,14 @@ def bin_target(df: pl.DataFrame, bin_strategy: str):
             .cast(pl.Int8)
             .alias("wait_time_bin")
         )
+    elif bin_strategy == "binary":
+        df = df.with_columns(
+            pl.when((w >= 0) & (w < 10))
+            .then(0)
+            .otherwise(1)
+            .cast(pl.Int8)
+            .alias("wait_time_bin")
+        )
     else:
         raise ValueError("must be simple")
 
@@ -78,6 +86,7 @@ def predict(
     model: str,
     split_method: str,
     model_configs: Any,
+    bin_strategy: str = "binary",
 ):
     """Main function of `regress`. Trains and tunes a model for a single partition.
 
@@ -113,7 +122,7 @@ def predict(
         df, y_col=y_col, lower_bound=config.lower_bound, upper_bound=config.upper_bound
     )
 
-    df = bin_target(df, bin_strategy="simple")
+    df = bin_target(df, bin_strategy=bin_strategy)
 
     df = utils.log_transform_input(
         df,

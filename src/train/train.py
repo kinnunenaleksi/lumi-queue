@@ -27,6 +27,7 @@ def train_models(
     y_col: str,
     test_size: float,
     split_method: str,
+    bin_strategy: str = "binary",
     export_path: str = "model_results/",
     input_path: str = "data/",
     compression: str = "xz",
@@ -95,6 +96,7 @@ def train_models(
                     model=model,
                     model_configs=model_configs,
                     split_method=split_method,
+                    bin_strategy=bin_strategy,
                 )
 
                 os.makedirs(f"{export_path}/{prefix}/", exist_ok=True)

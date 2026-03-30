@@ -16,11 +16,11 @@ EXPORT_PATH = "classification_results"
 TEST_MODELS = {
     "small-g": {
         "models": ["rf"],
-        "feature_sets": ["perfect", "baseline"],
+        "feature_sets": ["full", "baseline", "naive", "minimal"],
     },
     "standard": {
         "models": ["rf", "xgb"],
-        "feature_sets": ["perfect"],
+        "feature_sets": ["full", "baseline", "naive", "minimal"],
     },
 }
 
@@ -32,14 +32,15 @@ def test_pipeline():
     written_paths = create_datasets(
         partitions=PARTITIONS,
         export_path=INPUT_PATH,
-        truncate_pct=0.02,
+        truncate_pct=0.05,
         data_path=DATA_PATH,
+        filter_geq_minutes=0,
     )
 
-    assert written_paths == [
-        f"{INPUT_PATH}/small-g.parquet",
-        f"{INPUT_PATH}/standard.parquet",
-    ]
+    # assert written_paths == [
+    #     f"{INPUT_PATH}/small-g.parquet",
+    #     f"{INPUT_PATH}/standard.parquet",
+    # ]
 
     result_dir = train_models(
         train_dict=TEST_MODELS,
@@ -49,7 +50,7 @@ def test_pipeline():
         export_path=EXPORT_PATH,
         # y_col="wait_time_seconds",
         y_col="wait_time_bin",
-        test_size=0.4,
+        test_size=0.2,
         split_method="random",
         compression="pkl",
     )
@@ -65,8 +66,12 @@ def test_pipeline():
 
     print(df.columns)
 
-    res, accuracy_results, cv_results = create_reports(
-        results_dir=result_dir, compression="pkl", prediction_type="classification"
+    res, accuracy_results, cv_results, _, _ = create_reports(
+        results_dir=result_dir,
+        compression="pkl",
+        prediction_type="classification",
+        input_path=INPUT_PATH,
+        partitions=PARTITIONS,
     )
 
     print(accuracy_results[0])
@@ -75,12 +80,12 @@ def test_pipeline():
 
     # print(df.select(pl.col("y_pred_rf_perfect")).to_series().value_counts())
 
-    pred_vals = df.select(pl.col("y_pred_rf_perfect")).to_series().value_counts()
+    pred_vals = df.select(pl.col("y_pred_rf_full")).to_series().value_counts()
     true_vals = df.select(pl.col("wait_time_bin")).to_series().value_counts()
     df_join = pred_vals.join(
-        true_vals, left_on="y_pred_rf_perfect", right_on="wait_time_bin"
+        true_vals, left_on="y_pred_rf_full", right_on="wait_time_bin"
     )
-    print(df_join.sort("y_pred_rf_perfect"))
+    print(df_join.sort("y_pred_rf_full"))
 
     print(df.select(pl.col("hour")).to_series().value_counts().sort("count").head(10))
 

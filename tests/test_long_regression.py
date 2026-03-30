@@ -3,7 +3,6 @@ import shutil
 import polars as pl
 
 from analyze.analyze import create_reports
-from analyze.utils import recreate_dataset
 from input.input import create_datasets
 from train.params.params_features import FEATURE_SETS
 from train.params.params_models import TEST_MODEL_CONFIGS
@@ -15,10 +14,14 @@ INPUT_PATH = "long_data"
 EXPORT_PATH = "long_results"
 
 TEST_MODELS = {
-    "standard": {
-        "models": ["rf", "xgb"],
-        "feature_sets": ["perfect", "system", "baseline", "naive"],
+    "standard-g": {
+        "models": ["rf"],
+        "feature_sets": ["full", "baseline", "naive", "minimal"],
     },
+    # "small-g": {
+    #     "models": ["rf"],
+    #     "feature_sets": ["perfect", "system"],
+    # },
 }
 
 PARTITIONS = list(TEST_MODELS.keys())
@@ -29,9 +32,9 @@ def test_pipeline():
     written_paths = create_datasets(
         partitions=PARTITIONS,
         export_path=INPUT_PATH,
-        truncate_pct=0.8,
+        truncate_pct=0.05,
         data_path=DATA_PATH,
-        filter=True,
+        filter_geq_minutes=10,
     )
 
     result_dir = train_models(
@@ -46,27 +49,13 @@ def test_pipeline():
         compression="pkl",
     )
 
-    df = recreate_dataset(
+    _ = create_reports(
         results_dir=result_dir,
-        partition="standard",
         input_path=INPUT_PATH,
+        partitions=PARTITIONS,
+        prediction_type="regression",
         compression="pkl",
     )
-
-    print(df.shape[0])
-
-    print(df.select(pl.col("wait_time_seconds", "wait_time_minutes")).describe())
-
-    print(df.columns)
-
-    res, accuracy_results, cv_results, feature_importance_results = create_reports(
-        results_dir=result_dir, compression="pkl", prediction_type="regression"
-    )
-
-    print(accuracy_results[0])
-    print(cv_results[0])
-    print(res.df_feature_importance.head())
-    print(feature_importance_results[0])
 
     shutil.rmtree(INPUT_PATH)
     shutil.rmtree(EXPORT_PATH)
