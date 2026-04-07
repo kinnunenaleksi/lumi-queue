@@ -4,13 +4,9 @@ from train.params.params_models import MODEL_CONFIGS, TEST_MODEL_CONFIGS
 from train.train import train_models
 
 TEST_MODELS = {
-    "small-g": {
-        "models": ["rf"],
-        "feature_sets": ["perfect", "baseline"],
-    },
-    "standard": {
+    "standard-g": {
         "models": ["rf", "xgb"],
-        "feature_sets": ["perfect"],
+        "feature_sets": ["full", "baseline", "naive", "minimal"],
     },
 }
 
@@ -26,13 +22,18 @@ def main():
         feature_sets=FEATURE_SETS,
         model_configs=TEST_MODEL_CONFIGS,
         y_col="wait_time_seconds",
-        test_size=0.4,
-        split_method="timeseries",
+        test_size=0.2,
+        split_method="random",
         export_path=EXPORT_PATH,
         input_path=INPUT_PATH,
     )
 
-    _, _, _ = create_reports(results_dir=results_dir)
+    _ = create_reports(
+        results_dir=results_dir,
+        input_path=INPUT_PATH,
+        partitions=PARTITIONS,
+        prediction_type="regression",
+    )
 
 
 if __name__ == "__main__":

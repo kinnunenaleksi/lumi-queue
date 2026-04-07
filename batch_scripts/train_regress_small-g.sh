@@ -1,15 +1,14 @@
 #!/bin/bash
 
-#SBATCH --job-name=testRunModels
+#SBATCH --job-name=trainSmallG
 #SBATCH --output=runs/r-%x.%j.out
 #SBATCH --error=runs/r-%x.%j.err
 #SBATCH --account=project_462001312
-#SBATCH --time=00:02:00
+#SBATCH --time=10:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=16G
-#SBATCH --partition=small-g
+#SBATCH --cpus-per-task=64
+#SBATCH --partition=standard
 
 module load cray-python
 
@@ -19,4 +18,4 @@ $HOME/.local/bin/uv sync
 
 $HOME/.local/bin/uv pip install -e .
 
-srun python batch_scripts/scripts/train_ablation_sets.py
+srun python batch_scripts/scripts/training/regress/train_regress_small-g.py

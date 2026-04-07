@@ -3,26 +3,42 @@ BASELINE_FEATURES = [
     "reservation_flag",
     "chained_flag",
     "allocated_timelimit_seconds",
+]
+
+SYSTEM_LOAD_FEATURES = [
     "queued_timelimit_seconds",
     "active_timelimit_seconds",
-    "active_timelimit_seconds_remaining",
     "queued_count_small_jobs",
     "queued_count_medium_jobs",
     "queued_count_large_jobs",
     "active_count_small_jobs",
     "active_count_medium_jobs",
     "active_count_large_jobs",
+    "active_timelimit_seconds_remaining",
 ]
 
-# For the perfect-feature-set, the timelimits are changed to actual run-times
-# PERFECT_FEATURE_MAPPING = {
-#     "allocated_timelimit_seconds": "allocated_elapsed_seconds",
-#     "queued_timelimit_seconds": "queued_elapsed_seconds",
-#     "active_timelimit_seconds": "active_elapsed_seconds",
-#     "active_timelimit_seconds_remaining": "active_elapsed_seconds_remaining",
-# }
+NODE_ALLOCATABLE_ALLOC_FEATURES = ["allocated_node"]
+NODE_ALLOCATABLE_SYSTEM_LOAD_FEATURES = ["queued_node", "active_node"]
 
-# PERFECT_FEATURES = [PERFECT_FEATURE_MAPPING.get(f, f) for f in BASELINE_FEATURES]
+RESOURCE_ALLOCATABLE_ALLOC_FEATURES = [
+    "allocated_cpu",
+    "allocated_mem",
+    "allocated_node",
+]
+
+RESOURCE_ALLOCATABLE_SYSTEM_FEATURES = [
+    "queued_cpu",
+    "active_cpu",
+    "queued_mem",
+    "active_mem",
+    "queued_node",
+    "active_node",
+]
+
+
+GPU_ALLOC = ["allocated_gpu"]
+GPU_SYSTEM_LOAD = ["queued_gpu", "active_gpu"]
+GPU_TOTAL = GPU_ALLOC + GPU_SYSTEM_LOAD
 
 TEMPORAL_FEATURES = [
     "month",
@@ -41,78 +57,82 @@ USAGE_FEATURES = [
     "priority",
 ]
 
+STANDARD_FULL = (
+    BASELINE_FEATURES
+    + SYSTEM_LOAD_FEATURES
+    + NODE_ALLOCATABLE_ALLOC_FEATURES
+    + NODE_ALLOCATABLE_SYSTEM_LOAD_FEATURES
+    + TEMPORAL_FEATURES
+    + USAGE_FEATURES
+)
 
-# Features for resource-allocatable partitions
-CPU_FEATURES = ["allocated_cpu", "queued_cpu", "active_cpu"]
-MEM_FEATURES = ["allocated_mem", "queued_mem", "active_mem"]
-GPU_FEATURES = ["allocated_gpu", "queued_gpu", "active_gpu"]
-NODE_FEATURES = ["allocated_node", "queued_node", "active_node"]
+STANDARD_BASELINE = (
+    BASELINE_FEATURES
+    + SYSTEM_LOAD_FEATURES
+    + NODE_ALLOCATABLE_ALLOC_FEATURES
+    + NODE_ALLOCATABLE_SYSTEM_LOAD_FEATURES
+    + USAGE_FEATURES
+)
 
-LOAD_FEATURES = CPU_FEATURES + MEM_FEATURES + GPU_FEATURES + NODE_FEATURES
-"""1.
+STANDARD_NAIVE = (
+    BASELINE_FEATURES
+    + SYSTEM_LOAD_FEATURES
+    + NODE_ALLOCATABLE_ALLOC_FEATURES
+    + NODE_ALLOCATABLE_SYSTEM_LOAD_FEATURES
+)
 
-PERFECT
-2. PERFECT WITHOUT TEMPORAL
-3. BASELINE
-4. BASELINE WITHOUT USAGE
-5. BASELINE WITHOUT NODE_FEATURES
-"""
+STANDARD_MINIMAL = BASELINE_FEATURES + NODE_ALLOCATABLE_ALLOC_FEATURES
+
+SMALL_FULL = (
+    BASELINE_FEATURES
+    + SYSTEM_LOAD_FEATURES
+    + RESOURCE_ALLOCATABLE_ALLOC_FEATURES
+    + RESOURCE_ALLOCATABLE_SYSTEM_FEATURES
+    + TEMPORAL_FEATURES
+    + USAGE_FEATURES
+)
+
+SMALL_BASELINE = (
+    BASELINE_FEATURES
+    + SYSTEM_LOAD_FEATURES
+    + RESOURCE_ALLOCATABLE_ALLOC_FEATURES
+    + RESOURCE_ALLOCATABLE_SYSTEM_FEATURES
+    + USAGE_FEATURES
+)
+
+SMALL_NAIVE = (
+    BASELINE_FEATURES
+    + SYSTEM_LOAD_FEATURES
+    + RESOURCE_ALLOCATABLE_ALLOC_FEATURES
+    + RESOURCE_ALLOCATABLE_SYSTEM_FEATURES
+)
+
+SMALL_MINIMAL = BASELINE_FEATURES + RESOURCE_ALLOCATABLE_ALLOC_FEATURES
+
 
 FEATURE_SETS = {
     "standard": {
-        "full": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES + TEMPORAL_FEATURES,
-        "baseline": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
-        "naive": BASELINE_FEATURES + NODE_FEATURES,
-        "minimal": BASELINE_FEATURES,
+        "full": STANDARD_FULL,
+        "baseline": STANDARD_BASELINE,
+        "naive": STANDARD_NAIVE,
+        "minimal": STANDARD_MINIMAL,
     },
     "standard-g": {
-        "full": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES + TEMPORAL_FEATURES,
-        "baseline": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
-        "naive": BASELINE_FEATURES + NODE_FEATURES,
-        "minimal": BASELINE_FEATURES,
+        "full": STANDARD_FULL,
+        "baseline": STANDARD_BASELINE,
+        "naive": STANDARD_NAIVE,
+        "minimal": STANDARD_MINIMAL,
     },
     "small": {
-        "full": BASELINE_FEATURES
-        + CPU_FEATURES
-        + MEM_FEATURES
-        + NODE_FEATURES
-        + USAGE_FEATURES
-        + TEMPORAL_FEATURES,
-        "baseline": BASELINE_FEATURES
-        + CPU_FEATURES
-        + MEM_FEATURES
-        + NODE_FEATURES
-        + USAGE_FEATURES,
-        "naive": BASELINE_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
-        "minimal": BASELINE_FEATURES,
+        "full": SMALL_FULL,
+        "baseline": SMALL_BASELINE,
+        "naive": SMALL_NAIVE,
+        "minimal": SMALL_MINIMAL,
     },
     "small-g": {
-        "full": BASELINE_FEATURES + LOAD_FEATURES + USAGE_FEATURES + TEMPORAL_FEATURES,
-        "baseline": BASELINE_FEATURES + LOAD_FEATURES + USAGE_FEATURES,
-        "naive": BASELINE_FEATURES + LOAD_FEATURES,
-        "minimal": BASELINE_FEATURES,
+        "full": SMALL_FULL + GPU_TOTAL,
+        "baseline": SMALL_BASELINE + GPU_TOTAL,
+        "naive": SMALL_NAIVE + GPU_TOTAL,
+        "minimal": SMALL_MINIMAL + GPU_ALLOC,
     },
 }
-# FEATURE_SETS = {
-#     "standard": {
-#         "perfect": PERFECT_FEATURES
-#         + NODE_FEATURES
-#         + TEMPORAL_FEATURES
-#         + USAGE_FEATURES,
-#         "without_temporal": BASELINE_FEATURES + NODE_FEATURES + USAGE_FEATURES,
-#         "baseline": BASELINE_FEATURES + NODE_FEATURES,
-#         "naive": BASELINE_FEATURES,
-#     },
-#     "standard-g": {
-#         "baseline": BASELINE_FEATURES + NODE_FEATURES,
-#         "perfect": PERFECT_FEATURES + NODE_FEATURES,
-#     },
-#     "small": {
-#         "baseline": BASELINE_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
-#         "perfect": PERFECT_FEATURES + CPU_FEATURES + MEM_FEATURES + NODE_FEATURES,
-#     },
-#     "small-g": {
-#         "baseline": BASELINE_FEATURES + LOAD_FEATURES,
-#         "perfect": PERFECT_FEATURES + LOAD_FEATURES,
-#     },
-# }

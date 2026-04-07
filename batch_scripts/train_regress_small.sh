@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH --job-name=trainStandardAblation
+#SBATCH --job-name=trainSmall
 #SBATCH --output=runs/r-%x.%j.out
 #SBATCH --error=runs/r-%x.%j.err
 #SBATCH --account=project_462001312
-#SBATCH --time=10:00:00
+#SBATCH --time=15:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=64
@@ -18,4 +18,4 @@ $HOME/.local/bin/uv sync
 
 $HOME/.local/bin/uv pip install -e .
 
-srun python batch_scripts/scripts/train_standard_ablation_sets.py
+srun python batch_scripts/scripts/training/regress/train_regress_small.py
