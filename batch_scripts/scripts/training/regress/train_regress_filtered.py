@@ -1,6 +1,6 @@
 from analyze.analyze import create_reports
 from train.params.params_features import FEATURE_SETS
-from train.params.params_models import MODEL_CONFIGS, TEST_MODEL_CONFIGS
+from train.params.params_models import TEST_MODEL_CONFIGS
 from train.train import train_models
 
 TEST_MODELS = {

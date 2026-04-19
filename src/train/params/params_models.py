@@ -187,7 +187,7 @@ TEST_MODEL_CONFIGS = {
         sample_weight_method="aggressive",
         log_transform_policy="all_variables",
         use_permutation_importance=False,
-        extra_grid_search_kwargs={"n_iter": 1, "random_state": SEED},
+        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED},
         extra_estimator_kwargs={"n_jobs": 2, "verbose": 3, "random_state": SEED},
     ),
     "xgb": ModelConfig(
@@ -206,7 +206,7 @@ TEST_MODEL_CONFIGS = {
         log_transform_policy="only_target",
         sample_weight_method="aggressive",
         use_permutation_importance=True,
-        extra_grid_search_kwargs={"n_iter": 2, "random_state": SEED},
+        extra_grid_search_kwargs={"n_iter": 10, "random_state": SEED},
         extra_estimator_kwargs={"n_jobs": 2, "verbosity": 3, "seed": SEED},
     ),
 }
