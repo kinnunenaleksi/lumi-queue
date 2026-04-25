@@ -1,9 +1,9 @@
 from analyze.analyze import create_reports
 from train.params.params_features import FEATURE_SETS
-from train.params.params_models import MODEL_CONFIGS, TEST_MODEL_CONFIGS
+from train.params.params_models import REGRESSION_CONFIG
 from train.train import train_models
 
-TEST_MODELS = {
+TRAIN_MODELS = {
     "standard-g": {
         "models": ["rf", "xgb"],
         "feature_sets": ["full", "baseline", "naive", "minimal"],
@@ -12,15 +12,15 @@ TEST_MODELS = {
 
 INPUT_PATH = "data"
 EXPORT_PATH = "model_results"
-PARTITIONS = list(TEST_MODELS.keys())
+PARTITIONS = list(TRAIN_MODELS.keys())
 
 
 def main():
 
     results_dir = train_models(
-        train_dict=TEST_MODELS,
+        train_dict=TRAIN_MODELS,
         feature_sets=FEATURE_SETS,
-        model_configs=TEST_MODEL_CONFIGS,
+        model_configs=REGRESSION_CONFIG,
         y_col="wait_time_seconds",
         test_size=0.2,
         split_method="random",
