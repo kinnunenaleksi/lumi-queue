@@ -1,14 +1,14 @@
 #!/bin/bash
 
-#SBATCH --job-name=testCreateDatasets
+#SBATCH --job-name=trainRegressStandardG
 #SBATCH --output=runs/r-%x.%j.out
 #SBATCH --error=runs/r-%x.%j.err
 #SBATCH --account=project_462001312
-#SBATCH --time=01:00:00
+#SBATCH --time=20:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=128
-#SBATCH --partition=small
+#SBATCH --cpus-per-task=64
+#SBATCH --partition=standard
 
 module load cray-python
 
@@ -18,4 +18,4 @@ $HOME/.local/bin/uv sync
 
 $HOME/.local/bin/uv pip install -e .
 
-srun python batch_scripts/scripts/datasets/create_datasets.py
+srun python batch_scripts/scripts/training/regress/train_regress_standard-g.py

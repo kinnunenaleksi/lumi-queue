@@ -76,11 +76,43 @@ def add_cols(df: pl.LazyFrame) -> pl.LazyFrame:
 
 def add_target(df: pl.LazyFrame) -> pl.LazyFrame:
     """Adds the target variable to the data."""
-    return df.with_columns(
+
+    df = df.with_columns(
         wait_time_seconds=(
             pl.col("start_ts") - pl.col("eligible_start_ts")
-        ).dt.total_seconds()
+        ).dt.total_seconds(),
     ).filter(pl.col("wait_time_seconds") >= 0)
+
+    df = df.with_columns(
+        wait_time_minutes=(pl.col("wait_time_seconds") / 60).round().cast(pl.Int64)
+    )
+
+    w = pl.col("wait_time_seconds")
+    df = df.with_columns(
+        pl.when((w >= 0) & (w < 5 * 60))
+        .then(0)
+        .when((w >= 5 * 60) & (w < 15 * 60))
+        .then(1)
+        .when((w >= 15 * 60) & (w < 30 * 60))
+        .then(2)
+        .when((w >= 30 * 60) & (w < 60 * 60))
+        .then(3)
+        .when((w >= 60 * 60) & (w < 120 * 60))
+        .then(4)
+        .when((w >= 120 * 60) & (w < 240 * 60))
+        .then(5)
+        .when((w >= 240 * 60) & (w < 480 * 60))
+        .then(6)
+        .when((w >= 480 * 60) & (w < 960 * 60))
+        .then(7)
+        .when((w >= 960 * 60) & (w < 1920 * 60))
+        .then(8)
+        .otherwise(9)
+        .cast(pl.Int8)
+        .alias("wait_time_bin")
+    )
+
+    return df
 
 
 def fill_empty_allocs(df: pl.DataFrame):

@@ -1,21 +1,85 @@
 import numpy as np
 import polars as pl
+from sklearn.experimental import enable_halving_search_cv
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
+    balanced_accuracy_score,
+    f1_score,
+    max_error,
+    mean_absolute_error,
     mean_absolute_percentage_error,
     median_absolute_error,
     r2_score,
+    roc_auc_score,
     root_mean_squared_error,
 )
 from sklearn.model_selection import (
     GridSearchCV,
+    HalvingGridSearchCV,
     RandomizedSearchCV,
+    TimeSeriesSplit,
     train_test_split,
 )
 from sklearn.preprocessing import StandardScaler
 
 from train.params.params_models import SEED
+
+
+def compute_sample_weights(
+    y: np.ndarray,
+    method: str = "rank",
+) -> np.ndarray | None:
+    """Computes sample weights that emphasize higher target values.
+
+    Args:
+        y: Target variable array (training set only).
+        method: Weighting strategy. Can be one of:
+            - "none": Uniform weights (no weighting).
+            - "linear": Weights proportional to normalized target values.
+            - "rank": Weights based on percentile rank (robust to outliers).
+            - "aggressive": Exponential `rank`.
+
+    Returns:
+        Array of sample weights, normalized to mean of 1.0.
+    """
+    if method == "none":
+        # return np.ones(len(y))
+        return None
+
+    if method == "linear":
+        y_min = y.min()
+        y_range = y.max() - y_min
+        if y_range == 0:
+            return np.ones(len(y))
+        weights = 1.0 + (y - y_min) / y_range
+
+    elif method == "rank":
+        from scipy.stats import rankdata
+
+        ranks = rankdata(y, method="average")
+        weights = ranks / len(ranks)
+        weights = 0.5 + weights
+
+    elif method == "aggressive":
+        from scipy.stats import rankdata
+
+        ranks = rankdata(y, method="average")
+        n = len(ranks)
+        if n <= 1:
+            return np.ones(n)
+        rank_frac = (ranks - 1) / (n - 1)
+        alpha = 4.0
+        weights = np.exp(alpha * rank_frac)
+
+    else:
+        raise ValueError(
+            f"Unknown sample_weight_method '{method}'. "
+            "Must be one of 'none', 'linear', 'rank'."
+        )
+
+    weights = weights * len(weights) / weights.sum()
+    return weights
 
 
 def log_transform_input(
@@ -28,7 +92,8 @@ def log_transform_input(
     predictor_cols = [
         c
         for c in df.columns
-        if c.startswith("allocated") or c.startswith("active") or c.startswith("queued")
+        # if c.startswith("allocated") or c.startswith("active") or c.startswith("queued")
+        if c.startswith("active") or c.startswith("queued")
     ]
 
     if log_transform_policy == "all_variables":
@@ -131,7 +196,11 @@ def scale_input(
 
 def fetch_cv_results(cv_results: dict):
     """Auxillary function to make dataframe from the cv results."""
-    df_cv_results = pl.DataFrame(cv_results)
+    for key in cv_results:
+        if key.startswith("param_"):
+            cv_results[key] = [None if v is None else str(v) for v in cv_results[key]]
+
+    df_cv_results = pl.DataFrame(cv_results, strict=False)
 
     obj_cols = [
         c
@@ -139,7 +208,7 @@ def fetch_cv_results(cv_results: dict):
         if dt == pl.Object
     ]
 
-    df_cv_results = pl.DataFrame(df_cv_results).with_columns(
+    df_cv_results = df_cv_results.with_columns(
         [
             pl.col(c)
             .map_elements(
@@ -151,9 +220,22 @@ def fetch_cv_results(cv_results: dict):
         ]
     )
 
-    df_cv_results = (
-        pl.DataFrame(df_cv_results).sort("rank_test_score", descending=True)
-    ).unnest("params")
+    param_cols = [c for c in df_cv_results.columns if c.startswith("param_")]
+    non_param_cols = [
+        c for c in df_cv_results.columns if not c.startswith("param_") and c != "params"
+    ]
+
+    param_df = df_cv_results.select(param_cols).rename(
+        {c: c.removeprefix("param_") for c in param_cols}
+    )
+
+    rank_cols = [c for c in df_cv_results.columns if c.startswith("rank_test_")]
+    sort_col = rank_cols[0] if rank_cols else "rank_test_score"
+
+    df_cv_results = pl.concat(
+        [df_cv_results.select(non_param_cols), param_df], how="horizontal"
+    ).sort(sort_col, descending=True)
+    # )#.sort("rank_test_score", descending=True)
 
     return df_cv_results
 
@@ -188,45 +270,101 @@ def fetch_feature_importance(
     return df_feature_importance
 
 
-def calc_performance_metrics(y_test: np.ndarray, y_pred: np.ndarray):
+def calc_performance_metrics(
+    y_test: np.ndarray, y_pred: np.ndarray, y_col="wait_time_seconds"
+):
     """Calculates model performance metrics from the validation set."""
     rmse = root_mean_squared_error(y_test, y_pred)
-    # mape = mean_absolute_percentage_error(y_test, y_pred)
-    med = median_absolute_error(y_test, y_pred)
+    mape = mean_absolute_percentage_error(y_test, y_pred)
+    median_ae = median_absolute_error(y_test, y_pred)
+    mean_ae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
+    maximum_error = max_error(y_test, y_pred)
 
     abs_err = abs(y_test - y_pred)
 
-    mask_1min = abs_err <= 60
-    mask_3min = abs_err <= 180
-    mask_5min = abs_err <= 300
-    mask_10min = abs_err <= 600
-    mask_30min = abs_err <= 1800
+    if y_col == "wait_time_seconds":
+        mask_1min = abs_err <= 60
+        mask_3min = abs_err <= 180
+        mask_5min = abs_err <= 300
+        mask_10min = abs_err <= 600
+        mask_30min = abs_err <= 1800
+        mask_60min = abs_err <= 3600
+
+    elif y_col == "wait_time_minutes":
+        mask_1min = abs_err <= 1
+        mask_3min = abs_err <= 3
+        mask_5min = abs_err <= 5
+        mask_10min = abs_err <= 10
+        mask_30min = abs_err <= 30
+        mask_60min = abs_err <= 60
+    else:
+        raise ValueError("y_col must be in `wait_time_seconds", "wait_time_minutes")
 
     df_metrics = pl.DataFrame(
         {
             "rmse": rmse,
+            "mape": mape,
             "r2": r2,
-            # "mape": mape,
-            "med_seconds": med,
+            "median_ae": median_ae,
+            "mean_ae": mean_ae,
+            "max_error": maximum_error,
             "perc_err_under_1min": mask_1min.mean(),
             "perc_err_under_3min": mask_3min.mean(),
             "perc_err_under_5min": mask_5min.mean(),
             "perc_err_under_10min": mask_10min.mean(),
             "perc_err_under_30min": mask_30min.mean(),
+            "perc_err_under_60min": mask_60min.mean(),
         }
     ).transpose(include_header=True, header_name="metric", column_names=["value"])
 
     return df_metrics
 
 
+def calc_classification_metrics(
+    y_test: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray
+):
+    """Calculates model performance metrics from the validation set."""
+
+    f1 = f1_score(y_test, y_pred, average="macro")
+    balanced_accuracy = balanced_accuracy_score(y_test, y_pred)
+
+    metrics = {"f1": f1, "balanced_accuracy": balanced_accuracy}
+
+    if y_proba.ndim == 2 and y_proba.shape[1] == 2:
+        metrics["roc_auc"] = roc_auc_score(y_test, y_proba[:, 1])
+
+    elif y_proba.ndim == 2 and y_proba.shape[1] > 2:
+        metrics["roc_auc_weighted_ovo"] = roc_auc_score(
+            y_test, y_proba, average="weighted", multi_class="ovo"
+        )
+        metrics["roc_auc_weighted_ovr"] = roc_auc_score(
+            y_test, y_proba, average="weighted", multi_class="ovr"
+        )
+        metrics["roc_auc_macro_ovr"] = roc_auc_score(
+            y_test, y_proba, average="macro", multi_class="ovr"
+        )
+        metrics["roc_auc_macro_ovo"] = roc_auc_score(
+            y_test, y_proba, average="macro", multi_class="ovo"
+        )
+    else:
+        metrics["roc_auc"] = roc_auc_score(y_test, y_proba)
+
+    return pl.DataFrame(metrics).transpose(
+        include_header=True, header_name="metric", column_names=["value"]
+    )
+
+
 def search_cv(model, config, search_method: str):
     """Auxillary function for hyperparameter tuning."""
+    if config.cv_strategy == "timeseries":
+        cv = TimeSeriesSplit(n_splits=config.cv_folds)
+    else:
+        cv = config.cv_folds
+
     common_kwargs = dict(
         estimator=model,
-        cv=config.cv_folds,
-        n_jobs=-1,
-        verbose=3,
+        cv=cv,
         **config.grid_search_kwargs,
     )
 
@@ -235,6 +373,9 @@ def search_cv(model, config, search_method: str):
             param_grid=config.param_grid,
             **common_kwargs,
         )
+
+    elif search_method == "halving":
+        return HalvingGridSearchCV(param_grid=config.param_grid, **common_kwargs)
 
     elif search_method == "random":
         return RandomizedSearchCV(

@@ -12,9 +12,9 @@ def create_datasets(
     export_path: str,
     truncate_pct: float,
     type: str = "with_features",
+    filter_geq_minutes: int = 0,
 ):
-    """Main function of `input`. Creates preprocessed datasets for defined
-    partitions.
+    """Main function of `input`. Creates preprocessed datasets for defined partitions.
 
     This function loops the `get_partition` function over determined partitions.
     Running this function on MacBook Pro 2021 M1 takes ~1min for partitions with around
@@ -44,6 +44,11 @@ def create_datasets(
             truncate_pct=truncate_pct,
             data_path=data_path,
         )
+
+        if filter_geq_minutes > 0:
+            df_partition = df_partition.filter(
+                pl.col("wait_time_minutes") >= filter_geq_minutes
+            )
 
         df_partition.write_parquet(path)
         written_files.append(path)

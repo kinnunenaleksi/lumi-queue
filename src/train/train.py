@@ -1,4 +1,5 @@
 import datetime
+import gc
 import json
 import logging
 import os
@@ -26,11 +27,13 @@ def train_models(
     y_col: str,
     test_size: float,
     split_method: str,
+    bin_strategy: str = "binary",
     export_path: str = "model_results/",
     input_path: str = "data/",
+    compression: str = "xz",
 ):
-    """Main function of `train` module. Trains multiple models across
-    partitions and feature-sets.
+    """Main function of `train` module. Trains multiple models across partitions and
+    feature-sets.
 
     This function loops over the `train.regress.predict` function for determined
     partitions, models, and feature-sets.
@@ -81,7 +84,7 @@ def train_models(
                     f"Ablation set: {ablation_name} ({len(ablation_features)} features)"
                 )
 
-                model_name = f"res_{partition}_{model}_{ablation_name}.xz"
+                model_name = f"res_{partition}_{model}_{ablation_name}.{compression}"
                 filename = f"{export_path}/{prefix}/{model_name}"
 
                 model_res = predict(
@@ -93,11 +96,16 @@ def train_models(
                     model=model,
                     model_configs=model_configs,
                     split_method=split_method,
+                    bin_strategy=bin_strategy,
                 )
 
                 os.makedirs(f"{export_path}/{prefix}/", exist_ok=True)
                 dump(value=model_res, filename=filename)
                 logger.info(f"Saved results to {filename}")
+
+                # This should empty memory in between models and runs
+                del model_res
+                gc.collect()
 
                 written_paths.append(model_name)
 

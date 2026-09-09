@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=testCreateDatasets
+#SBATCH --job-name=createFilteredDatasets
 #SBATCH --output=runs/r-%x.%j.out
 #SBATCH --error=runs/r-%x.%j.err
 #SBATCH --account=project_462001312
@@ -18,4 +18,4 @@ $HOME/.local/bin/uv sync
 
 $HOME/.local/bin/uv pip install -e .
 
-srun python batch_scripts/scripts/datasets/create_datasets.py
+srun python batch_scripts/scripts/datasets/create_filtered_datasets.py
